@@ -7,7 +7,7 @@
       <div class="dropdown dropdown-end">
         <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
           <div class="w-10 rounded-full bg-red-400 ">
-              <!--TODO: Add User Initials or profile picture-->
+            <!--TODO: Add User Initials or profile picture-->
             <div class="flex flex-row items-center justify-center h-full w-full">
               <span class="w-full text-center">RP</span>
             </div>
@@ -17,8 +17,24 @@
         <ul
             tabindex="0"
             class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
-          <li><RouterLink to="/">Home</RouterLink></li>
-          <li><RouterLink to="/other">Other</RouterLink></li>
+          <li>
+            <RouterLink to="/">Home</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/other">Other</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/roman">Roman</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/konrad">Konrad</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/gabi">Gabi</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/alicia">Alicia</RouterLink>
+          </li>
         </ul>
       </div>
     </div>
