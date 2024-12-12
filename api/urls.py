@@ -25,4 +25,8 @@ urlpatterns = [
     path('', views.main_spa),
     path('users/', views.user_list_view, name='user_list'),
     path('users/<int:user_id>/', views.user_api, name='user_detail'),
+    path('hobby/', views.hobby_list_view, name='hobby_list'),
+    path('hobby/<int:hobby_id>/', views.hobby_api, name='hobby_detail'),
+    path('userhobby/', views.user_hobby_list_view, name='user_hobby_list'),
+    path('userhobby/<int:user_hobby_id>/', views.user_hobby_api, name='user_hobby_detail'),
 ]

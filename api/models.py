@@ -48,7 +48,8 @@ class User(AbstractUser):
             "name": self.name,
             "email": self.email,
             "date_of_birth": self.date_of_birth,
-            "password": self.password
+            "password": self.password,
+            "hobbies": [hobby.as_dict() for hobby in self.hobbies.all()]
         }
 
 class UserHobby(models.Model):
