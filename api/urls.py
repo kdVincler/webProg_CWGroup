@@ -25,4 +25,6 @@ urlpatterns = [
     path('', views.main_spa),
     path('users/', views.user_list_view, name='user_list'),
     path('users/<int:user_id>/', views.user_api, name='user_detail'),
+    path('login/', views.login, name='login'),
+    path('register/', views.register, name='register'),
 ]

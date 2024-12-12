@@ -35,6 +35,12 @@
           <li>
             <RouterLink to="/alicia">Alicia</RouterLink>
           </li>
+          <li>
+            <RouterLink to="/register">Register</RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/login">Log in</RouterLink>
+          </li>
         </ul>
       </div>
     </div>

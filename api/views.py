@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.shortcuts import render
@@ -66,3 +67,26 @@ def delete_user(request, user_id):
     user = User.objects.get(id=user_id)
     user.delete()
     return JsonResponse({'message': 'User deleted successfully!'})
+
+
+def login(request):
+    """Log in an existing user, reject non-existing users"""
+    
+
+def register(request):
+    """Register a new user"""
+    if request.method == 'POST':
+        data = json.loads(request.body.decode('utf-8'))
+        try:
+            new_user = User(
+                name=data['name'],
+                email=data['email'],
+                date_of_birth=datetime.strptime(data['dob'], '%Y-%m-%d')
+            )
+            new_user.set_password(data['pw'])
+            new_user.save()
+            return JsonResponse({'message': 'User registered successfully'}, status=200)
+        except (KeyError, ValueError) as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    else:
+        return JsonResponse({'error': "Incorrect method"}, status=501)
