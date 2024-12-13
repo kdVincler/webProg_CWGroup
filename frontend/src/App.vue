@@ -36,10 +36,10 @@
             <RouterLink to="/alicia">Alicia</RouterLink>
           </li>
           <li>
-            <RouterLink to="/register">Register</RouterLink>
+            <a href="http://localhost:8000/register/">Register</a>
           </li>
           <li>
-            <RouterLink to="/login">Log in</RouterLink>
+            <a href="http://localhost:8000/register/">Log in</a>
           </li>
         </ul>
       </div>

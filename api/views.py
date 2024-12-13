@@ -71,22 +71,34 @@ def delete_user(request, user_id):
 
 def login(request):
     """Log in an existing user, reject non-existing users"""
+    if request.method == 'POST':
+        try:
+            user_login = User.objects.get(email=request.POST['email'])
+            user_login.check_password(request.POST['pw'])
+            return JsonResponse({'message': 'Login successful'}, status=200)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    if request.method == 'GET':
+        return render(request, 'api/spa/login.html', {})
+    else:
+        return JsonResponse({'error': "Incorrect method"}, status=501)
     
 
 def register(request):
     """Register a new user"""
     if request.method == 'POST':
-        data = json.loads(request.body.decode('utf-8'))
         try:
             new_user = User(
-                name=data['name'],
-                email=data['email'],
-                date_of_birth=datetime.strptime(data['dob'], '%Y-%m-%d')
+                name=request.POST['name'],
+                email=request.POST['email'],
+                date_of_birth=datetime.strptime(request.POST['dob'], '%Y-%m-%d')
             )
-            new_user.set_password(data['pw'])
+            new_user.set_password(request.POST['pw'])
             new_user.save()
             return JsonResponse({'message': 'User registered successfully'}, status=200)
-        except (KeyError, ValueError) as e:
+        except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
+    if request.method == 'GET':
+        return render(request, 'api/spa/register.html', {})
     else:
         return JsonResponse({'error': "Incorrect method"}, status=501)
