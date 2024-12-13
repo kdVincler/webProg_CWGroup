@@ -76,8 +76,10 @@ def login(request):
     if request.method == 'POST':
         try:
             user_login = User.objects.get(email=request.POST['email'])
-            user_login.check_password(request.POST['pw'])
-            return redirect("http://localhost:5173/")
+            if (user_login.check_password(request.POST['pw'])):
+                return redirect("http://localhost:5173/")
+            else:
+                return render(request, 'api/spa/login.html', {})
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
     if request.method == 'GET':
