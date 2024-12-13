@@ -74,14 +74,14 @@ def delete_user(request, user_id):
 def login(request):
     """Log in an existing user, reject non-existing users"""
     if request.method == 'POST':
-        try:
+        try: # TODO: Setup sessions aswell
             user_login = User.objects.get(email=request.POST['email'])
             if (user_login.check_password(request.POST['pw'])):
                 return redirect("http://localhost:5173/")
             else:
                 return render(request, 'api/spa/login.html', {})
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+            return JsonResponse({'error': str(e)}, status=500)
     if request.method == 'GET':
         return render(request, 'api/spa/login.html', {})
     else:
@@ -102,7 +102,7 @@ def register(request):
             new_user.save()
             return redirect("http://localhost:8000/login/")
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+            return JsonResponse({'error': str(e)}, status=500)
     if request.method == 'GET':
         return render(request, 'api/spa/register.html', {})
     else:
