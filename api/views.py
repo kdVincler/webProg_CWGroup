@@ -1,8 +1,9 @@
 from datetime import datetime
 import json
 from django.http import HttpResponse, HttpRequest, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import User
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 
 def main_spa(request: HttpRequest) -> HttpResponse:
@@ -69,13 +70,14 @@ def delete_user(request, user_id):
     return JsonResponse({'message': 'User deleted successfully!'})
 
 
+@ensure_csrf_cookie
 def login(request):
     """Log in an existing user, reject non-existing users"""
     if request.method == 'POST':
         try:
             user_login = User.objects.get(email=request.POST['email'])
             user_login.check_password(request.POST['pw'])
-            return JsonResponse({'message': 'Login successful'}, status=200)
+            return redirect("http://localhost:5173/")
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
     if request.method == 'GET':
@@ -84,6 +86,7 @@ def login(request):
         return JsonResponse({'error': "Incorrect method"}, status=501)
     
 
+@ensure_csrf_cookie
 def register(request):
     """Register a new user"""
     if request.method == 'POST':
@@ -95,7 +98,7 @@ def register(request):
             )
             new_user.set_password(request.POST['pw'])
             new_user.save()
-            return JsonResponse({'message': 'User registered successfully'}, status=200)
+            return redirect("http://localhost:8000/login/")
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
     if request.method == 'GET':
