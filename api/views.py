@@ -76,7 +76,7 @@ def login(request):
     if request.method == 'POST':
         try: # TODO: Setup sessions aswell
             user_login = User.objects.get(email=request.POST['email'])
-            if (user_login.check_password(request.POST['pw'])):
+            if user_login.check_password(request.POST['pw']):
                 return redirect("http://localhost:5173/")
             else:
                 return render(request, 'api/spa/login.html', {})
