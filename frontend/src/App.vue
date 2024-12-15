@@ -39,7 +39,7 @@
             <a href="http://localhost:8000/register/">Register</a>
           </li>
           <li>
-            <a href="http://localhost:8000/register/">Log in</a>
+            <a href="http://localhost:8000/login/">Log in</a>
           </li>
         </ul>
       </div>

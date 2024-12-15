@@ -71,7 +71,7 @@ def delete_user(request, user_id):
 
 
 @ensure_csrf_cookie
-def login(request):
+def login(request: HttpRequest) -> HttpResponse:
     """Log in an existing user, reject non-existing users"""
     if request.method == 'POST':
         try: # TODO: Setup sessions aswell
@@ -89,13 +89,14 @@ def login(request):
     
 
 @ensure_csrf_cookie
-def register(request):
+def register(request: HttpRequest) -> HttpResponse:
     """Register a new user"""
     if request.method == 'POST':
         try:
             new_user = User(
                 name=request.POST['name'],
                 email=request.POST['email'],
+                username=request.POST['email'], # needs to be set, otherwise no new account creation will happen
                 date_of_birth=datetime.strptime(request.POST['dob'], '%Y-%m-%d')
             )
             new_user.set_password(request.POST['pw'])
