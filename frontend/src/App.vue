@@ -41,6 +41,9 @@
           <li>
             <a href="http://localhost:8000/login/">Log in</a>
           </li>
+          <li>
+            <a @click="logout">Log out</a>
+          </li>
         </ul>
       </div>
     </div>
@@ -54,6 +57,22 @@ import {RouterView} from "vue-router";
 
 export default defineComponent({
   components: {RouterView},
+  methods: {
+    async logout(): Promise<void>  {
+      try {
+        const response = await fetch('http://localhost:8000/logout/', {
+          method: 'GET',
+          credentials: 'include',
+        })
+
+        if (!response.ok) {
+          alert("Logout unsuccessful, try again")
+        }
+      } catch (error: any) {
+        alert("Error: " + error)
+      }
+    }
+  }
 });
 
 </script>

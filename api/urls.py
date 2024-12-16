@@ -26,5 +26,6 @@ urlpatterns = [
     path('users/', views.user_list_view, name='user_list'),
     path('users/<int:user_id>/', views.user_api, name='user_detail'),
     path('login/', views.login, name='login'),
+    path('logout/', views.logout, name='logout'),
     path('register/', views.register, name='register'),
 ]

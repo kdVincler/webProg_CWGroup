@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime as D
 import json
 from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.shortcuts import render, redirect
@@ -74,10 +74,20 @@ def delete_user(request, user_id):
 def login(request: HttpRequest) -> HttpResponse:
     """Log in an existing user, reject non-existing users"""
     if request.method == 'POST':
-        try: # TODO: Setup sessions aswell
+        try:
             user_login = User.objects.get(email=request.POST['email'])
             if user_login.check_password(request.POST['pw']):
-                return redirect("http://localhost:5173/")
+                request.session["email"] = user_login.email
+                response = redirect("http://localhost:5173/")
+                response.set_cookie("email", 
+                                    user_login.email, 
+                                    expires= D.datetime.strftime(
+                                                                D.datetime.now() + D.timedelta(seconds=7*24*60*60),
+                                                                '%a, %d-%b-%Y %H:%M:%S GMT'
+                                                            ),
+                                    httponly=True
+                                    )
+                return response
             else:
                 return render(request, 'api/spa/login.html', {})
         except Exception as e:
@@ -88,6 +98,18 @@ def login(request: HttpRequest) -> HttpResponse:
         return JsonResponse({'error': "Incorrect method"}, status=501)
     
 
+def logout(request: HttpRequest) -> HttpResponse:
+    """Handle logging out by deleting the session and the session var (email) and session id cookies"""
+    if request.method == "GET":
+        request.session.delete(request.COOKIES.get("sessionid"))
+        response = JsonResponse({'message': 'User logout successful.'}, status=200)
+        response.delete_cookie("email")
+        response.delete_cookie("sessionid")
+        return response
+    else:
+        return JsonResponse({'error': "Incorrect method"}, status=501)
+
+
 @ensure_csrf_cookie
 def register(request: HttpRequest) -> HttpResponse:
     """Register a new user"""
@@ -97,7 +119,7 @@ def register(request: HttpRequest) -> HttpResponse:
                 name=request.POST['name'],
                 email=request.POST['email'],
                 username=request.POST['email'], # needs to be set, otherwise no new account creation will happen
-                date_of_birth=datetime.strptime(request.POST['dob'], '%Y-%m-%d')
+                date_of_birth=D.datetime.strptime(request.POST['dob'], '%Y-%m-%d')
             )
             new_user.set_password(request.POST['pw'])
             new_user.save()
