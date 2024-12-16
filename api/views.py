@@ -99,10 +99,12 @@ def login(request: HttpRequest) -> HttpResponse:
     
 
 def logout(request: HttpRequest) -> HttpResponse:
-    """Handle logging out by flushing the current session which deletes sent cookies too"""
+    """Handle logging out by flushing the session which deletes the session id cookie too and deleting the email cookie"""
     if request.method == "GET":
         request.session.flush()
-        return JsonResponse({'message': 'User logout successful.'}, status=200)
+        response = JsonResponse({'message': 'User logout successful.'}, status=200)
+        response.delete_cookie("email")
+        return response
     else:
         return JsonResponse({'error': "Incorrect method"}, status=501)
 
