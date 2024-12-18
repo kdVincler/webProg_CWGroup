@@ -11,7 +11,6 @@
             <div class="flex flex-row items-center justify-center h-full w-full">
               <span class="w-full text-center">RP</span>
             </div>
-
           </div>
         </div>
         <ul
@@ -22,18 +21,6 @@
           </li>
           <li>
             <a href="http://127.0.0.1:8000/admin/" >Admin Site</a>
-          </li>
-          <li>
-            <RouterLink to="/roman">Roman</RouterLink>
-          </li>
-          <li>
-            <RouterLink to="/konrad">Konrad</RouterLink>
-          </li>
-          <li>
-            <RouterLink to="/gabi">Gabi</RouterLink>
-          </li>
-          <li>
-            <RouterLink to="/alicia">Alicia</RouterLink>
           </li>
           <li>
             <a href="http://localhost:8000/register/">Register</a>
