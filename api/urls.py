@@ -18,8 +18,15 @@ from django.contrib import admin
 from django.urls import include, path
 from django.http import HttpResponse
 
-from .views import main_spa
+from . import views
+#from .views import main_spa
 
 urlpatterns = [
-    path('', main_spa),
+    path('', views.main_spa),
+    path('users/', views.user_list_view, name='user_list'),
+    path('users/<int:user_id>/', views.user_api, name='user_detail'),
+    path('hobby/', views.hobby_list_view, name='hobby_list'),
+    path('hobby/<int:hobby_id>/', views.hobby_api, name='hobby_detail'),
+    path('userhobby/', views.user_hobby_list_view, name='user_hobby_list'),
+    path('userhobby/<int:user_hobby_id>/', views.user_hobby_api, name='user_hobby_detail'),
 ]
