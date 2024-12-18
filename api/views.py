@@ -1,8 +1,11 @@
+import datetime as D
 import json
 from django.http import HttpResponse, HttpRequest, JsonResponse
+from django.shortcuts import render, redirect
+from .models import User
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.shortcuts import render
 from .models import User, Hobby, UserHobby
-
 
 def main_spa(request: HttpRequest) -> HttpResponse:
     return render(request, 'api/spa/index.html', {})
@@ -67,6 +70,66 @@ def delete_user(request, user_id):
     user.delete()
     return JsonResponse({'message': 'User deleted successfully!'})
 
+
+@ensure_csrf_cookie
+def login(request: HttpRequest) -> HttpResponse:
+    """Log in an existing user, reject non-existing users"""
+    if request.method == 'POST':
+        try:
+            user_login = User.objects.get(email=request.POST['email'])
+            if user_login.check_password(request.POST['pw']):
+                request.session["email"] = user_login.email
+                response = redirect("http://localhost:5173/")
+                response.set_cookie("email", 
+                                    user_login.email, 
+                                    expires= D.datetime.strftime(
+                                                                D.datetime.now() + D.timedelta(seconds=7*24*60*60),
+                                                                '%a, %d-%b-%Y %H:%M:%S GMT'
+                                                            ),
+                                    httponly=True
+                                    )
+                return response
+            else:
+                return render(request, 'api/spa/login.html', {})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    if request.method == 'GET':
+        return render(request, 'api/spa/login.html', {})
+    else:
+        return JsonResponse({'error': "Incorrect method"}, status=501)
+    
+
+def logout(request: HttpRequest) -> HttpResponse:
+    """Handle logging out by flushing the session which deletes the session id cookie too and deleting the email cookie"""
+    if request.method == "GET":
+        request.session.flush()
+        response = JsonResponse({'message': 'User logout successful.'}, status=200)
+        response.delete_cookie("email")
+        return response
+    else:
+        return JsonResponse({'error': "Incorrect method"}, status=501)
+
+
+@ensure_csrf_cookie
+def register(request: HttpRequest) -> HttpResponse:
+    """Register a new user"""
+    if request.method == 'POST':
+        try:
+            new_user = User(
+                name=request.POST['name'],
+                email=request.POST['email'],
+                username=request.POST['email'], # needs to be set, otherwise no new account creation will happen
+                date_of_birth=D.datetime.strptime(request.POST['dob'], '%Y-%m-%d')
+            )
+            new_user.set_password(request.POST['pw'])
+            new_user.save()
+            return redirect("http://localhost:8000/login/")
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    if request.method == 'GET':
+        return render(request, 'api/spa/register.html', {})
+    else:
+        return JsonResponse({'error': "Incorrect method"}, status=501)
 
 # HOBBY MODEL VIEWS
 

@@ -25,7 +25,6 @@ const router = createRouter({
         { path: '/konrad/', name: 'Konrad Development', component: Konrad },
         { path: '/gabi/', name: 'Gabi Development', component: Gabi},
         { path: '/alicia/', name: 'Alicia Development', component: Alicia},
-
     ]
 })
 

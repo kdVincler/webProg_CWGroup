@@ -32,6 +32,10 @@ class User(AbstractUser):
     name = models.CharField(max_length=255, blank=True, null=True)
     email = models.EmailField(unique=True)
     date_of_birth = models.DateField(blank=True, null=True)
+
+    # Many-to-Many relationship with Hobby
+    hobbies = models.ManyToManyField(Hobby, through='UserHobby')
+
     password = models.CharField(max_length=255)
 
     # Many-to-Many relationship with Hobby
