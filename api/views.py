@@ -75,28 +75,32 @@ def delete_user(request, user_id):
     return JsonResponse({'message': 'User deleted successfully!'})
 
 
-@require_http_methods(["POST"])
 @ensure_csrf_cookie
 def login(request: HttpRequest) -> HttpResponse:
     """Log in an existing user, reject non-existing users"""
-    try:
-        user_login = User.objects.get(email=request.POST['email'])
-        if user_login.check_password(request.POST['pw']):
-            request.session["email"] = user_login.email
-            response = redirect("http://localhost:5173/")
-            response.set_cookie("email",
-                                user_login.email,
-                                expires=D.datetime.strftime(
-                                    D.datetime.now() + D.timedelta(seconds=7 * 24 * 60 * 60),
-                                    '%a, %d-%b-%Y %H:%M:%S GMT'
-                                ),
-                                httponly=True
-                                )
-            return response
-        else:
-            return render(request, 'api/spa/login.html', {})
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+    if request.method == 'POST':
+        try:
+            user_login = User.objects.get(email=request.POST['email'])
+            if user_login.check_password(request.POST['pw']):
+                request.session["email"] = user_login.email
+                response = redirect("http://localhost:5173/")
+                response.set_cookie("email",
+                                    user_login.email,
+                                    expires=D.datetime.strftime(
+                                        D.datetime.now() + D.timedelta(seconds=7 * 24 * 60 * 60),
+                                        '%a, %d-%b-%Y %H:%M:%S GMT'
+                                    ),
+                                    httponly=True
+                                    )
+                return response
+            else:
+                return render(request, 'api/spa/login.html', {})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    if request.method == 'GET':
+        return render(request, 'api/spa/login.html', {})
+    else:
+        return JsonResponse({'error': "Incorrect method"}, status=501)
 
 
 def logout(request: HttpRequest) -> HttpResponse:
