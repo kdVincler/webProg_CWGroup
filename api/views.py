@@ -3,10 +3,7 @@ import json
 from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
-
-from .models import User
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.shortcuts import render
 from .models import User, Hobby, UserHobby
 
 
