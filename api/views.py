@@ -6,7 +6,6 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import ensure_csrf_cookie
 from .models import User, Hobby, UserHobby
 
-
 def main_spa(request: HttpRequest) -> HttpResponse:
     return render(request, 'api/spa/index.html', {})
 
