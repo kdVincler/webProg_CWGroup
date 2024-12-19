@@ -9,7 +9,7 @@
           <div class="w-10 rounded-full bg-red-400 ">
             <!--TODO: Add User Initials or profile picture-->
             <div class="flex flex-row items-center justify-center h-full w-full">
-              <span class="w-full text-center">RP</span>
+              <span class="w-full text-center">{{userStore.getInitials}}</span>
             </div>
           </div>
         </div>
@@ -41,9 +41,15 @@
 <script lang="ts">
 import {defineComponent} from "vue";
 import {RouterView} from "vue-router";
+import {useUserStore} from "./stores/user.ts";
 
 export default defineComponent({
   components: {RouterView},
+  data() {
+    return {
+      userStore: useUserStore(),
+    }
+  },
   methods: {
     async logout(): Promise<void>  {
       try {
