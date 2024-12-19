@@ -36,11 +36,6 @@ class User(AbstractUser):
     # Many-to-Many relationship with Hobby
     hobbies = models.ManyToManyField(Hobby, through='UserHobby')
 
-    password = models.CharField(max_length=255)
-
-    # Many-to-Many relationship with Hobby
-    hobbies = models.ManyToManyField(Hobby, through='UserHobby')
-
     def __str__(self):
         """String representation of the user"""
         return self.email
@@ -52,7 +47,6 @@ class User(AbstractUser):
             "name": self.name,
             "email": self.email,
             "date_of_birth": self.date_of_birth,
-            "password": self.password,
             "hobbies": [hobby.as_dict() for hobby in self.hobbies.all()]
         }
 
