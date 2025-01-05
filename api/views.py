@@ -79,6 +79,8 @@ def delete_user(request, user_id):
 def login(request: HttpRequest) -> HttpResponse:
     """Log in an existing user, reject non-existing users"""
     if request.method == 'POST':
+        if not request.POST['email'] or not request.POST['pw']:
+            return render(request, 'api/spa/login.html', {"error": "Please provide both username and password to log in"})
         try:
             user_login = User.objects.get(email=request.POST['email'])
             if user_login.check_password(request.POST['pw']):
@@ -94,11 +96,16 @@ def login(request: HttpRequest) -> HttpResponse:
                                     )
                 return response
             else:
-                return render(request, 'api/spa/login.html', {})
+                # username was found, password is incorrect, but do not want to give this info to possible bad actors
+                return render(request, 'api/spa/login.html', {"error": "Incorrect username or password"}) 
+        except User.DoesNotExist:
+            # username was not found, password wasn't checked, but do not want to give this info to possible bad actors
+            return render(request, 'api/spa/login.html', {"error": "Incorrect username or password"}) 
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
+            # all other exception catchers, to catch and display other exceptions
+            return render(request, 'api/spa/login.html', {"error": str(e)})
     if request.method == 'GET':
-        return render(request, 'api/spa/login.html', {})
+        return render(request, 'api/spa/login.html', {"error": ""})
     else:
         return JsonResponse({'error': "Incorrect method"}, status=501)
 
@@ -118,6 +125,8 @@ def logout(request: HttpRequest) -> HttpResponse:
 def register(request: HttpRequest) -> HttpResponse:
     """Register a new user"""
     if request.method == 'POST':
+        if not request.POST['name'] or not request.POST['email'] or not request.POST['dob'] or not request.POST['pw']:
+            return render(request, 'api/spa/register.html', {"error": "Please fill in all fields to submit"})
         try:
             new_user = User(
                 name=request.POST['name'],
@@ -129,9 +138,9 @@ def register(request: HttpRequest) -> HttpResponse:
             new_user.save()
             return redirect("http://localhost:8000/login/")
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
+            return render(request, 'api/spa/register.html', {"error": str(e)})
     if request.method == 'GET':
-        return render(request, 'api/spa/register.html', {})
+        return render(request, 'api/spa/register.html', {"error": ""})
     else:
         return JsonResponse({'error': "Incorrect method"}, status=501)
 
