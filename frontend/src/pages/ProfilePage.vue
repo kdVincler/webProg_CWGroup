@@ -1,17 +1,29 @@
 <template>
-    <div class="profile-page flex flex-col justify-center items-center h-screen gap-2">
-  
-      <div class="profile-details">
-        <h1 class="text-2xl font-bold mb-4">User Profile</h1>
-        <p><strong>Name:</strong> {{ user.name }}</p>
-        <p><strong>Email:</strong> {{ user.email }}</p>
-        <p><strong>Date of Birth:</strong> {{ user.dob }}</p>
-        <p><strong>Hobbies:</strong> {{ user.hobbies.join(', ') }}</p>
-        <button class="btn btn-primary mt-4" @click="openModal">Edit Profile</button>
+    <div class="profile-page flex flex-col justify-center items-center h-screen gap-2 p-20">
+      <h1 class="text-4xl font-extrabold mb-4">User Profile</h1>
+      <div class="profile-details flex flex-col gap-5">
+        
+        <div>
+          <strong class="text-xl font-bold">Name:</strong>
+          <p>{{ user.name }}</p>
+        </div>
+        <div>
+          <strong class="text-xl font-bold">Email:</strong>
+          <p>{{ user.email }}</p>
+        </div>
+        <div>
+          <strong class="text-xl font-bold">Date of Birth:</strong>
+          <p>{{ user.dob }}</p>
+        </div>
+        <div>
+            <strong class="text-xl font-bold">Hobbies:</strong> 
+            <p>{{ user.hobbies.join(', ') }}</p>
+        </div>
       </div>
+      <button class="btn btn-primary mt-4 text-lg" @click="openModal">Edit Profile</button>
   
       <dialog id="profile_modal" class="modal">
-        <div class="modal-box">
+        <div class="modal-box max-w-500">
           <h3 class="font-bold text-lg">Edit Profile</h3>
           <form @submit.prevent="saveProfile">
             <div class="form-control mb-4">
@@ -135,15 +147,6 @@
     },
   });
   </script>
-  
-  <style scoped>
-  .profile-page {
-    padding: 20px;
-  }
-  .modal-box {
-    max-width: 500px;
-  }
-  </style>
   
 
 
