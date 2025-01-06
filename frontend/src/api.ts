@@ -1,23 +1,28 @@
 import {User} from "./store/user.ts";
 
-let getUsers = async () => {
-
+const getUsers = async () => {
+    const response = await fetch('http://localhost:8000/api/users');
+    return await response.json();
 }
 
-let getUser = async (id: number) => {
-
+const getUser = async (id: number) => {
+    const response = await fetch(`http://localhost:8000/api/users/${id}`);
+    return await response.json();
 }
 
-let createUser = async (user: User) => {
-
+const createUser = async (user: User) => {
+    // Needs URL Gabi
+    console.log(user);
 }
 
-let updateUser = async (id: number, user: User) => {
-
+const updateUser = async (id: number, user: User) => {
+    // Needs URL Gabi
+    console.log(id, user);
 }
 
-let deleteUser = async (id: number) => {
-
+const deleteUser = async (id: number) => {
+    // Needs URL Gabi
+    console.log(id);
 }
 
 export { getUsers, getUser, createUser, updateUser, deleteUser }
