@@ -45,6 +45,7 @@
 import {defineComponent} from "vue";
 import {RouterView} from "vue-router";
 import {useUserStore} from "./store/user.ts";
+import { logout } from "./api.ts";
 
 export default defineComponent({
   components: {RouterView},
@@ -54,20 +55,7 @@ export default defineComponent({
     }
   },
   methods: {
-    async logout(): Promise<void>  {
-      try {
-        const response = await fetch('http://localhost:8000/logout/', {
-          method: 'GET',
-          credentials: 'include',
-        })
-
-        if (!response.ok) {
-          alert("Logout unsuccessful, try again")
-        }
-      } catch (error: any) {
-        alert("Error: " + error)
-      }
-    }
+    logout,
   }
 });
 
