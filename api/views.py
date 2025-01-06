@@ -2,8 +2,8 @@ import datetime as D
 import json
 from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.shortcuts import render, redirect
-from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.contrib.auth import authenticate, login, logout
 from .models import User, Hobby, UserHobby
 
 def main_spa(request: HttpRequest) -> HttpResponse:
@@ -76,18 +76,19 @@ def delete_user(request, user_id):
 
 
 @ensure_csrf_cookie
-def login(request: HttpRequest) -> HttpResponse:
+def log_in_view(request: HttpRequest) -> HttpResponse:
     """Log in an existing user, reject non-existing users"""
     if request.method == 'POST':
         if not request.POST['email'] or not request.POST['pw']:
             return render(request, 'api/spa/login.html', {"error": "Please provide both username and password to log in"})
         try:
-            user_login = User.objects.get(email=request.POST['email'])
-            if user_login.check_password(request.POST['pw']):
-                request.session["email"] = user_login.email
+            user = authenticate(request, username=request.POST['email'], password=request.POST['pw'])
+            if user:
+                login(request, user=user)
+                request.session["email"] = user.email
                 response = redirect("http://localhost:5173/")
                 response.set_cookie("email",
-                                    user_login.email,
+                                    user.email,
                                     expires=D.datetime.strftime(
                                         D.datetime.now() + D.timedelta(seconds=7 * 24 * 60 * 60),
                                         '%a, %d-%b-%Y %H:%M:%S GMT'
@@ -96,13 +97,10 @@ def login(request: HttpRequest) -> HttpResponse:
                                     )
                 return response
             else:
-                # username was found, password is incorrect, but do not want to give this info to possible bad actors
+                # username or password is incorrect (authenticate failed, user is None)
                 return render(request, 'api/spa/login.html', {"error": "Incorrect username or password"}) 
-        except User.DoesNotExist:
-            # username was not found, password wasn't checked, but do not want to give this info to possible bad actors
-            return render(request, 'api/spa/login.html', {"error": "Incorrect username or password"}) 
         except Exception as e:
-            # all other exception catchers, to catch and display other exceptions
+            # catch and display any exceptions
             return render(request, 'api/spa/login.html', {"error": str(e)})
     if request.method == 'GET':
         return render(request, 'api/spa/login.html', {"error": ""})
@@ -110,10 +108,10 @@ def login(request: HttpRequest) -> HttpResponse:
         return JsonResponse({'error': "Incorrect method"}, status=501)
 
 
-def logout(request: HttpRequest) -> HttpResponse:
+def log_out_view(request: HttpRequest) -> HttpResponse:
     """Handle logging out by flushing the session which deletes the session id cookie too and deleting the email cookie"""
     if request.method == "GET":
-        request.session.flush()
+        logout(request)
         response = JsonResponse({'message': 'User logout successful.'}, status=200)
         response.delete_cookie("email")
         return response
