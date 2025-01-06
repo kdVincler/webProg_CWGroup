@@ -44,7 +44,7 @@
 <script lang="ts">
 import {defineComponent} from "vue";
 import {RouterView} from "vue-router";
-import {useUserStore} from "./stores/user.ts";
+import {useUserStore} from "./store/user.ts";
 
 export default defineComponent({
   components: {RouterView},
