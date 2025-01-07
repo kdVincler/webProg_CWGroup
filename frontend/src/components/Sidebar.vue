@@ -12,7 +12,7 @@ export default defineComponent({
 
 <template>
   <div class="h-screen bg-slate-600 w-1/6 px-6 py-2 text-base-200 flex flex-col items-start">
-    <RouterLink to="/" class="btn btn-ghost text-xl italic">Hobbies 24</RouterLink>
+    <RouterLink to="/" class="btn btn-ghost text-xl italic">Hobby 24</RouterLink>
     <div class="collapse collapse-arrow bg-slate-600 my-2">
       <input type="radio" name="my-accordion-2"/>
       <div class="collapse-title text-md font-medium">My Hobbies</div>

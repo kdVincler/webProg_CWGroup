@@ -63,7 +63,7 @@ export default defineComponent({
             <RouterLink to="/">Home</RouterLink>
           </li>
           <li>
-            <RouterLink to="/profile">Profile</RouterLink>
+            <RouterLink to="/profile">My Profile</RouterLink>
           </li>
           <li>
             <!--TODO: Dynamically show amount of requests-->

@@ -5,6 +5,8 @@ export interface User {
     id: number;
     name: string;
     email: string;
+    date_of_birth: string;
+    hobbies: string[];
 }
 
 export const useUserStore = defineStore('user', {
@@ -37,6 +39,15 @@ export const useUserStore = defineStore('user', {
         },
         getInitials(): string | undefined {
             return this.user?.name.split(' ').map((n) => n[0]).join('');
+        },
+        getEmail(): string | undefined {
+            return this.user?.email;
+        },
+        getDoB(): string | undefined {
+            return this.user?.date_of_birth;
+        },
+        getHobbies(): string[] | undefined {
+            return this.user?.hobbies;
         }
     },
 });
