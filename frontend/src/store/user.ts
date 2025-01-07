@@ -24,7 +24,7 @@ export const useUserStore = defineStore('user', {
              } catch (error) {
                  console.error('Failed to fetch auth status:', error);
                  this.authenticated = false;
-                 this.user = None;
+                 this.user = null;
              }
          },
      },
