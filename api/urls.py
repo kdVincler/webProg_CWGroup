@@ -32,6 +32,8 @@ urlpatterns = [
     path('auth-status/', views.check_auth_status, name='auth_status'),
 
     path('hobby/', views.hobby_list_view, name='hobby_list'),
+    path('user-hobby/', views.user_hobby, name='user_hobby'),
+
     path('hobby/<int:hobby_id>/', views.hobby_api, name='hobby_detail'),
     path('userhobby/', views.user_hobby_list_view, name='user_hobby_list'),
     path('userhobby/<int:user_hobby_id>/', views.user_hobby_api, name='user_hobby_detail'),

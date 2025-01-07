@@ -1,4 +1,5 @@
 import {User} from "./store/user.ts";
+import { Hobby } from "./store/hobbies.ts";
 
 const getUsers = async () => {
     const response = await fetch('http://localhost:8000/api/users');
@@ -46,6 +47,33 @@ const deleteUser = async (id: number) => {
     console.log(id);
 }
 
+const getUserHobbies = async (): Promise<{ hobbies: Hobby[] }> => { 
+    const response = await fetch('http://localhost:8000/user-hobby/',
+        {
+            method: 'GET',
+            credentials: 'include'
+        }
+    );
+    if (!response.ok) {
+        throw new Error("Failed to get the user's hobbies");
+    }
+    return response.json()
+}
+
+const addUserHObby = async (name: String, description: String): Promise<void> => { 
+    const response = await fetch('http://localhost:8000/user-hobby/',
+        {
+            method: 'POST',
+            credentials: 'include',
+            body: JSON.stringify({name: name, description: description})
+        }
+    );
+    if (!response.ok) {
+        throw new Error('Failed to add hobby');
+    }
+}
+
+
 export async function checkAuthStatus(): Promise<{ authenticated: boolean; user: User }> {
     const response = await fetch('http://localhost:8000/auth-status', {
         credentials: 'include',
@@ -61,4 +89,17 @@ export async function checkAuthStatus(): Promise<{ authenticated: boolean; user:
     return response.json();
 }
 
-export {getUsers, getUser, logout, createUser, updateUser, deleteUser}
+export async function fetchAllHobbies(): Promise<{ hobbies: Hobby[] }> {
+    const response = await fetch('http://localhost:8000/hobby/',
+        {
+            method: 'GET',
+            credentials: 'include'
+        }
+    );
+    if (!response.ok) {
+        throw new Error('Failed to fetch hobbies list');
+    }
+    return response.json()
+}
+
+export {getUsers, getUser, logout, createUser, updateUser, deleteUser, getUserHobbies, addUserHObby}

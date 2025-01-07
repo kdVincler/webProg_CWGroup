@@ -150,7 +150,7 @@ def check_auth_status(request):
 
 # HOBBY MODEL VIEWS
 
-def hobby_list_view(request):
+def hobby_list_view(request: HttpRequest) -> HttpResponse:
     """API endpoint for collection of hobbies"""
     if request.method == 'GET':
         # getting all hobbies
@@ -158,11 +158,8 @@ def hobby_list_view(request):
             'hobbies':
                 [hobby.as_dict() for hobby in Hobby.objects.all()]
         })
-    elif request.method == 'POST':
-        # adding a hobby
-        return add_hobby(request)
     else:
-        return HttpResponse(status=405)
+        return JsonResponse({'error': "Incorrect method"}, status=501)
 
 
 def hobby_api(request, hobby_id):
@@ -174,19 +171,6 @@ def hobby_api(request, hobby_id):
     if request.method == 'DELETE':
         return delete_hobby(request, hobby_id)
     return JsonResponse(hobby.as_dict())
-
-
-def add_hobby(request):
-    """Add a hobby to the database"""
-    try:
-        data = json.loads(request.body)
-        hobby = Hobby.objects.create(
-            name=data['name'],
-            description=data['description']
-        )
-        return JsonResponse(hobby.as_dict())
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
 
 
 def update_hobby(request, hobby_id):
@@ -210,6 +194,35 @@ def delete_hobby(request, hobby_id):
 
 
 # USER-HOBBY RELATIONSHIP VIEWS
+
+def user_hobby(request: HttpRequest) -> HttpResponse:
+    """Return a single user's hobbies and add to a user's hobby list"""
+    if request.method == 'GET':
+        # Return the logged in user's hobbies
+        try:
+            # try-catch to ensure non logged in request fails and other errors are handled aswell
+            # just the below if else might be enough tho
+            if request.user:
+                return JsonResponse({'hobbies': request.user.as_dict().hobbies}, status=200)
+            else:
+                raise Exception("User not logged in")
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    if request.method == 'POST':
+        # Add the hobby recieved to the user's hobby list
+        try:
+            data = json.loads(request.body)
+            # if hobby isn't listed already in the database, add it, otherwise retrieve it
+            hob = Hobby.objects.get_or_create(name=data['name'], description=data['description'])
+            UserHobby.objects.create(
+                user=request.user,
+                hobby=hob
+            )
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    else:
+        return JsonResponse({'error': "Incorrect method"}, status=501)
+
 
 def user_hobby_list_view(request):
     """API endpoint for collection of user-hobby relationships"""

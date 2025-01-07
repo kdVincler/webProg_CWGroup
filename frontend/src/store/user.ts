@@ -6,7 +6,7 @@ export interface User {
     name: string;
     email: string;
     date_of_birth: string;
-    hobbies: string[];
+    hobbies: string[]; // is this an array of strings? isn't it an array of Hobbies? ~Koni
 }
 
 export const useUserStore = defineStore('user', {

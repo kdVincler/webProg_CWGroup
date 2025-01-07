@@ -3,6 +3,7 @@ import {createPinia} from 'pinia'
 import App from './App.vue'
 import router from './router'
 import {useUserStore} from './store/user';
+import { useHobbiesStore } from './store/hobbies';
 
 
 import './index.css'
@@ -16,3 +17,6 @@ app.mount('#app')
 
 const authStore = useUserStore();
 authStore.fetchAuthStatus();
+
+const hobbiesStore = useHobbiesStore()
+hobbiesStore.populate()
