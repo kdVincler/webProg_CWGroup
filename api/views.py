@@ -142,6 +142,11 @@ def register(request: HttpRequest) -> HttpResponse:
     else:
         return JsonResponse({'error': "Incorrect method"}, status=501)
 
+def check_auth_status(request):
+    if request.user.is_authenticated:
+        # TODO: replace with a serializer
+        return JsonResponse({'authenticated': True, 'user': request.user.as_dict()})
+    return JsonResponse({'authenticated': False})
 
 # HOBBY MODEL VIEWS
 
