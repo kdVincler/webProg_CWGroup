@@ -16,6 +16,9 @@ export const useUserStore = defineStore('user', {
          async fetchAuthStatus() {
              try {
                  const {authenticated, user} = await checkAuthStatus();
+                 if (!authenticated) {
+                        window.location.href = 'http://localhost:8000/login';
+                 }
                  this.authenticated = authenticated || false;
                  this.user = user || null;
              } catch (error) {
@@ -27,7 +30,7 @@ export const useUserStore = defineStore('user', {
      },
     getters: {
         isLoggedIn(): boolean {
-            return !!this.user;
+            return this.authenticated;
         },
         getName(): string | undefined {
             return this.user?.name;

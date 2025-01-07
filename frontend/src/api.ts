@@ -13,7 +13,7 @@ const getUser = async (id: number) => {
 const logout = async (): Promise<void> => {
     try {
         const response = await fetch(
-            'http://localhost:8000/logout/', 
+            'http://localhost:8000/logout/',
             {
                 method: 'GET',
                 credentials: 'include',
@@ -22,6 +22,9 @@ const logout = async (): Promise<void> => {
 
         if (!response.ok) {
             alert("Logout unsuccessful, try again")
+        } else {
+            window.location.href = 'http://localhost:8000/login';
+
         }
     } catch (error: any) {
         alert("Error: " + error)
@@ -50,7 +53,12 @@ export async function checkAuthStatus(): Promise<{ authenticated: boolean; user:
     if (!response.ok) {
         throw new Error('Failed to fetch authentication status');
     }
+
+    // if the user is not authenticated, redirect to the login page
+    if (response.status !== 200) {
+        window.location.href = 'http://localhost:8000/login';
+    }
     return response.json();
 }
 
-export { getUsers, getUser, logout, createUser, updateUser, deleteUser }
+export {getUsers, getUser, logout, createUser, updateUser, deleteUser}
