@@ -41,11 +41,14 @@ export default defineComponent({
 <template>
   <div class="navbar">
     <div class="flex-1">
-            <RouterLink to="/" class="btn btn-ghost text-lg gap-4">Filters <SlidersHorizontal size="20" /></RouterLink>
+      <RouterLink to="/" class="btn btn-ghost text-lg gap-4">Filters
+        <SlidersHorizontal size="20"/>
+      </RouterLink>
     </div>
     <div class="flex-none gap-2">
       <div class="dropdown dropdown-end">
-        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+        <!--TODO: If friend requests is less than or equal to 0, remove online from class-->
+        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar online">
           <div :class="['w-10', 'rounded-full', generateBgColor(userStore.getInitials)]">
             <div class="flex flex-row items-center justify-center h-full w-full">
               <span class="w-full text-center">{{ userStore.getInitials }}</span>
@@ -63,7 +66,8 @@ export default defineComponent({
             <RouterLink to="/profile">Profile</RouterLink>
           </li>
           <li>
-            <a href="http://127.0.0.1:8000/admin/">Admin Site</a>
+            <!--TODO: Dynamically show amount of requests-->
+            <a href="http://127.0.0.1:8000/admin/">Friend Requests (1)</a>
           </li>
           <li>
             <a @click="logout">Log out</a>
