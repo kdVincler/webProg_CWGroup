@@ -1,5 +1,9 @@
 import {User} from "./store/user.ts";
-import { Hobby } from "./store/hobbies.ts";
+
+export interface Hobby {
+    id: number;
+    name: string;
+}
 
 const getUsers = async () => {
     const response = await fetch('http://localhost:8000/api/users');
@@ -60,7 +64,7 @@ const getUserHobbies = async (): Promise<{ hobbies: Hobby[] }> => {
     return response.json()
 }
 
-const addUserHObby = async (name: String, description: String): Promise<void> => { 
+const addUserHobby = async (name: String, description: String): Promise<void> => {
     const response = await fetch('http://localhost:8000/user-hobby/',
         {
             method: 'POST',
@@ -71,22 +75,6 @@ const addUserHObby = async (name: String, description: String): Promise<void> =>
     if (!response.ok) {
         throw new Error('Failed to add hobby');
     }
-}
-
-
-export async function checkAuthStatus(): Promise<{ authenticated: boolean; user: User }> {
-    const response = await fetch('http://localhost:8000/auth-status', {
-        credentials: 'include',
-    });
-    if (!response.ok) {
-        throw new Error('Failed to fetch authentication status');
-    }
-
-    // if the user is not authenticated, redirect to the login page
-    if (response.status !== 200) {
-        window.location.href = 'http://localhost:8000/login';
-    }
-    return response.json();
 }
 
 export async function fetchAllHobbies(): Promise<{ hobbies: Hobby[] }> {
@@ -102,4 +90,14 @@ export async function fetchAllHobbies(): Promise<{ hobbies: Hobby[] }> {
     return response.json()
 }
 
-export {getUsers, getUser, logout, createUser, updateUser, deleteUser, getUserHobbies, addUserHObby}
+export async function checkAuthStatus(): Promise<{ authenticated: boolean; user: User }> {
+    const response = await fetch('http://localhost:8000/auth-status', {
+        credentials: 'include',
+    });
+    if (!response.ok) {
+        throw new Error('Failed to fetch authentication status');
+    }
+    return response.json();
+}
+
+export {getUsers, getUser, logout, createUser, updateUser, deleteUser, getUserHobbies, addUserHobby}

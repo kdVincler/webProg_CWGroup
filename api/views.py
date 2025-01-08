@@ -179,7 +179,6 @@ def update_hobby(request, hobby_id):
     try:
         data = json.loads(request.body)
         hobby.name = data.get('name', hobby.name)
-        hobby.description = data.get('description', hobby.description)
         hobby.save()
         return JsonResponse(hobby.as_dict())
     except Exception as e:
@@ -213,7 +212,7 @@ def user_hobby(request: HttpRequest) -> HttpResponse:
         try:
             data = json.loads(request.body)
             # if hobby isn't listed already in the database, add it, otherwise retrieve it
-            hob = Hobby.objects.get_or_create(name=data['name'], description=data['description'])
+            hob = Hobby.objects.get_or_create(name=data['name'])
             UserHobby.objects.create(
                 user=request.user,
                 hobby=hob

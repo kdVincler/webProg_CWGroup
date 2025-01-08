@@ -17,6 +17,3 @@ app.mount('#app')
 
 const authStore = useUserStore();
 authStore.fetchAuthStatus();
-
-const hobbiesStore = useHobbiesStore()
-hobbiesStore.populate()

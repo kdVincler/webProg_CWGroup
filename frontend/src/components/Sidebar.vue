@@ -1,11 +1,13 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
-import {logout} from "../api";
+import {logout, getUserHobbies, addUserHobby} from "../api";
 
 export default defineComponent({
   name: "Sidebar",
   methods: {
     logout,
+    getUserHobbies,
+    addUserHobby
   }
 })
 </script>
@@ -17,7 +19,13 @@ export default defineComponent({
       <input type="radio" name="my-accordion-2"/>
       <div class="collapse-title text-md font-medium">My Hobbies</div>
       <div class="collapse-content">
-        <p>List of hobbies!</p>
+        <ul>
+          <li v-for="hobby in getUserHobbies()" :key="hobby.id" class="text-md font-medium">{{ hobby.name }}</li>
+        </ul>
+        <button @click="addUserHobby('test', 't')"
+                class="btn w-full mt-auto mb-4 bg-slate-500 border-0 text-white hover:bg-slate-400">Add Hobby
+        </button>
+
       </div>
     </div>
     <div class="collapse collapse-arrow bg-slate-600 my-2">
@@ -34,7 +42,8 @@ export default defineComponent({
         <p>List of friend requests goes here!</p>
       </div>
     </div>
-    <button @click="logout" class="btn w-full mt-auto mb-4 bg-slate-500 border-0 text-white hover:bg-slate-400">Logout</button>
+    <button @click="logout" class="btn w-full mt-auto mb-4 bg-slate-500 border-0 text-white hover:bg-slate-400">Logout
+    </button>
   </div>
 
 </template>
