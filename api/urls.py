@@ -25,6 +25,7 @@ urlpatterns = [
     path('', views.main_spa),
     path('users/', views.user_list_view, name='user_list'),
     path('users/<int:user_id>/', views.user_api, name='user_detail'),
+    path('users/page/<int:page_number>/', views.paginate_users, name='friends_pagination'),
 
     path('login/', views.log_in_view, name='login'),
     path('logout/', views.log_out_view, name='logout'),

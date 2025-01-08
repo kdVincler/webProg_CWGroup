@@ -1,5 +1,7 @@
 import datetime as D
 import json
+from django.db.models import Count
+from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -148,6 +150,43 @@ def check_auth_status(request):
         return JsonResponse({'authenticated': True, 'user': request.user.as_dict()})
     return JsonResponse({'authenticated': False})
 
+def paginate_users(request: HttpRequest, page_number: int) -> HttpResponse:
+    """Return a paginated list of users ordered by the logged-in user's hobby list overlap with other users"""
+    if request.method == 'GET':
+        if request.user.is_authenticated:
+                                    # exclude logged-in user
+            people = User.objects.exclude(id=request.user.id)\
+                        .annotate(similar_hobbies = Count('hobbies', hobbies__in=request.user.hobbies.all()))\
+                        .order_by('-similar_hobbies') # reverse order by similar_hobbies
+            paginator = Paginator(people, 10) # Paginate the people QuerySet, 10 per page
+            page = paginator.get_page(page_number)
+            return JsonResponse({'page': {
+                    'current_page': page.number,
+                    'total_pages': paginator.num_pages,
+                    'total_users': paginator.count,
+                    'users': [
+                        {
+                            'id': user.id,
+                            'name': user.name,
+                            'age': calculate_age_helper(user),
+                            'hobbies': [hobby.as_dict() for hobby in user.hobbies.all()],
+                            'similar_hobbies': user.similar_hobbies
+                        } for user in page
+                    ]
+                }
+            })                        
+        else:
+            return JsonResponse({'error': "User not logged in"}, status=401)
+    else:
+        return JsonResponse({'error': "Incorrect method"}, status=405)
+    
+def calculate_age_helper(user: User) -> int:
+    today = D.datetime.today()
+    age = today.year - user.date_of_birth.year
+    if (today.month, today.day) < (user.date_of_birth.month, user.date_of_birth.day):
+        age -= 1
+    return age
+
 # HOBBY MODEL VIEWS
 
 def hobby_list_view(request: HttpRequest) -> HttpResponse:
@@ -207,21 +246,25 @@ def user_hobby(request: HttpRequest) -> HttpResponse:
             return JsonResponse({'error': str(e)}, status=400)
 
     if request.method == 'POST':
+        # Add to the logged-in user's hobby list
         try:
-            data = json.loads(request.body)
-            # Get the Hobby instance (ignoring the boolean flag)
-            hob, _ = Hobby.objects.get_or_create(name=data['name'])
+            if request.user.is_authenticated:  # Ensure the user is authenticated
+                data = json.loads(request.body)
+                # Get the Hobby instance (ignoring the boolean flag)
+                hob, _ = Hobby.objects.get_or_create(name=data['name'])
 
-            # If the user-hobby relationship already exists, return an error
-            if UserHobby.objects.filter(user=request.user, hobby=hob).exists():
-                print("User-hobby relationship already exists")
-                return JsonResponse({'error': 'User-hobby relationship already exists'}, status=400)
+                # If the user-hobby relationship already exists, return an error
+                if UserHobby.objects.filter(user=request.user, hobby=hob).exists():
+                    print("User-hobby relationship already exists")
+                    return JsonResponse({'error': 'User-hobby relationship already exists'}, status=400)
 
-            UserHobby.objects.create(
-                user=request.user,
-                hobby=hob
-            )
-            return JsonResponse({'message': "Hobby added successfully"}, status=201)
+                UserHobby.objects.create(
+                    user=request.user,
+                    hobby=hob
+                )
+                return JsonResponse({'message': "Hobby added successfully"}, status=201)
+            else:
+                return JsonResponse({'error': "User not logged in"}, status=401)
         except Exception as e:
             print(e)
             return JsonResponse({'error': str(e)}, status=400)

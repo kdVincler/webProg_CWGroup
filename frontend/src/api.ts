@@ -5,6 +5,21 @@ export interface Hobby {
     name: string;
 }
 
+export interface Page {
+    current_page: number,
+    total_pages: number,
+    total_users: number,
+    users: PaginatedUser[]
+}
+
+export interface PaginatedUser {
+    id: number,
+    name: string,
+    age: number,
+    hobbies: Hobby[],
+    similar_hobbies: number
+}
+
 function getCSRFToken(): string | null {
     const csrfCookie = document.cookie
         .split('; ')
@@ -21,6 +36,18 @@ const getUsers = async () => {
 const getUser = async (id: number) => {
     const response = await fetch(`http://localhost:8000/api/users/${id}`);
     return await response.json();
+}
+
+const getUsersPaginated = async (page_number: number): Promise<{page: Page}> => {
+    const response = await fetch(`http://localhost:8000/api/users/page/${page_number}/`, {
+        method: 'GET',
+        credentials: 'include'
+    });
+    if (!response.ok) {
+        throw new Error('Failed to fetch page of users');
+    }
+    const data = await response.json();
+    return data;
 }
 
 const logout = async (): Promise<void> => {
@@ -42,11 +69,6 @@ const logout = async (): Promise<void> => {
     } catch (error: any) {
         alert("Error: " + error)
     }
-}
-
-const createUser = async (user: User) => {
-    // Needs URL Gabi
-    console.log(user);
 }
 
 const updateUser = async (id: number, user: User) => {
@@ -117,4 +139,4 @@ export async function checkAuthStatus(): Promise<{ authenticated: boolean; user:
     return response.json();
 }
 
-export {getUsers, getUser, logout, createUser, updateUser, deleteUser, addUserHobby, deleteUserHobby}
+export {getUsers, getUser, getUsersPaginated, logout, updateUser, deleteUser, addUserHobby, deleteUserHobby}
