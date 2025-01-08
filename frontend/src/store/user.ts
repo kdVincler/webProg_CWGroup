@@ -1,12 +1,13 @@
 import {defineStore} from "pinia";
 import {checkAuthStatus} from "../api.ts";
+import {Hobby} from "../api.ts";
 
 export interface User {
     id: number;
     name: string;
     email: string;
     date_of_birth: string;
-    hobbies: string[]; // is this an array of strings? isn't it an array of Hobbies? ~Koni
+    hobbies: Hobby[];
 }
 
 export const useUserStore = defineStore('user', {
@@ -46,7 +47,7 @@ export const useUserStore = defineStore('user', {
         getDoB(): string | undefined {
             return this.user?.date_of_birth;
         },
-        getHobbies(): string[] | undefined {
+        getHobbies(): Hobby[] | undefined {
             return this.user?.hobbies;
         }
     },

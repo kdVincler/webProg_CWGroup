@@ -22,7 +22,7 @@ export default defineComponent({
   <h1 class="text-3xl font-semibold text-center">Top 3 Users Like You</h1>
   <div class="w-full flex flex-row justify-center items-end mt-[10vh] mb-[12vh]">
     <div class="shadow-lg p-6 h-[40vh] w-[14vw] bg-base-100 mx-1 flex flex-col items-center">
-      <div class="rounded-full h-36 w-36 bg-orange-500">
+      <div class="rounded-full h-36  w-36 bg-orange-500">
         <div class="flex flex-row items-center justify-center h-full w-full">
           <Trophy size="64"/>
         </div>

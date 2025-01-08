@@ -1,9 +1,17 @@
-import {User} from "./store/user.ts";
+import {User, useUserStore} from "./store/user.ts";
 
 export interface Hobby {
     id: number;
     name: string;
 }
+
+function getCSRFToken(): string | null {
+    const csrfCookie = document.cookie
+        .split('; ')
+        .find((row) => row.startsWith('csrftoken='));
+    return csrfCookie ? csrfCookie.split('=')[1] : null;
+}
+
 
 const getUsers = async () => {
     const response = await fetch('http://localhost:8000/api/users');
@@ -51,30 +59,39 @@ const deleteUser = async (id: number) => {
     console.log(id);
 }
 
-const getUserHobbies = async (): Promise<{ hobbies: Hobby[] }> => { 
-    const response = await fetch('http://localhost:8000/user-hobby/',
-        {
-            method: 'GET',
-            credentials: 'include'
-        }
-    );
-    if (!response.ok) {
-        throw new Error("Failed to get the user's hobbies");
-    }
-    return response.json()
-}
-
-const addUserHobby = async (name: String, description: String): Promise<void> => {
+const addUserHobby = async (name: String): Promise<void> => {
     const response = await fetch('http://localhost:8000/user-hobby/',
         {
             method: 'POST',
             credentials: 'include',
-            body: JSON.stringify({name: name, description: description})
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken() || '',
+            },
+            body: JSON.stringify({name: name})
         }
     );
     if (!response.ok) {
         throw new Error('Failed to add hobby');
     }
+    useUserStore().fetchAuthStatus();
+}
+
+const deleteUserHobby = async (id: Number): Promise<void> => {
+    const response = await fetch(`http://localhost:8000/user-hobby/${id}/`,
+        {
+            method: 'DELETE',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken() || '',
+            },
+        }
+    );
+    if (!response.ok) {
+        throw new Error('Failed to delete hobby');
+    }
+    useUserStore().fetchAuthStatus();
 }
 
 export async function fetchAllHobbies(): Promise<{ hobbies: Hobby[] }> {
@@ -100,4 +117,4 @@ export async function checkAuthStatus(): Promise<{ authenticated: boolean; user:
     return response.json();
 }
 
-export {getUsers, getUser, logout, createUser, updateUser, deleteUser, getUserHobbies, addUserHobby}
+export {getUsers, getUser, logout, createUser, updateUser, deleteUser, addUserHobby, deleteUserHobby}
