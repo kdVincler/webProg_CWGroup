@@ -95,17 +95,17 @@ const deleteUserHobby = async (id: Number): Promise<void> => {
 }
 
 export async function fetchAllHobbies(): Promise<{ hobbies: Hobby[] }> {
-    const response = await fetch('http://localhost:8000/hobby/',
-        {
-            method: 'GET',
-            credentials: 'include'
-        }
-    );
+    const response = await fetch('http://localhost:8000/hobby/', {
+        method: 'GET',
+        credentials: 'include'
+    });
     if (!response.ok) {
         throw new Error('Failed to fetch hobbies list');
     }
-    return response.json()
+    const data = await response.json();
+    return data;
 }
+
 
 export async function checkAuthStatus(): Promise<{ authenticated: boolean; user: User }> {
     const response = await fetch('http://localhost:8000/auth-status', {

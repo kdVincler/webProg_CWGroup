@@ -154,12 +154,11 @@ def hobby_list_view(request: HttpRequest) -> HttpResponse:
     """API endpoint for collection of hobbies"""
     if request.method == 'GET':
         # getting all hobbies
-        return JsonResponse({
-            'hobbies':
-                [hobby.as_dict() for hobby in Hobby.objects.all()]
-        })
+        hobbies = Hobby.objects.all().values('id', 'name')  # Fetching all hobbies
+        return JsonResponse({'hobbies': list(hobbies)})
     else:
-        return JsonResponse({'error': "Incorrect method"}, status=501)
+        return JsonResponse({'error': "Incorrect method"}, status=405)
+
 
 
 def hobby_api(request, hobby_id):
