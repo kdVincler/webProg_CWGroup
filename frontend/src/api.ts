@@ -27,17 +27,6 @@ function getCSRFToken(): string | null {
     return csrfCookie ? csrfCookie.split('=')[1] : null;
 }
 
-
-const getUsers = async () => {
-    const response = await fetch('http://localhost:8000/api/users');
-    return await response.json();
-}
-
-const getUser = async (id: number) => {
-    const response = await fetch(`http://localhost:8000/api/users/${id}`);
-    return await response.json();
-}
-
 const getUsersPaginated = async (page_number: number): Promise<{page: Page}> => {
     const response = await fetch(`http://localhost:8000/api/users/page/${page_number}/`, {
         method: 'GET',
@@ -139,4 +128,4 @@ export async function checkAuthStatus(): Promise<{ authenticated: boolean; user:
     return response.json();
 }
 
-export {getUsers, getUser, getUsersPaginated, logout, updateUser, deleteUser, addUserHobby, deleteUserHobby}
+export {getUsersPaginated, logout, updateUser, deleteUser, addUserHobby, deleteUserHobby}

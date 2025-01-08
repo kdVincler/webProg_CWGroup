@@ -8,73 +8,43 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth import authenticate, login, logout
 from .models import User, Hobby, UserHobby
 
+
 def main_spa(request: HttpRequest) -> HttpResponse:
     return render(request, 'api/spa/index.html', {})
 
 
 # USER MODEL VIEWS
 
-def user_list_view(request):
-    """API endpoint for collection of users"""
-    if request.method == 'GET':
-        # getting all users
-        return JsonResponse({
-            'users':
-                [user.as_dict() for user in User.objects.all()]
-        })
-    elif request.method == 'POST':
-        # adding a user
-        return add_user(request)
-    else:
-        return HttpResponse(status=405)
+
+# def user_api(request: HttpRequest, user_id: int) -> HttpResponse: # TODO: Link up with frontend
+#     """API endpoint for updating or deleting a single user"""
+#     if request.method == 'PUT':
+#         # updating a user
+#         return update_user(request, user_id)
+#     if request.method == 'DELETE':
+#         return delete_user(request, user_id)
 
 
-def user_api(request, user_id):
-    """API endpoint for a single user"""
-    user = User.objects.get(id=user_id)
-    if request.method == 'PUT':
-        # updating a user
-        return update_user(request, user_id)
-    if request.method == 'DELETE':
-        return delete_user(request, user_id)
-    return JsonResponse(user.as_dict())
+# def update_user(request: HttpRequest, user_id: int) -> HttpResponse: # TODO: Link up with frontend
+#     """Update a user's details in the database"""
+#     user = User.objects.get(id=user_id)
+#     try:
+#         data = json.loads(request.body)
+#         user.name = data.get('name', user.name)
+#         user.email = data.get('email', user.email)
+#         user.date_of_birth = data.get('date_of_birth', user.date_of_birth)
+#         user.password = data.get('password', user.password)
+#         user.save()
+#         return JsonResponse(user.as_dict())
+#     except Exception as e:
+#         return JsonResponse({'error': str(e)}, status=400)
 
 
-def add_user(request):
-    """Add a user to the database"""
-    try:
-        data = json.loads(request.body)
-        user = User.objects.create(
-            name=data['name'],
-            email=data['email'],
-            date_of_birth=data['date_of_birth'],
-            password=data['password']
-        )
-        return JsonResponse(user.as_dict())
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
-
-
-def update_user(request, user_id):
-    """Update a user's details in the database"""
-    user = User.objects.get(id=user_id)
-    try:
-        data = json.loads(request.body)
-        user.name = data.get('name', user.name)
-        user.email = data.get('email', user.email)
-        user.date_of_birth = data.get('date_of_birth', user.date_of_birth)
-        user.password = data.get('password', user.password)
-        user.save()
-        return JsonResponse(user.as_dict())
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
-
-
-def delete_user(request, user_id):
-    """Delete a user from the database"""
-    user = User.objects.get(id=user_id)
-    user.delete()
-    return JsonResponse({'message': 'User deleted successfully!'})
+# def delete_user(request: HttpRequest, user_id: int) -> HttpResponse: # TODO: Link up with frontend
+#     """Delete a user from the database"""
+#     user = User.objects.get(id=user_id)
+#     user.delete()
+#     return JsonResponse({'message': 'User deleted successfully!'})
 
 
 @ensure_csrf_cookie
@@ -144,11 +114,14 @@ def register(request: HttpRequest) -> HttpResponse:
     else:
         return JsonResponse({'error': "Incorrect method"}, status=501)
 
-def check_auth_status(request):
+
+def check_auth_status(request: HttpRequest) -> HttpResponse:
+    """API endpoint that returns if there is a user logged in or not, and if there is returns the user info aswell"""
     if request.user.is_authenticated:
         # TODO: replace with a serializer
         return JsonResponse({'authenticated': True, 'user': request.user.as_dict()})
     return JsonResponse({'authenticated': False})
+
 
 def paginate_users(request: HttpRequest, page_number: int) -> HttpResponse:
     """Return a paginated list of users ordered by the logged-in user's hobby list overlap with other users"""
@@ -180,6 +153,7 @@ def paginate_users(request: HttpRequest, page_number: int) -> HttpResponse:
     else:
         return JsonResponse({'error': "Incorrect method"}, status=405)
     
+
 def calculate_age_helper(user: User) -> int:
     today = D.datetime.today()
     age = today.year - user.date_of_birth.year
@@ -187,7 +161,9 @@ def calculate_age_helper(user: User) -> int:
         age -= 1
     return age
 
+
 # HOBBY MODEL VIEWS
+
 
 def hobby_list_view(request: HttpRequest) -> HttpResponse:
     """API endpoint for collection of hobbies"""
@@ -199,54 +175,12 @@ def hobby_list_view(request: HttpRequest) -> HttpResponse:
         return JsonResponse({'error': "Incorrect method"}, status=405)
 
 
-
-def hobby_api(request, hobby_id):
-    """API endpoint for a single hobby"""
-    hobby = Hobby.objects.get(id=hobby_id)
-    if request.method == 'PUT':
-        # updating a hobby
-        return update_hobby(request, hobby_id)
-    if request.method == 'DELETE':
-        return delete_hobby(request, hobby_id)
-    return JsonResponse(hobby.as_dict())
-
-
-def update_hobby(request, hobby_id):
-    """Update a hobby's details in the database"""
-    hobby = Hobby.objects.get(id=hobby_id)
-    try:
-        data = json.loads(request.body)
-        hobby.name = data.get('name', hobby.name)
-        hobby.save()
-        return JsonResponse(hobby.as_dict())
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
-
-
-def delete_hobby(request, hobby_id):
-    """Delete a hobby from the database"""
-    hobby = Hobby.objects.get(id=hobby_id)
-    hobby.delete()
-    return JsonResponse({'message': 'Hobby deleted successfully!'})
-
-
 # USER-HOBBY RELATIONSHIP VIEWS
 
-def user_hobby(request: HttpRequest) -> HttpResponse:
-    """Return a single user's hobbies and add to a user's hobby list"""
-    if request.method == 'GET':
-        # Return the logged-in user's hobbies
-        try:
-            if request.user.is_authenticated:  # Ensure the user is authenticated
-                hobbies = list(request.user.hobbies.values('id', 'name'))
-                return JsonResponse({'hobbies': hobbies}, status=200)
-            else:
-                return JsonResponse({'error': "User not logged in"}, status=401)
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
 
+def user_hobby(request: HttpRequest) -> HttpResponse:
+    """Add to the logged-in user's hobby list"""
     if request.method == 'POST':
-        # Add to the logged-in user's hobby list
         try:
             if request.user.is_authenticated:  # Ensure the user is authenticated
                 data = json.loads(request.body)
@@ -268,25 +202,25 @@ def user_hobby(request: HttpRequest) -> HttpResponse:
         except Exception as e:
             print(e)
             return JsonResponse({'error': str(e)}, status=400)
-
     else:
         return JsonResponse({'error': "Incorrect method"}, status=501)
 
-def user_hobby_api(request, user_hobby_id):
-    """API endpoint for a single user-hobby relationship"""
-    try:
-        # Ensure the user is authenticated
-        if not request.user.is_authenticated:
-            return JsonResponse({'error': 'User not authenticated'}, status=401)
 
-        # Find the user-hobby relationship where the hobby has the given ID
-        user_hobby = UserHobby.objects.filter(user=request.user, hobby_id=user_hobby_id)
-
-        if not user_hobby.exists():
-            return JsonResponse({'error': 'User-hobby relationship not found'}, status=404)
-
-        # Delete the relationship
-        user_hobby.delete()
-        return JsonResponse({'message': 'User-hobby relationship deleted successfully!'}, status=200)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+def user_hobby_api(request: HttpRequest, user_hobby_id: int) -> HttpResponse:
+    """API endpoint for deleting a single user-hobby relationship"""
+    if request.method == 'DELETE':
+        try:
+            # Ensure the user is authenticated
+            if not request.user.is_authenticated:
+                return JsonResponse({'error': 'User not authenticated'}, status=401)
+            # Find the user-hobby relationship where the hobby has the given ID
+            user_hobby = UserHobby.objects.filter(user=request.user, hobby_id=user_hobby_id)
+            if not user_hobby.exists():
+                return JsonResponse({'error': 'User-hobby relationship not found'}, status=404)
+            # Delete the relationship
+            user_hobby.delete()
+            return JsonResponse({'message': 'User-hobby relationship deleted successfully!'}, status=200)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    else:
+        return JsonResponse({'error': "Incorrect method"}, status=501)
