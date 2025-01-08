@@ -1,5 +1,17 @@
-import {User} from "./store/user.ts";
-import { Hobby } from "./store/hobbies.ts";
+import {User, useUserStore} from "./store/user.ts";
+
+export interface Hobby {
+    id: number;
+    name: string;
+}
+
+function getCSRFToken(): string | null {
+    const csrfCookie = document.cookie
+        .split('; ')
+        .find((row) => row.startsWith('csrftoken='));
+    return csrfCookie ? csrfCookie.split('=')[1] : null;
+}
+
 
 const getUsers = async () => {
     const response = await fetch('http://localhost:8000/api/users');
@@ -47,46 +59,39 @@ const deleteUser = async (id: number) => {
     console.log(id);
 }
 
-const getUserHobbies = async (): Promise<{ hobbies: Hobby[] }> => { 
-    const response = await fetch('http://localhost:8000/user-hobby/',
-        {
-            method: 'GET',
-            credentials: 'include'
-        }
-    );
-    if (!response.ok) {
-        throw new Error("Failed to get the user's hobbies");
-    }
-    return response.json()
-}
-
-const addUserHObby = async (name: String, description: String): Promise<void> => { 
+const addUserHobby = async (name: String): Promise<void> => {
     const response = await fetch('http://localhost:8000/user-hobby/',
         {
             method: 'POST',
             credentials: 'include',
-            body: JSON.stringify({name: name, description: description})
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken() || '',
+            },
+            body: JSON.stringify({name: name})
         }
     );
     if (!response.ok) {
         throw new Error('Failed to add hobby');
     }
+    useUserStore().fetchAuthStatus();
 }
 
-
-export async function checkAuthStatus(): Promise<{ authenticated: boolean; user: User }> {
-    const response = await fetch('http://localhost:8000/auth-status', {
-        credentials: 'include',
-    });
+const deleteUserHobby = async (id: Number): Promise<void> => {
+    const response = await fetch(`http://localhost:8000/user-hobby/${id}/`,
+        {
+            method: 'DELETE',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken() || '',
+            },
+        }
+    );
     if (!response.ok) {
-        throw new Error('Failed to fetch authentication status');
+        throw new Error('Failed to delete hobby');
     }
-
-    // if the user is not authenticated, redirect to the login page
-    if (response.status !== 200) {
-        window.location.href = 'http://localhost:8000/login';
-    }
-    return response.json();
+    useUserStore().fetchAuthStatus();
 }
 
 export async function fetchAllHobbies(): Promise<{ hobbies: Hobby[] }> {
@@ -102,4 +107,14 @@ export async function fetchAllHobbies(): Promise<{ hobbies: Hobby[] }> {
     return response.json()
 }
 
-export {getUsers, getUser, logout, createUser, updateUser, deleteUser, getUserHobbies, addUserHObby}
+export async function checkAuthStatus(): Promise<{ authenticated: boolean; user: User }> {
+    const response = await fetch('http://localhost:8000/auth-status', {
+        credentials: 'include',
+    });
+    if (!response.ok) {
+        throw new Error('Failed to fetch authentication status');
+    }
+    return response.json();
+}
+
+export {getUsers, getUser, logout, createUser, updateUser, deleteUser, addUserHobby, deleteUserHobby}

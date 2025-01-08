@@ -179,7 +179,6 @@ def update_hobby(request, hobby_id):
     try:
         data = json.loads(request.body)
         hobby.name = data.get('name', hobby.name)
-        hobby.description = data.get('description', hobby.description)
         hobby.save()
         return JsonResponse(hobby.as_dict())
     except Exception as e:
@@ -198,78 +197,54 @@ def delete_hobby(request, hobby_id):
 def user_hobby(request: HttpRequest) -> HttpResponse:
     """Return a single user's hobbies and add to a user's hobby list"""
     if request.method == 'GET':
-        # Return the logged in user's hobbies
+        # Return the logged-in user's hobbies
         try:
-            # try-catch to ensure non logged in request fails and other errors are handled aswell
-            # just the below if else might be enough tho
-            if request.user:
-                return JsonResponse({'hobbies': request.user.as_dict().hobbies}, status=200)
+            if request.user.is_authenticated:  # Ensure the user is authenticated
+                hobbies = list(request.user.hobbies.values('id', 'name'))
+                return JsonResponse({'hobbies': hobbies}, status=200)
             else:
-                raise Exception("User not logged in")
+                return JsonResponse({'error': "User not logged in"}, status=401)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
+
     if request.method == 'POST':
-        # Add the hobby recieved to the user's hobby list
         try:
             data = json.loads(request.body)
-            # if hobby isn't listed already in the database, add it, otherwise retrieve it
-            hob = Hobby.objects.get_or_create(name=data['name'], description=data['description'])
+            # Get the Hobby instance (ignoring the boolean flag)
+            hob, _ = Hobby.objects.get_or_create(name=data['name'])
+
+            # If the user-hobby relationship already exists, return an error
+            if UserHobby.objects.filter(user=request.user, hobby=hob).exists():
+                print("User-hobby relationship already exists")
+                return JsonResponse({'error': 'User-hobby relationship already exists'}, status=400)
+
             UserHobby.objects.create(
                 user=request.user,
                 hobby=hob
             )
+            return JsonResponse({'message': "Hobby added successfully"}, status=201)
         except Exception as e:
+            print(e)
             return JsonResponse({'error': str(e)}, status=400)
+
     else:
         return JsonResponse({'error': "Incorrect method"}, status=501)
 
-
-def user_hobby_list_view(request):
-    """API endpoint for collection of user-hobby relationships"""
-    if request.method == 'GET':
-        # getting all user-hobby relationships
-        return JsonResponse({
-            'user_hobbies':
-                [user_hobby.as_dict() for user_hobby in UserHobby.objects.all()]
-        })
-    elif request.method == 'POST':
-        # adding a user-hobby relationship
-        return add_user_hobby(request)
-    else:
-        return HttpResponse(status=405)
-
-
 def user_hobby_api(request, user_hobby_id):
     """API endpoint for a single user-hobby relationship"""
-    user_hobby = UserHobby.objects.get(id=user_hobby_id)
-    # if request.method == 'PUT':
-    # updating a user-hobby relationship
-    #    return update_user_hobby(request, user_hobby_id)
-    if request.method == 'DELETE':
-        return delete_user_hobby(request, user_hobby_id)
-    return JsonResponse(user_hobby.as_dict())
-
-
-def add_user_hobby(request):
-    """Add a user-hobby relationship to the database"""
     try:
-        data = json.loads(request.body)
+        # Ensure the user is authenticated
+        if not request.user.is_authenticated:
+            return JsonResponse({'error': 'User not authenticated'}, status=401)
 
-        # get user and hobby objects from the database
-        user = User.objects.get(id=data['user_id'])
-        hobby = Hobby.objects.get(id=data['hobby_id'])
+        # Find the user-hobby relationship where the hobby has the given ID
+        user_hobby = UserHobby.objects.filter(user=request.user, hobby_id=user_hobby_id)
 
-        user_hobby = UserHobby.objects.create(
-            user=user,
-            hobby=hobby
-        )
-        return JsonResponse(user_hobby.as_dict())
+        if not user_hobby.exists():
+            return JsonResponse({'error': 'User-hobby relationship not found'}, status=404)
+
+        # Delete the relationship
+        user_hobby.delete()
+        return JsonResponse({'message': 'User-hobby relationship deleted successfully!'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
-
-
-def delete_user_hobby(request, user_hobby_id):
-    """Delete a user-hobby relationship from the database"""
-    user_hobby = UserHobby.objects.get(id=user_hobby_id)
-    user_hobby.delete()
-    return JsonResponse({'message': 'User-hobby relationship deleted successfully!'})

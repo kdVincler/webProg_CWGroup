@@ -13,7 +13,6 @@ class PageView(models.Model):
 class Hobby(models.Model):
     """Hobby model"""
     name = models.CharField(max_length=255)
-    description = models.TextField()
 
     def __str__(self):
         """String representation of the hobby"""
@@ -24,7 +23,6 @@ class Hobby(models.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "description": self.description,
         }
      
 class User(AbstractUser):
