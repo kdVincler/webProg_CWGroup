@@ -1,24 +1,25 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from typing import Dict, Optional, List
 
 
 # Create your models here.
 
 class PageView(models.Model):
-    count = models.IntegerField(default=0)
+    count: int = models.IntegerField(default=0)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Page view count: {self.count}"
 
 class Hobby(models.Model):
     """Hobby model"""
-    name = models.CharField(max_length=255)
+    name: str = models.CharField(max_length=255)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """String representation of the hobby"""
         return self.name
     
-    def as_dict(self):
+    def as_dict(self) -> Dict[str, Optional[int | str]]:
         """JSON representation of the hobby"""
         return {
             "id": self.id,
@@ -27,18 +28,18 @@ class Hobby(models.Model):
      
 class User(AbstractUser):
     """User model"""
-    name = models.CharField(max_length=255, blank=True, null=True)
-    email = models.EmailField(unique=True)
-    date_of_birth = models.DateField(blank=True, null=True)
+    name: str = models.CharField(max_length=255, blank=True, null=True)
+    email: str = models.EmailField(unique=True)
+    date_of_birth: str = models.DateField(blank=True, null=True)
 
     # Many-to-Many relationship with Hobby
-    hobbies = models.ManyToManyField(Hobby, through='UserHobby')
+    hobbies: models.ManyToManyField = models.ManyToManyField(Hobby, through='UserHobby')
 
-    def __str__(self):
+    def __str__(self) -> str:
         """String representation of the user"""
         return self.email
     
-    def as_dict(self):
+    def as_dict(self) -> Dict[str, Optional[int | str | List[Dict[str, Optional[int | str]]]]]:
         """JSON representation of the user"""
         return {
             "id": self.id,
@@ -50,14 +51,14 @@ class User(AbstractUser):
 
 class UserHobby(models.Model):
     """Model representing the relationship between a user and a hobby"""
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    hobby = models.ForeignKey(Hobby, on_delete=models.CASCADE)
+    user: models.ForeignKey = models.ForeignKey(User, on_delete=models.CASCADE)
+    hobby: models.ForeignKey = models.ForeignKey(Hobby, on_delete=models.CASCADE)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """String representation of the user-hobby relationship"""
         return f"{self.user} - {self.hobby}"
     
-    def as_dict(self):
+    def as_dict(self) -> Dict[str, Optional[Dict[str, Optional[int | str]]]]:
         """JSON representation of the user-hobby relationship"""
         return {
             "user": self.user.as_dict(),
