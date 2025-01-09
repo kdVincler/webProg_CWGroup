@@ -52,7 +52,8 @@ def log_in_view(request: HttpRequest) -> HttpResponse:
     """Log in an existing user, reject non-existing users"""
     if request.method == 'POST':
         if not request.POST['email'] or not request.POST['pw']:
-            return render(request, 'api/spa/login.html', {"error": "Please provide both username and password to log in"})
+            return render(request, 'api/spa/login.html',
+                          {"error": "Please provide both username and password to log in"})
         try:
             user = authenticate(request, username=request.POST['email'], password=request.POST['pw'])
             if user:
@@ -70,7 +71,7 @@ def log_in_view(request: HttpRequest) -> HttpResponse:
                 return response
             else:
                 # username or password is incorrect (authenticate failed, user is None)
-                return render(request, 'api/spa/login.html', {"error": "Incorrect username or password"}) 
+                return render(request, 'api/spa/login.html', {"error": "Incorrect username or password"})
         except Exception as e:
             # catch and display any exceptions
             return render(request, 'api/spa/login.html', {"error": str(e)})
@@ -125,36 +126,50 @@ def check_auth_status(request: HttpRequest) -> HttpResponse:
 
 def paginate_users(request: HttpRequest, page_number: int) -> HttpResponse:
     """Return a paginated list of users ordered by the logged-in user's hobby list overlap with other users"""
+
+    age_low = request.GET.get('age_low')
+    age_high = request.GET.get('age_high')
+
     if request.method == 'GET':
         if request.user.is_authenticated:
-                                    # exclude logged-in user
-            people = User.objects.exclude(id=request.user.id)\
-                        .annotate(similar_hobbies = Count('hobbies', hobbies__in=request.user.hobbies.all()))\
-                        .order_by('-similar_hobbies') # reverse order by similar_hobbies
-            paginator = Paginator(people, 10) # Paginate the people QuerySet, 10 per page
+            # exclude logged-in user
+            people = User.objects.exclude(id=request.user.id).exclude(name=None) \
+                .annotate(similar_hobbies=Count('hobbies', hobbies__in=request.user.hobbies.all())) \
+                .order_by('-similar_hobbies')  # reverse order by similar_hobbies
+            filtered_users = []
+            for user in people:
+                age = calculate_age_helper(user)
+                if age_low and age < int(age_low):
+                    continue
+                if age_high and age > int(age_high):
+                    continue
+                filtered_users.append(user)
+            paginator = Paginator(filtered_users, 10)
             page = paginator.get_page(page_number)
             return JsonResponse({'page': {
-                    'current_page': page.number,
-                    'total_pages': paginator.num_pages,
-                    'total_users': paginator.count,
-                    'users': [
-                        {
-                            'id': user.id,
-                            'name': user.name,
-                            'age': calculate_age_helper(user),
-                            'hobbies': [hobby.as_dict() for hobby in user.hobbies.all()],
-                            'similar_hobbies': user.similar_hobbies
-                        } for user in page
-                    ]
-                }
-            })                        
+                'current_page': page.number,
+                'total_pages': paginator.num_pages,
+                'total_users': paginator.count,
+                'users': [
+                    {
+                        'id': user.id,
+                        'name': user.name,
+                        'age': calculate_age_helper(user),
+                        'hobbies': [hobby.as_dict() for hobby in user.hobbies.all()],
+                        'similar_hobbies': user.similar_hobbies
+                    } for user in page
+                ]
+            }
+            })
         else:
             return JsonResponse({'error': "User not logged in"}, status=401)
     else:
         return JsonResponse({'error': "Incorrect method"}, status=405)
-    
+
 
 def calculate_age_helper(user: User) -> int:
+    if not user.date_of_birth:
+        return 0
     today = D.datetime.today()
     age = today.year - user.date_of_birth.year
     if (today.month, today.day) < (user.date_of_birth.month, user.date_of_birth.day):

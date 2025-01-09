@@ -22,10 +22,10 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="p-6 h-full flex flex-col items-center gap-16">
+  <div class="p-6 h-full flex flex-col items-center gap-16 overflow-y-auto">
     <h1 class="text-3xl font-semibold">My Profile</h1>
-    <div class="card bg-base-100 w-96 shadow-xl">
-      <div class="card-body flex flex-col items-center">
+    <div class="card bg-base-100 min-w-96 shadow-xl ">
+      <div class="card-body flex flex-col items-center ">
         <div class="rounded-full h-36 w-36 bg-red-400">
           <div class="flex flex-row items-center justify-center h-full w-full">
             <span class="w-full text-center text-5xl font-semibold text-neutral-700">{{ userStore.getInitials }}</span>
@@ -44,9 +44,7 @@ export default defineComponent({
 
         <div class="divider font-semibold text-neutral-400">Hobbies</div>
         <ul class="flex flex-col w-full px-6 gap-2 list-disc">
-          <li class="text-md font-semibold text-neutral-400 self-start text-start">Snowboarding</li>
-          <li class="text-md font-semibold text-neutral-400 self-start text-start">Hiking</li>
-          <li class="text-md font-semibold text-neutral-400 self-start text-start">Biking</li>
+          <li class="text-md font-semibold text-neutral-400 self-start text-start" v-for="hobby in userStore.getHobbies" >{{ hobby.name}}</li>
         </ul>
 
         <div class="card-actions justify-end w-full pt-6">

@@ -27,11 +27,21 @@ function getCSRFToken(): string | null {
     return csrfCookie ? csrfCookie.split('=')[1] : null;
 }
 
-const getUsersPaginated = async (page_number: number): Promise<{page: Page}> => {
-    const response = await fetch(`http://localhost:8000/api/users/page/${page_number}/`, {
-        method: 'GET',
-        credentials: 'include'
-    });
+const getUsersPaginated = async (page_number: number, age_range?: { low: number, high: number }): Promise<{
+    page: Page
+}> => {
+    let response;
+    if (!age_range) {
+        response = await fetch(`http://localhost:8000/users/page/${page_number}/`, {
+            method: 'GET',
+            credentials: 'include'
+        });
+    } else {
+        response = await fetch(`http://localhost:8000/users/page/${page_number}/?age_low=${age_range.low}&age_high=${age_range.high}`, {
+            method: 'GET',
+            credentials: 'include'
+        });
+    }
     if (!response.ok) {
         throw new Error('Failed to fetch page of users');
     }
