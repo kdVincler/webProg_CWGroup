@@ -1,22 +1,108 @@
 <script lang="ts">
-import {defineComponent} from "vue";
+import {defineComponent, ref} from "vue";
 import {useUserStore} from "../store/user";
 import {Mail, Calendar} from "lucide-vue-next";
+import { EditUser, updateUser, deleteUser } from "../api";
 
 export default defineComponent({
   components: { Mail, Calendar},
   name: "ProfilePage",
   setup() {
     const userStore = useUserStore();
-    return {userStore};
+
+    function createEditUser(): EditUser {
+      return {
+        name_changed: false,
+        name: userStore.getName || "",
+        email_changed: false,
+        email: userStore.getEmail || "",
+        password_changed: false,
+        old_password: "",
+        new_password: "",
+        confirm_new_password: ""
+      }
+    }
+
+    const editUser = ref<EditUser>(createEditUser())
+    const showPassword = ref(false)
+    const errorText = ref("")
+    
+    return {
+      userStore,
+      editUser,
+      showPassword,
+      errorText
+    };
   },
   methods: {
-     openModal() {
-        (document.getElementById('profile_modal') as HTMLDialogElement).showModal();
-      },
-      closeModal() {
-        (document.getElementById('profile_modal') as HTMLDialogElement).close();
+    updateUser,
+    deleteUser,
+    openModal(modal: String) {
+      if (modal == "edit") {
+        (document.getElementById('edit_profile_modal') as HTMLDialogElement).showModal();
+      } else if (modal == "delete") {
+        (document.getElementById('delete_profile_modal') as HTMLDialogElement).showModal();
+      } else if (modal == "error") {
+        (document.getElementById('error_profile_modal') as HTMLDialogElement).showModal();
       }
+    },
+    closeModal(modal: String) {
+      if (modal == "edit") {
+        (document.getElementById('edit_profile_modal') as HTMLDialogElement).close();
+      } else if (modal == "delete") {
+        (document.getElementById('delete_profile_modal') as HTMLDialogElement).close();
+      } else if (modal == "error") {
+        this.errorText = "";
+        (document.getElementById('error_profile_modal') as HTMLDialogElement).close();
+      }
+    },
+    async submitForm() {
+      if (this.editUser.password_changed && (this.editUser.new_password == this.editUser.old_password)) {
+        // old password and new password match
+        this.errorText = "New Passwords Can't Be Old Password"
+        this.openModal("error")
+        return
+      } else if (this.editUser.password_changed && (this.editUser.new_password !== this.editUser.confirm_new_password)) {
+        // new password and confirm new password don't match
+        this.errorText = "New Password And Confirm New Password Don't Match"
+        this.openModal("error")
+        return
+      } else {
+        if (this.editUser.name_changed || this.editUser.email_changed || this.editUser.password_changed) {
+          try {
+            await updateUser(this.editUser)
+            this.editUser = this.resetEditUser()
+          } catch (error: any) {
+            this.errorText = error
+            this.openModal("error")
+            return
+          }
+        }
+        this.closeModal("edit")
+      }
+    },
+    async onDelete() {
+      try {
+        await deleteUser()
+      } catch (error: any) {
+        this.errorText = error
+        this.openModal("error")
+        return
+      }
+      this.closeModal("delete")
+    },
+    resetEditUser(): EditUser {
+      return {
+        name_changed: false,
+        name: this.userStore.getName || "",
+        email_changed: false,
+        email: this.userStore.getEmail || "",
+        password_changed: false,
+        old_password: "",
+        new_password: "",
+        confirm_new_password: ""
+      }
+    }
   }
 })
 </script>
@@ -48,22 +134,101 @@ export default defineComponent({
         </ul>
 
         <div class="card-actions justify-end w-full pt-6">
-          <button @click="openModal" class="btn w-full">Edit Profile</button>
+          <button @click="openModal('edit')" class="btn w-full">Edit Profile</button>
+        </div>
+        <div class="card-actions justify-end w-full pt-6">
+          <button @click="openModal('delete')" class="btn btn-error w-full">Delete Account</button>
         </div>
       </div>
     </div>
   </div>
-<!--  <EditProfileModal />-->
-  <dialog id="profile_modal" class="modal flex flex-row">
+
+<!--  Edit Profile Modal  -->
+  <dialog id="edit_profile_modal" class="modal flex flex-row">
     <div class="w-1/6"/>
     <div class="flex-grow flex items-center justify-center">
       <div class="modal-box">
-        <h3 class="text-lg font-semibold">Hello, {{userStore.getName.split(' ')[0]}}.</h3>
-        <p class="py-4">Click the button below to close</p>
-        <div class="modal-action">
-          <form method="dialog">
-            <button class="btn">Close</button>
+        <h3 class="font-bold text-lg">Edit Profile</h3>
+          <form @submit.prevent="submitForm">
+            <div class="form-control mb-4">
+              <div class="flex items-center">
+                <label class="label">Edit Name:</label>
+                <input type="checkbox" class="checkbox" name="change_name" v-model="editUser.name_changed">
+              </div>
+              <input v-model="editUser.name" type="text" class="input input-bordered" required :disabled="!editUser.name_changed"/>
+            </div>
+  
+            <div class="form-control mb-4">
+              <div class="flex items-center">
+                <label class="label">Edit Email:</label>
+                <input type="checkbox" class="checkbox" name="change_name" v-model="editUser.email_changed">
+              </div>
+              <input v-model="editUser.email" type="email" class="input input-bordered" required :disabled="!editUser.email_changed"/>
+            </div>
+            
+            <div class="flex items-center">
+              <label class="label">Edit Password (will result in logging out):</label>
+              <input type="checkbox" class="checkbox" name="change_name" v-model="editUser.password_changed">
+            </div>
+
+            <div class="form-control mb-4">
+              <label class="label">Old Password</label>
+              <div class="relative">
+                <input v-model="editUser.old_password" :type="showPassword ? 'text' : 'password'" class="input input-bordered" :disabled="!editUser.password_changed"/>
+              </div>
+            </div>
+
+            <div class="form-control mb-4">
+              <label class="label">New Password</label>
+              <div class="relative">
+                <input name="pw" v-model="editUser.new_password" :type="showPassword ? 'text' : 'password'" class="input input-bordered" :disabled="!editUser.password_changed"/>
+              </div>
+            </div>
+
+            <div class="form-control mb-4">
+              <label class="label">Confirm New Password</label>
+              <div class="relative">
+                <input name="cpw" v-model="editUser.confirm_new_password" :type="showPassword ? 'text' : 'password'" class="input input-bordered" :disabled="!editUser.password_changed"/>
+              </div>
+            </div>
+
+            <button type="button" class="btn btn-sm" @click="() => {showPassword = !showPassword}" :disabled="!editUser.password_changed">
+              {{ showPassword ? 'Hide Passwords' : 'Show Passwords' }}
+            </button>
+  
+            <div class="modal-action">
+              <button type="submit" class="btn btn-success">Save</button>
+              <button type="button" class="btn" @click="closeModal('edit')">Cancel</button>
+            </div>
           </form>
+      </div>
+    </div>
+  </dialog>
+
+  <!--  Delete Profile Modal  -->
+  <dialog id="delete_profile_modal" class="modal flex flex-row">
+    <div class="w-1/6"/>
+    <div class="flex-grow flex items-center justify-center">
+      <div class="modal-box">
+        <h3 class="text-lg font-semibold">Are you sure you wan to delete your account?</h3>
+        <p class="py-4">This action is irreversible.</p>
+        <div class="modal-action">
+            <button class="btn btn-error" @click="onDelete">Delete Account</button>
+            <button class="btn" @click="closeModal('delete')">Close</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <!--  Error Profile Modal  -->
+  <dialog id="error_profile_modal" class="modal flex flex-row">
+    <div class="w-1/6"/>
+    <div class="flex-grow flex items-center justify-center">
+      <div class="modal-box">
+        <h3 class="text-lg font-semibold text-error">Error</h3>
+        <p class="py-4 text-error">{{ errorText }}</p>
+        <div class="modal-action">
+            <button class="btn" @click="closeModal('error')">Close</button>
         </div>
       </div>
     </div>
