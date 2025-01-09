@@ -8,8 +8,8 @@ export default defineComponent({
   components: { PodiumDisplay, UserDisplay },
   name: "MainPage",
   setup() {
-    const similar_users = ref<any[]>([]); // Declare `similar_users` as a ref
-    const loading = ref(true); // Track loading state
+    const similar_users = ref<any[]>([]);
+    const loading = ref(true);
 
     onMounted(async () => {
       try {
