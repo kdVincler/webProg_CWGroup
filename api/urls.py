@@ -23,13 +23,13 @@ from . import views
 
 urlpatterns = [
     path('', views.main_spa),
-    path('users/', views.user_list_view, name='user_list'),
-    path('users/<int:user_id>/', views.user_api, name='user_detail'),
 
+    # path('users/<int:user_id>/', views.user_api, name='user_detail'),
     path('login/', views.log_in_view, name='login'),
     path('logout/', views.log_out_view, name='logout'),
     path('register/', views.register, name='register'),
     path('auth-status/', views.check_auth_status, name='auth_status'),
+    path('users/page/<int:page_number>/', views.paginate_users, name='users_pagination'),
 
     path('hobby/', views.hobby_list_view, name='hobby_list'),
     path('user-hobby/', views.user_hobby, name='user_hobby'),
