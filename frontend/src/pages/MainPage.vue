@@ -1,20 +1,23 @@
 <script lang="ts">
-import { defineComponent, ref, onMounted } from "vue";
+import {defineComponent, ref, onMounted} from "vue";
 import UserDisplay from "../components/UserDisplay.vue";
 import PodiumDisplay from "../components/PodiumDisplay.vue";
-import { getUsersPaginated } from "../api";
+import {getUsersPaginated} from "../api";
 
 export default defineComponent({
-  components: { PodiumDisplay, UserDisplay },
+  components: {PodiumDisplay, UserDisplay},
   name: "MainPage",
   setup() {
     const similar_users = ref<any[]>([]);
     const loading = ref(true);
+    const page = ref(1);
+    const pages = ref(0);
 
     onMounted(async () => {
       try {
-        const paginatedData = await getUsersPaginated(0); // Wait for the data to load
-        similar_users.value = paginatedData?.page?.users || []; // Safely handle potential undefined values
+        const paginatedData = await getUsersPaginated(page.value);
+        similar_users.value = paginatedData?.page?.users || [];
+        pages.value = paginatedData?.page?.total_pages || 1;
       } catch (error) {
         console.error("Error loading users:", error);
       } finally {
@@ -25,21 +28,39 @@ export default defineComponent({
     return {
       similar_users,
       loading,
+      page,
+      pages
     };
   },
+  methods: {
+    async changePage(page: number) {
+      this.page = page;
+      this.loading = true;
+      try {
+        const paginatedData = await getUsersPaginated(this.page);
+        this.similar_users = paginatedData?.page?.users || [];
+        this.pages = paginatedData?.page?.total_pages || 1;
+      } catch (error) {
+        console.error("Error loading users:", error);
+      } finally {
+        this.loading = false; // Data loading is complete
+      }
+    }
+  }
 });
 </script>
 
 <template>
-  <div v-if="similar_users.length > 2" class="h-full overflow-y-auto px-6">
-    <PodiumDisplay v-if="!loading" :first_user="similar_users[0]" :second_user="similar_users[1]" :third_user="similar_users[2]" />
+  <div v-if="similar_users.length > 2 && page == 1" class="h-full overflow-y-auto px-6">
+    <PodiumDisplay v-if="!loading" :first_user="similar_users[0]" :second_user="similar_users[1]"
+                   :third_user="similar_users[2]"/>
     <div v-if="loading" class="text-center">Loading users...</div>
     <div v-else>
       <UserDisplay
-        v-for="(user, index) in similar_users.slice(3)"
-        :key="index"
-        :position="index + 4"
-        :user="user"
+          v-for="(user, index) in similar_users.slice(3)"
+          :key="index"
+          :position="index + 4"
+          :user="user"
       />
     </div>
   </div>
@@ -47,18 +68,14 @@ export default defineComponent({
     <div v-if="loading" class="text-center">Loading users...</div>
     <div v-else>
       <UserDisplay
-        v-for="(user, index) in similar_users"
-        :key="index"
-        :position="index + 1"
-        :user="user"
+          v-for="(user, index) in similar_users"
+          :key="index"
+          :position="index + 1 + ((page-1) * 10)"
+          :user="user"
       />
     </div>
   </div>
   <div class="join w-full flex justify-center mb-6 mt-2">
-    <button class="join-item btn bg-base-100">1</button>
-    <button class="join-item btn bg-base-100">2</button>
-    <button class="join-item btn btn-disabled">...</button>
-    <button class="join-item btn bg-base-100">4</button>
-    <button class="join-item btn bg-base-100">5</button>
+    <button class="join-item btn bg-base-100" :class="page == i && 'btn-disabled'" v-for="i in pages" @click="changePage(i)">{{i}}</button>
   </div>
 </template>

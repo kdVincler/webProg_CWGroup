@@ -144,7 +144,7 @@ def paginate_users(request: HttpRequest, page_number: int) -> HttpResponse:
                 if age_high and age > int(age_high):
                     continue
                 filtered_users.append(user)
-            paginator = Paginator(filtered_users, 10)  # Paginate the people QuerySet, 10 per page
+            paginator = Paginator(filtered_users, 10)
             page = paginator.get_page(page_number)
             return JsonResponse({'page': {
                 'current_page': page.number,
