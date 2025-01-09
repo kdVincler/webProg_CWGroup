@@ -60,17 +60,7 @@ def log_in_view(request: HttpRequest) -> HttpResponse:
             user = authenticate(request, username=request.POST['email'], password=request.POST['pw'])
             if user:
                 login(request, user=user)
-                request.session["email"] = user.email
-                response = redirect("http://localhost:5173/")
-                response.set_cookie("email",
-                                    user.email,
-                                    expires=D.datetime.strftime(
-                                        D.datetime.now() + D.timedelta(seconds=7 * 24 * 60 * 60),
-                                        '%a, %d-%b-%Y %H:%M:%S GMT'
-                                    ),
-                                    httponly=True
-                                    )
-                return response
+                return redirect("http://localhost:5173/")
             else:
                 # username or password is incorrect (authenticate failed, user is None)
                 return render(request, 'api/spa/login.html', {"error": "Incorrect username or password"})
@@ -87,9 +77,7 @@ def log_out_view(request: HttpRequest) -> HttpResponse:
     """Handle logging out by flushing the session which deletes the session id cookie too and deleting the email cookie"""
     if request.method == "GET":
         logout(request)
-        response = JsonResponse({'message': 'User logout successful.'}, status=200)
-        response.delete_cookie("email")
-        return response
+        return JsonResponse({'message': 'User logout successful.'}, status=200)
     else:
         return JsonResponse({'error': "Incorrect method"}, status=501)
 
