@@ -3,10 +3,12 @@ import json
 from django.db.models import Count
 from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpRequest, JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth import authenticate, login, logout
-from .models import User, Hobby, UserHobby
+
+from . import models
+from .models import User, Hobby, UserHobby, Friend
 
 
 def main_spa(request: HttpRequest) -> HttpResponse:
@@ -239,3 +241,46 @@ def user_hobby_api(request: HttpRequest, user_hobby_id: int) -> HttpResponse:
             return JsonResponse({'error': str(e)}, status=400)
     else:
         return JsonResponse({'error': "Incorrect method"}, status=501)
+
+
+# FRIENDSHIP VIEWS
+def accept_request(request, user_id):
+    """Accept a pending friend request and create a friendship."""
+    # Get the friend request to accept
+    friend_request = get_object_or_404(Friend, user1=user_id, user2=request.user, accepted=False)
+
+    # Update the friend request to accepted
+    friend_request.accepted = True
+    friend_request.save()
+
+    return JsonResponse({"message": "Friend request accepted"})
+
+
+def reject_request(request, user_id):
+    """Decline a friend request (delete the pending relationship)."""
+    # Get the friend request to decline
+    friend_request = get_object_or_404(Friend, user1=user_id, user2=request.user, accepted=False)
+
+    # Delete the friend request (pending relationship)
+    friend_request.delete()
+
+    return JsonResponse({"message": "Friend request declined"})
+
+
+def get_requests(request):
+    """Get all incoming friend requests for the logged-in user."""
+    incoming_requests = Friend.objects.filter(user2=request.user, accepted=False)
+    outgoing_requests = Friend.objects.filter(user1=request.user, accepted=False)
+    return JsonResponse({"incoming_requests": [request.as_dict() for request in incoming_requests],
+                         "outgoing_requests": [request.as_dict() for request in outgoing_requests]})
+
+def get_friends(request):
+    """Get all friends of the logged-in user."""
+    friends = Friend.objects.filter(user1=request.user, accepted=True) | Friend.objects.filter(user2=request.user, accepted=True)
+    r = []
+    for friend in friends:
+        if friend.user1 == request.user:
+            r.append(friend.user2)
+        else:
+            r.append(friend.user1)
+    return JsonResponse({"friends": [friend.as_dict() for friend in r]})

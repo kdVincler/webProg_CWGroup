@@ -34,4 +34,10 @@ urlpatterns = [
     path('hobby/', views.hobby_list_view, name='hobby_list'),
     path('user-hobby/', views.user_hobby, name='user_hobby'),
     path('user-hobby/<int:user_hobby_id>/', views.user_hobby_api, name='user_hobby_detail'),
+
+    path('friend-requests/', views.get_requests, name='friend_requests'),
+    path('accept-friend-request/<int:user_id>/', views.accept_request, name='accept_request'),
+    path('reject-friend-request/<int:user_id>/', views.reject_request, name='reject_request'),
+
+    path('friends/', views.get_friends, name='friends'),
 ]

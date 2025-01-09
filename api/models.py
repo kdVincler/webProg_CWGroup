@@ -34,6 +34,9 @@ class User(AbstractUser):
     # Many-to-Many relationship with Hobby
     hobbies = models.ManyToManyField(Hobby, through='UserHobby')
 
+    # Many-to-Many relationship with User
+    friends = models.ManyToManyField('self', through='Friend', symmetrical=False)
+
     def __str__(self):
         """String representation of the user"""
         return self.email
@@ -63,4 +66,27 @@ class UserHobby(models.Model):
             "user": self.user.as_dict(),
             "hobby": self.hobby.as_dict(),
         }
-  
+
+class Friend(models.Model):
+    """Model representing the relationship between two users"""
+    user1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friendships_initiated')
+    user2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friendships_received')
+    accepted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        """String representation of the friend relationship"""
+        return f"{self.user1} {'friends with' if self.accepted else 'requested'} {self.user2}"
+
+    def as_dict(self):
+        """JSON representation of the friend relationship"""
+        return {
+            "user1": {"id": self.user1.id, "username": self.user1.username, "name": self.user1.name},
+            "user2": {"id": self.user2.id, "username": self.user2.username, "name": self.user2.name},
+            "accepted": self.accepted,
+        }
+
+    class Meta:
+        unique_together = ('user1', 'user2')
+
