@@ -28,7 +28,7 @@ function getCSRFToken(): string | null {
 }
 
 const getUsersPaginated = async (page_number: number): Promise<{page: Page}> => {
-    const response = await fetch(`http://localhost:8000/api/users/page/${page_number}/`, {
+    const response = await fetch(`http://localhost:8000/users/page/${page_number}/`, {
         method: 'GET',
         credentials: 'include'
     });
@@ -36,6 +36,7 @@ const getUsersPaginated = async (page_number: number): Promise<{page: Page}> => 
         throw new Error('Failed to fetch page of users');
     }
     const data = await response.json();
+    console.log(data.page.users);
     return data;
 }
 

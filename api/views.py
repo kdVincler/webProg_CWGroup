@@ -128,7 +128,7 @@ def paginate_users(request: HttpRequest, page_number: int) -> HttpResponse:
     if request.method == 'GET':
         if request.user.is_authenticated:
                                     # exclude logged-in user
-            people = User.objects.exclude(id=request.user.id)\
+            people = User.objects.exclude(id=request.user.id).exclude(name=None)\
                         .annotate(similar_hobbies = Count('hobbies', hobbies__in=request.user.hobbies.all()))\
                         .order_by('-similar_hobbies') # reverse order by similar_hobbies
             paginator = Paginator(people, 10) # Paginate the people QuerySet, 10 per page
@@ -155,6 +155,8 @@ def paginate_users(request: HttpRequest, page_number: int) -> HttpResponse:
     
 
 def calculate_age_helper(user: User) -> int:
+    if not user.date_of_birth:
+        return 0
     today = D.datetime.today()
     age = today.year - user.date_of_birth.year
     if (today.month, today.day) < (user.date_of_birth.month, user.date_of_birth.day):

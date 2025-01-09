@@ -1,17 +1,23 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
 import {Trophy, CircleHelp} from 'lucide-vue-next'
+import {PropType} from 'vue'
+import {PaginatedUser} from "../api.ts";
 
 export default defineComponent({
   components: {Trophy, CircleHelp},
   name: "PodiumDisplay",
   props: {
-    // user: {
-    //   type: Object,
-    //   required: true
-    // }
-    position: {
-      type: Number,
+    first_user: {
+      type: Object as PropType<PaginatedUser>,
+      required: true
+    },
+    second_user: {
+      type: Object as PropType<PaginatedUser>,
+      required: true
+    },
+    third_user: {
+      type: Object as PropType<PaginatedUser>,
       required: true
     },
   }
@@ -26,10 +32,10 @@ export default defineComponent({
         <div class="flex flex-row items-center justify-center h-full w-full">
           <Trophy :size="64"/>
         </div>
-        <h2 class="text-2xl font-semibold text-center mt-2">Gabrielle</h2>
+        <h2 class="text-2xl font-semibold text-center mt-2">{{third_user.name}}</h2>
         <div class="tooltip tooltip-bottom w-full" data-tip="You both like Reading and Dancing!">
           <h3 class="cursor-pointer text-sm text-neutral-400 font-semibold text-center w-full flex flex-row items-center justify-center gap-1">
-            2 Similar
+            {{third_user.similar_hobbies}} Similar
             Hobbies
             <CircleHelp :size="16"/>
           </h3>
@@ -43,11 +49,11 @@ export default defineComponent({
         <div class="flex flex-row items-center justify-center h-full w-full">
           <Trophy :size="64"/>
         </div>
-        <h2 class="text-2xl font-semibold text-center mt-2">Roman</h2>
+        <h2 class="text-2xl font-semibold text-center mt-2">{{first_user.name}}</h2>
         <div class="tooltip tooltip-bottom w-full"
              data-tip="You both like Reading and Dancing and fasfsa andf gagsjkhgskj!">
           <h3 class="cursor-pointer text-sm text-neutral-400 font-semibold text-center w-full flex flex-row items-center justify-center gap-1">
-            4 Similar
+            {{first_user.similar_hobbies}} Similar
             Hobbies
             <CircleHelp :size="16"/>
           </h3>
@@ -61,11 +67,11 @@ export default defineComponent({
         <div class="flex flex-row items-center justify-center h-full w-full">
           <Trophy :size="64"/>
         </div>
-        <h2 class="text-2xl font-semibold text-center mt-2">Konrad</h2>
+        <h2 class="text-2xl font-semibold text-center mt-2">{{second_user.name}}</h2>
         <div class="tooltip tooltip-bottom w-full"
              data-tip="You both like Reading and Dancing and fasfsa andf gagsjkhgskj!">
           <h3 class="cursor-pointer text-sm text-neutral-400 font-semibold text-center w-full flex flex-row items-center justify-center gap-1">
-            3 Similar
+            {{second_user.similar_hobbies}} Similar
             Hobbies
             <CircleHelp :size="16"/>
           </h3>
