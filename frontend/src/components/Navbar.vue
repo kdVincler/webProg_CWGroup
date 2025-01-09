@@ -3,6 +3,7 @@ import {defineComponent} from 'vue'
 import {useUserStore} from "../store/user";
 import {logout} from "../api";
 import {SlidersHorizontal} from "lucide-vue-next";
+import {getInitialBGColour} from "../utils.ts";
 
 export default defineComponent({
   components: {SlidersHorizontal},
@@ -14,26 +15,7 @@ export default defineComponent({
   },
   methods: {
     logout,
-    generateBgColor(initials: string) {
-      const colors = [
-        'bg-red-500',
-        'bg-blue-500',
-        'bg-green-500',
-        'bg-yellow-500',
-        'bg-indigo-500',
-        'bg-orange-500',
-        'bg-pink-500',
-      ]
-      try {
-        if (initials.length === 0) {
-          return colors[0]
-        }
-      } catch (e) {
-        return colors[0]
-      }
-      const charCode = initials.charCodeAt(0)
-      return colors[charCode % colors.length]
-    }
+    getInitialBGColour
   }
 })
 </script>
@@ -68,9 +50,9 @@ export default defineComponent({
       <div class="dropdown dropdown-end">
         <!--TODO: If friend requests is less than or equal to 0, remove online from class-->
         <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar online">
-          <div :class="['w-10', 'rounded-full', generateBgColor(userStore?.getInitials || '')]">
+          <div :class="['w-10', 'rounded-full', getInitialBGColour(userStore?.getInitials || '')]">
             <div class="flex flex-row items-center justify-center h-full w-full">
-              <span class="w-full text-center">{{ userStore.getInitials }}</span>
+              <span class="w-full text-center uppercase">{{ userStore.getInitials }}</span>
             </div>
           </div>
 

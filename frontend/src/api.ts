@@ -167,6 +167,7 @@ export async function getFriends(): Promise<void> {
         throw new Error('Failed to get friends');
     }
     const data = await response.json();
+    console.log(data);
     return data;
 }
 
