@@ -1,7 +1,8 @@
 import datetime as D
 import json
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.core.paginator import Paginator
+from typing import Dict, Optional, List
 from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -60,17 +61,7 @@ def log_in_view(request: HttpRequest) -> HttpResponse:
             user = authenticate(request, username=request.POST['email'], password=request.POST['pw'])
             if user:
                 login(request, user=user)
-                request.session["email"] = user.email
-                response = redirect("http://localhost:5173/")
-                response.set_cookie("email",
-                                    user.email,
-                                    expires=D.datetime.strftime(
-                                        D.datetime.now() + D.timedelta(seconds=7 * 24 * 60 * 60),
-                                        '%a, %d-%b-%Y %H:%M:%S GMT'
-                                    ),
-                                    httponly=True
-                                    )
-                return response
+                return redirect("http://localhost:5173/")
             else:
                 # username or password is incorrect (authenticate failed, user is None)
                 return render(request, 'api/spa/login.html', {"error": "Incorrect username or password"})
@@ -87,9 +78,7 @@ def log_out_view(request: HttpRequest) -> HttpResponse:
     """Handle logging out by flushing the session which deletes the session id cookie too and deleting the email cookie"""
     if request.method == "GET":
         logout(request)
-        response = JsonResponse({'message': 'User logout successful.'}, status=200)
-        response.delete_cookie("email")
-        return response
+        return JsonResponse({'message': 'User logout successful.'}, status=200)
     else:
         return JsonResponse({'error': "Incorrect method"}, status=501)
 
@@ -128,16 +117,17 @@ def check_auth_status(request: HttpRequest) -> HttpResponse:
 
 def paginate_users(request: HttpRequest, page_number: int) -> HttpResponse:
     """Return a paginated list of users ordered by the logged-in user's hobby list overlap with other users"""
-
-    age_low = request.GET.get('age_low')
-    age_high = request.GET.get('age_high')
-
     if request.method == 'GET':
         if request.user.is_authenticated:
+            # get filter arguments
+            age_low = request.GET.get('age_low')
+            age_high = request.GET.get('age_high')
             # exclude logged-in user
+            # and use conditional aggregation to count overlapping hobbies 
+            # https://docs.djangoproject.com/en/5.1/ref/models/conditional-expressions/#conditional-aggregation
             people = User.objects.exclude(id=request.user.id).exclude(name=None) \
-                .annotate(similar_hobbies=Count('hobbies', hobbies__in=request.user.hobbies.all())) \
-                .order_by('-similar_hobbies')  # reverse order by similar_hobbies
+                .annotate(similar_hobbies_count=Count('hobbies', filter=Q(hobbies__in=request.user.hobbies.all())))\
+                .order_by('-similar_hobbies_count')  # reverse order by similar_hobbies_count
             filtered_users = []
             for user in people:
                 age = calculate_age_helper(user)
@@ -158,7 +148,8 @@ def paginate_users(request: HttpRequest, page_number: int) -> HttpResponse:
                         'name': user.name,
                         'age': calculate_age_helper(user),
                         'hobbies': [hobby.as_dict() for hobby in user.hobbies.all()],
-                        'similar_hobbies': user.similar_hobbies
+                        'similar_hobbies_count': user.similar_hobbies_count,
+                        'similar_hobbies': get_similar_hobbies_helper(request, user)
                     } for user in page
                 ]
             }
@@ -177,6 +168,14 @@ def calculate_age_helper(user: User) -> int:
     if (today.month, today.day) < (user.date_of_birth.month, user.date_of_birth.day):
         age -= 1
     return age
+
+
+def get_similar_hobbies_helper(request: HttpRequest, user: User) -> List[Dict[str, Optional[int | str]]]:
+    result = list()
+    for hobby in user.hobbies.all():
+        if hobby in request.user.hobbies.all():
+            result.append(hobby.as_dict())
+    return result
 
 
 # HOBBY MODEL VIEWS

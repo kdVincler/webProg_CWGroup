@@ -17,7 +17,8 @@ export interface PaginatedUser {
     name: string,
     age: number,
     hobbies: Hobby[],
-    similar_hobbies: number
+    similar_hobbies_count: number
+    similar_hobbies: Hobby[]
 }
 
 function getCSRFToken(): string | null {

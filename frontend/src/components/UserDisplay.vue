@@ -48,7 +48,7 @@ export default defineComponent({
       </div>
       <div>
         <h2 class="text-lg font-semibold">{{ user.name }}</h2>
-        <h3 class="text-sm text-neutral-500 font-normal"><span class="font-bold">{{ user.similar_hobbies }}</span>
+        <h3 class="text-sm text-neutral-500 font-normal"><span class="font-bold">{{ user.similar_hobbies_count }}</span>
           Similar
           Hobbies</h3>
       </div>
