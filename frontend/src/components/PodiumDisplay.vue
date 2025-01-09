@@ -33,7 +33,12 @@ export default defineComponent({
           <Trophy :size="64"/>
         </div>
         <h2 class="text-2xl font-semibold text-center mt-2">{{third_user.name}}</h2>
-        <div class="tooltip tooltip-bottom w-full" data-tip="You both like Reading and Dancing!">
+        <div class="tooltip tooltip-bottom w-full" 
+            :data-tip="
+              third_user.similar_hobbies_count === 0 
+              ? `You don't share any hobbies` 
+              : `You share the following hobby/hobbies: ${third_user.similar_hobbies.map(hobby => hobby.name).join(', ')}`"
+        >
           <h3 class="cursor-pointer text-sm text-neutral-400 font-semibold text-center w-full flex flex-row items-center justify-center gap-1">
             {{third_user.similar_hobbies_count}} Similar
             Hobbies
@@ -51,7 +56,11 @@ export default defineComponent({
         </div>
         <h2 class="text-2xl font-semibold text-center mt-2">{{first_user.name}}</h2>
         <div class="tooltip tooltip-bottom w-full"
-             data-tip="You both like Reading and Dancing and fasfsa andf gagsjkhgskj!">
+            :data-tip="
+              first_user.similar_hobbies_count === 0 
+              ? `You don't share any hobbies` 
+              : `You share the following hobby/hobbies: ${first_user.similar_hobbies.map(hobby => hobby.name).join(', ')}`"
+        >
           <h3 class="cursor-pointer text-sm text-neutral-400 font-semibold text-center w-full flex flex-row items-center justify-center gap-1">
             {{first_user.similar_hobbies_count}} Similar
             Hobbies
@@ -69,7 +78,11 @@ export default defineComponent({
         </div>
         <h2 class="text-2xl font-semibold text-center mt-2">{{second_user.name}}</h2>
         <div class="tooltip tooltip-bottom w-full"
-             data-tip="You both like Reading and Dancing and fasfsa andf gagsjkhgskj!">
+            :data-tip="
+              second_user.similar_hobbies_count === 0 
+              ? `You don't share any hobbies` 
+              : `You share the following hobby/hobbies: ${second_user.similar_hobbies.map(hobby => hobby.name).join(', ')}`"
+        >
           <h3 class="cursor-pointer text-sm text-neutral-400 font-semibold text-center w-full flex flex-row items-center justify-center gap-1">
             {{second_user.similar_hobbies_count}} Similar
             Hobbies

@@ -2,6 +2,7 @@ import datetime as D
 import json
 from django.db.models import Count, Q
 from django.core.paginator import Paginator
+from typing import Dict, Optional, List
 from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -122,8 +123,10 @@ def paginate_users(request: HttpRequest, page_number: int) -> HttpResponse:
             age_low = request.GET.get('age_low')
             age_high = request.GET.get('age_high')
             # exclude logged-in user
+            # and use conditional aggregation to count overlapping hobbies 
+            # https://docs.djangoproject.com/en/5.1/ref/models/conditional-expressions/#conditional-aggregation
             people = User.objects.exclude(id=request.user.id).exclude(name=None) \
-                .annotate(similar_hobbies_count=Count('hobbies', filter=Q(hobbies__in=request.user.hobbies.all()))) \
+                .annotate(similar_hobbies_count=Count('hobbies', filter=Q(hobbies__in=request.user.hobbies.all())))\
                 .order_by('-similar_hobbies_count')  # reverse order by similar_hobbies_count
             filtered_users = []
             for user in people:
@@ -145,7 +148,8 @@ def paginate_users(request: HttpRequest, page_number: int) -> HttpResponse:
                         'name': user.name,
                         'age': calculate_age_helper(user),
                         'hobbies': [hobby.as_dict() for hobby in user.hobbies.all()],
-                        'similar_hobbies_count': user.similar_hobbies_count
+                        'similar_hobbies_count': user.similar_hobbies_count,
+                        'similar_hobbies': get_similar_hobbies_helper(request, user)
                     } for user in page
                 ]
             }
@@ -164,6 +168,14 @@ def calculate_age_helper(user: User) -> int:
     if (today.month, today.day) < (user.date_of_birth.month, user.date_of_birth.day):
         age -= 1
     return age
+
+
+def get_similar_hobbies_helper(request: HttpRequest, user: User) -> List[Dict[str, Optional[int | str]]]:
+    result = list()
+    for hobby in user.hobbies.all():
+        if hobby in request.user.hobbies.all():
+            result.append(hobby.as_dict())
+    return result
 
 
 # HOBBY MODEL VIEWS
