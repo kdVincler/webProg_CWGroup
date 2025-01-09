@@ -1,26 +1,43 @@
 <script lang="ts">
-import { defineComponent } from 'vue'
-import { logout, addUserHobby, deleteUserHobby, fetchAllHobbies } from "../api";
-import { useUserStore } from "../store/user";
-import { Trash } from "lucide-vue-next";
-import { Hobby } from "../api";
+import {defineComponent, onMounted, ref} from 'vue'
+import {
+  logout,
+  addUserHobby,
+  deleteUserHobby,
+  fetchAllHobbies,
+  acceptFriendRequest,
+  rejectFriendRequest,
+  getFriends
+} from "../api";
+import {useUserStore} from "../store/user";
+import {Trash, Check, X} from "lucide-vue-next";
+import {Hobby, getFriendRequests} from "../api";
 
 export default defineComponent({
-  components: { Trash },
+  components: {Trash, Check, X},
   name: "Sidebar",
   setup() {
     const userStore = useUserStore();
-    return { userStore };
+    const friendRequests = ref([]);
+    const friends = ref([]);
+    onMounted(async () => {
+      const fr = await getFriendRequests();
+      friendRequests.value = fr.incoming_requests;
+
+      const f = await getFriends();
+      friends.value = f.friends;
+    });
+    return {userStore, friendRequests, friends};
   },
   data() {
     return {
       hobbies: [] as Hobby[],
       selectedHobby: null as number | null,
-      typedHobby: ""
+      typedHobby: "",
     };
   },
   async mounted() {
-    const { hobbies } = await this.fetchAllHobbies();
+    const {hobbies} = await this.fetchAllHobbies();
     this.hobbies = hobbies;
   },
   methods: {
@@ -37,12 +54,21 @@ export default defineComponent({
       this.selectedHobby = null;
       this.typedHobby = "";
     },
+    acceptRequest(id: number) {
+      acceptFriendRequest(id)
+      this.friends.push({id, name: this.friendRequests.filter(r => r.user1.id === id)[0].user1.name});
+      this.friendRequests = this.friendRequests.filter(r => r.user1.id !== id);
+    },
+    rejectRequest(id: number) {
+      rejectFriendRequest(id)
+      this.friendRequests = this.friendRequests.filter(r => r.user1.id !== id);
+    }
   }
 })
 </script>
 
 <template>
-  <div class="h-screen bg-slate-600 w-1/6 px-6 py-2 text-base-200 flex flex-col items-start">
+  <div class="h-screen bg-slate-600 w-1/5 px-6 py-2 text-base-200 flex flex-col items-start">
     <RouterLink to="/" class="btn btn-ghost text-xl italic">Hobby 24</RouterLink>
 
     <div class="collapse collapse-arrow bg-slate-600 my-2">
@@ -72,7 +98,8 @@ export default defineComponent({
                     <option selected disabled>Select a Hobby</option>
                     <option v-for="hobby in hobbies" :key="hobby.id" :value="hobby.id">{{ hobby.name }}</option>
                   </select>
-                  <button :class="['btn w-full', !selectedHobby && 'btn-disabled']" @click="addUserHobby(hobbies.filter(h => h.id === selectedHobby)[0]?.name)">
+                  <button :class="['btn w-full', !selectedHobby && 'btn-disabled']"
+                          @click="addUserHobby(hobbies.filter(h => h.id === selectedHobby)[0]?.name)">
                     Add Hobby
                   </button>
                 </div>
@@ -98,14 +125,39 @@ export default defineComponent({
       <input type="radio" name="my-accordion-2"/>
       <div class="collapse-title text-md font-medium">Friends</div>
       <div class="collapse-content">
-        <p>List of friends!</p>
+        <ul class="flex flex-col gap-1 mb-4">
+          <button @click="" v-for="friend in friends" :key="friend.id"
+                  class="capitalize text-md font-medium btn bg-slate-700 border-0 hover:bg-slate-500 text-white justify-between">
+            {{ friend.name }}
+            <Trash :size="16"/>
+          </button>
+        </ul>
       </div>
     </div>
     <div class="collapse collapse-arrow bg-slate-600 my-2">
       <input type="radio" name="my-accordion-2"/>
-      <div class="collapse-title text-md font-medium">Friend Requests (1)</div>
+      <div class="collapse-title text-md font-medium">Friend Requests <span v-if="friendRequests.length>0">
+        ({{ friendRequests.length }})
+      </span>
+      </div>
       <div class="collapse-content">
-        <p>List of friend requests goes here!</p>
+        <ul class="flex flex-col gap-1 mb-4">
+          <div v-for="request in friendRequests" :key="request.user1.id"
+               class="capitalize text-md font-medium  bg-slate-700 rounded-lg flex flex-row p-4 text-white justify-between items-center">
+            {{ request.user1.name }}
+            <div class="flex flex-row-reverse items-center gap-1">
+              <button @click="acceptRequest(request.user1.id)"
+                      class="btn bg-slate-500 hover:bg-slate-400 border-0 h-8 min-h-0 aspect-square p-0">
+                <Check :size="16" color="white"/>
+              </button>
+              <button @click="rejectRequest(request.user1.id)"
+                      class="btn bg-slate-500 hover:bg-slate-400 border-0 h-8 min-h-0 aspect-square p-0">
+                <X :size="16" color="white"/>
+              </button>
+            </div>
+
+          </div>
+        </ul>
       </div>
     </div>
 

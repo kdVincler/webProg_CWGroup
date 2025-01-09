@@ -127,6 +127,61 @@ export async function fetchAllHobbies(): Promise<{ hobbies: Hobby[] }> {
     return data;
 }
 
+export async function acceptFriendRequest(id: number): Promise<void> {
+    const response = await fetch(`http://localhost:8000/accept-friend-request/${id}/`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken() || '',
+        }
+    });
+    if (!response.ok) {
+        throw new Error('Failed to accept friend request');
+    }
+}
+
+export async function rejectFriendRequest(id: number): Promise<void> {
+    const response = await fetch(`http://localhost:8000/reject-friend-request/${id}/`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken() || '',
+        }
+    });
+    if (!response.ok) {
+        throw new Error('Failed to reject friend request');
+    }
+}
+
+export async function getFriends(): Promise<void> {
+    const response = await fetch(`http://localhost:8000/friends/`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    });
+    if (!response.ok) {
+        throw new Error('Failed to get friends');
+    }
+    const data = await response.json();
+    return data;
+}
+
+export async function getFriendRequests() {
+    const response = await fetch('http://localhost:8000/friend-requests/', {
+        method: 'GET',
+        credentials: 'include'
+    });
+    if (!response.ok) {
+        throw new Error('Failed to fetch friend requests');
+    }
+    const data = await response.json();
+    return data;
+}
+
 
 export async function checkAuthStatus(): Promise<{ authenticated: boolean; user: User }> {
     const response = await fetch('http://localhost:8000/auth-status', {
