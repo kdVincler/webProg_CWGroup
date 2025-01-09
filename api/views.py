@@ -1,6 +1,6 @@
 import datetime as D
 import json
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpRequest, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -116,16 +116,15 @@ def check_auth_status(request: HttpRequest) -> HttpResponse:
 
 def paginate_users(request: HttpRequest, page_number: int) -> HttpResponse:
     """Return a paginated list of users ordered by the logged-in user's hobby list overlap with other users"""
-
-    age_low = request.GET.get('age_low')
-    age_high = request.GET.get('age_high')
-
     if request.method == 'GET':
         if request.user.is_authenticated:
+            # get filter arguments
+            age_low = request.GET.get('age_low')
+            age_high = request.GET.get('age_high')
             # exclude logged-in user
             people = User.objects.exclude(id=request.user.id).exclude(name=None) \
-                .annotate(similar_hobbies=Count('hobbies', hobbies__in=request.user.hobbies.all())) \
-                .order_by('-similar_hobbies')  # reverse order by similar_hobbies
+                .annotate(similar_hobbies_count=Count('hobbies', filter=Q(hobbies__in=request.user.hobbies.all()))) \
+                .order_by('-similar_hobbies_count')  # reverse order by similar_hobbies_count
             filtered_users = []
             for user in people:
                 age = calculate_age_helper(user)
@@ -146,7 +145,7 @@ def paginate_users(request: HttpRequest, page_number: int) -> HttpResponse:
                         'name': user.name,
                         'age': calculate_age_helper(user),
                         'hobbies': [hobby.as_dict() for hobby in user.hobbies.all()],
-                        'similar_hobbies': user.similar_hobbies
+                        'similar_hobbies_count': user.similar_hobbies_count
                     } for user in page
                 ]
             }

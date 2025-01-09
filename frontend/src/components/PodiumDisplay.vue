@@ -35,7 +35,7 @@ export default defineComponent({
         <h2 class="text-2xl font-semibold text-center mt-2">{{third_user.name}}</h2>
         <div class="tooltip tooltip-bottom w-full" data-tip="You both like Reading and Dancing!">
           <h3 class="cursor-pointer text-sm text-neutral-400 font-semibold text-center w-full flex flex-row items-center justify-center gap-1">
-            {{third_user.similar_hobbies}} Similar
+            {{third_user.similar_hobbies_count}} Similar
             Hobbies
             <CircleHelp :size="16"/>
           </h3>
@@ -53,7 +53,7 @@ export default defineComponent({
         <div class="tooltip tooltip-bottom w-full"
              data-tip="You both like Reading and Dancing and fasfsa andf gagsjkhgskj!">
           <h3 class="cursor-pointer text-sm text-neutral-400 font-semibold text-center w-full flex flex-row items-center justify-center gap-1">
-            {{first_user.similar_hobbies}} Similar
+            {{first_user.similar_hobbies_count}} Similar
             Hobbies
             <CircleHelp :size="16"/>
           </h3>
@@ -71,7 +71,7 @@ export default defineComponent({
         <div class="tooltip tooltip-bottom w-full"
              data-tip="You both like Reading and Dancing and fasfsa andf gagsjkhgskj!">
           <h3 class="cursor-pointer text-sm text-neutral-400 font-semibold text-center w-full flex flex-row items-center justify-center gap-1">
-            {{second_user.similar_hobbies}} Similar
+            {{second_user.similar_hobbies_count}} Similar
             Hobbies
             <CircleHelp :size="16"/>
           </h3>
