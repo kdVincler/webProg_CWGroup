@@ -47,7 +47,6 @@ const getUsersPaginated = async (page_number: number, age_range?: { low: number,
         throw new Error('Failed to fetch page of users');
     }
     const data = await response.json();
-    console.log(data)
     return data;
 }
 
