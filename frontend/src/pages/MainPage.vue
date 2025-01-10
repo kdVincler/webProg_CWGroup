@@ -2,7 +2,7 @@
 import {defineComponent, ref, onMounted} from "vue";
 import UserDisplay from "../components/UserDisplay.vue";
 import PodiumDisplay from "../components/PodiumDisplay.vue";
-import {getUsersPaginated} from "../api";
+import {getFriendRequests, getFriends, getUsersPaginated} from "../api";
 
 export default defineComponent({
   components: {PodiumDisplay, UserDisplay},
@@ -13,11 +13,20 @@ export default defineComponent({
     const page = ref(1);
     const pages = ref(0);
 
+    const outgoingRequests = ref([]);
+    const friends = ref([]);
+
     onMounted(async () => {
       try {
         const paginatedData = await getUsersPaginated(page.value);
         similar_users.value = paginatedData?.page?.users || [];
         pages.value = paginatedData?.page?.total_pages || 1;
+
+        const fr = await getFriendRequests();
+        outgoingRequests.value = fr.outgoing_requests;
+
+        const f = await getFriends();
+        friends.value = f.friends;
       } catch (error) {
         console.error("Error loading users:", error);
       } finally {
@@ -29,7 +38,9 @@ export default defineComponent({
       similar_users,
       loading,
       page,
-      pages
+      pages,
+      outgoingRequests,
+      friends
     };
   },
   methods: {
@@ -61,6 +72,8 @@ export default defineComponent({
           :key="index"
           :position="index + 4"
           :user="user"
+          :is-friend="friends.some(f => f.id === user.id)"
+          :is-requested="outgoingRequests.some(r => r.user2.id === user.id)"
       />
     </div>
   </div>
@@ -72,6 +85,8 @@ export default defineComponent({
           :key="index"
           :position="index + 1 + ((page-1) * 10)"
           :user="user"
+          :is-friend="friends.some(f => f.id === user.id)"
+          :is-requested="outgoingRequests.some(r => r.user2.id === user.id)"
       />
     </div>
   </div>

@@ -273,10 +273,10 @@ def accept_request(request, user_id):
     return JsonResponse({"message": "Friend request accepted"})
 
 
-def reject_request(request, user_id):
+def reject_request_or_remove_friend(request, user_id):
     """Decline a friend request (delete the pending relationship)."""
     # Get the friend request to decline
-    friend_request = get_object_or_404(Friend, user1=user_id, user2=request.user, accepted=False)
+    friend_request = get_object_or_404(Friend, user1=user_id, user2=request.user)
 
     # Delete the friend request (pending relationship)
     friend_request.delete()
@@ -301,3 +301,25 @@ def get_friends(request):
         else:
             r.append(friend.user1)
     return JsonResponse({"friends": [friend.as_dict() for friend in r]})
+
+def send_request(request, user_id):
+    """Send a friend request to another user."""
+    if request.method == 'POST':
+        try:
+            friend = User.objects.get(id=user_id)
+            # Check if the friend request already exists
+            if Friend.objects.filter(user1=request.user, user2=friend).exists():
+                return JsonResponse({'error': 'Friend request already exists'}, status=400)
+            # If an inverse friend request exists, accept it
+            if Friend.objects.filter(user1=friend, user2=request.user).exists():
+                friend_request = Friend.objects.get(user1=friend, user2=request.user)
+                friend_request.accepted = True
+                friend_request.save()
+                return JsonResponse({'message': 'Friend request accepted'}, status=200)
+            # Create the friend request
+            Friend.objects.create(user1=request.user, user2=friend)
+            return JsonResponse({'message': 'Friend request sent successfully'}, status=201)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    else:
+        return JsonResponse({'error': "Incorrect method"}, status=501)

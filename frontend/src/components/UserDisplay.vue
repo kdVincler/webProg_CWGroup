@@ -1,7 +1,7 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
 import {Trophy} from 'lucide-vue-next'
-import {PaginatedUser} from '../api'
+import {PaginatedUser, sendFriendRequest, rejectFriendRequestOrRemoveFriend} from '../api'
 import {PropType} from 'vue'
 import {getInitialBGColour} from '../utils'
 
@@ -17,20 +17,30 @@ export default defineComponent({
       type: Number,
       required: true
     },
+    isFriend: {
+      type: Boolean,
+      default: false
+    },
+    isRequested: {
+      type: Boolean,
+      default: false
+    }
   },
-  data: () => ({
-    isFriend: false,
-    isRequested: false
-  }),
+  data() {
+    return {
+      isFriendData: this.isFriend,
+      isRequestedData: this.isRequested
+    }
+  },
   methods: {
     addFriend() {
-      console.log("Adding friend")
-      this.isRequested = true
+      this.isRequestedData = true
+      sendFriendRequest(this.user.id)
     },
     removeFriend() {
-      console.log("Removing friend")
-      this.isFriend = false
-      this.isRequested = false
+      this.isFriendData = false
+      this.isRequestedData = false
+      rejectFriendRequestOrRemoveFriend(this.user.id)
     },
     getInitialBGColour
   }
@@ -54,10 +64,10 @@ export default defineComponent({
       </div>
     </div>
 
-    <button v-if="isRequested" class="btn justify-self-end btn-disabled min-w-32">
+    <button v-if="isRequestedData" class="btn justify-self-end btn-disabled min-w-32">
       Requested
     </button>
-    <button v-else-if="isFriend" @click="removeFriend" class="btn justify-self-end min-w-32">
+    <button v-else-if="isFriendData" @click="removeFriend" class="btn justify-self-end min-w-32">
       Remove Friend
     </button>
     <button v-else @click="addFriend" class="btn justify-self-end min-w-32">
