@@ -63,8 +63,13 @@ export default defineComponent({
 
 <template>
   <div v-if="similar_users.length > 2 && page == 1" class="h-full overflow-y-auto px-6">
-    <PodiumDisplay v-if="!loading" :first_user="similar_users[0]" :second_user="similar_users[1]"
-                   :third_user="similar_users[2]"/>
+    <PodiumDisplay v-if="!loading" :users="[similar_users[0], similar_users[1], similar_users[2]]"
+                   :is-friend="[friends.some(f => f.id === similar_users[0].id),
+    friends.some(f => f.id === similar_users[1].id),friends.some(f => f.id === similar_users[2].id)]"
+                   :is-requested="[outgoingRequests.some(r => r.user2.id === similar_users[0].id),
+    outgoingRequests.some(r => r.user2.id === similar_users[1].id),outgoingRequests.some(r => r.user2.id === similar_users[2].id)]"
+
+    />
     <div v-if="loading" class="text-center">Loading users...</div>
     <div v-else>
       <UserDisplay
@@ -91,6 +96,8 @@ export default defineComponent({
     </div>
   </div>
   <div class="join w-full flex justify-center mb-6 mt-2">
-    <button class="join-item btn bg-base-100" :class="page == i && 'btn-disabled'" v-for="i in pages" @click="changePage(i)">{{i}}</button>
+    <button class="join-item btn bg-base-100" :class="page == i && 'btn-disabled'" v-for="i in pages"
+            @click="changePage(i)">{{ i }}
+    </button>
   </div>
 </template>
