@@ -56,5 +56,18 @@ class UserHobbySerializer(serializers.ModelSerializer):
         return instance
 
 class FriendSerializer(serializers.ModelSerializer):
-    TODO
-    pass
+    """Serializer for the Friend model"""
+    user1 = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    user2 = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    accepted = serializers.BooleanField(default=False)
+    
+    def create(self, validated_data):
+        """Create and return a new friendship"""
+        return Friend.objects.create(**validated_data)
+    
+    def update(self, instance, validated_data):
+        """Update the status of a friend request"""
+        instance.accepted = validated_data.get('accepted', instance.accepted)
+        instance.save()
+        return instance
+    
