@@ -1,11 +1,11 @@
 <script lang="ts">
 import {defineComponent, ref} from "vue";
 import {useUserStore} from "../store/user";
-import {Mail, Calendar} from "lucide-vue-next";
-import { EditUser, updateUser, deleteUser } from "../api";
+import {Mail, Calendar, PencilLine, X, Eye, EyeOff} from "lucide-vue-next";
+import {EditUser, updateUser, deleteUser} from "../api";
 
 export default defineComponent({
-  components: { Mail, Calendar},
+  components: {Mail, Calendar, PencilLine, X, Eye, EyeOff},
   name: "ProfilePage",
   setup() {
     const userStore = useUserStore();
@@ -24,13 +24,17 @@ export default defineComponent({
     }
 
     const editUser = ref<EditUser>(createEditUser())
-    const showPassword = ref(false)
+    const showOldPassword = ref(false)
+    const showNewPassword = ref(false)
+    const showConfirmNewPassword = ref(false)
     const errorText = ref("")
-    
+
     return {
       userStore,
       editUser,
-      showPassword,
+      showOldPassword,
+      showNewPassword,
+      showConfirmNewPassword,
       errorText
     };
   },
@@ -121,7 +125,9 @@ export default defineComponent({
 
         <div class="divider font-semibold text-neutral-400">Hobbies</div>
         <ul class="flex flex-col w-full px-6 gap-2 list-disc">
-          <li class="text-md font-semibold text-neutral-400 self-start text-start" v-for="hobby in userStore.getHobbies" >{{ hobby.name}}</li>
+          <li class="text-md font-semibold text-neutral-400 self-start text-start"
+              v-for="hobby in userStore.getHobbies">{{ hobby.name }}
+          </li>
         </ul>
 
         <div class="card-actions justify-end w-full pt-6">
@@ -134,64 +140,95 @@ export default defineComponent({
     </div>
   </div>
 
-<!--  Edit Profile Modal  -->
+  <!--  Edit Profile Modal  -->
   <dialog id="edit_profile_modal" class="modal flex flex-row">
     <div class="w-1/6"/>
     <div class="flex-grow flex items-center justify-center">
       <div class="modal-box">
         <h3 class="font-bold text-lg">Edit Profile</h3>
-          <form @submit.prevent="submitForm">
-            <div class="form-control mb-4">
-              <div class="flex items-center">
-                <label class="label">Edit Name:</label>
-                <input type="checkbox" class="checkbox" name="change_name" v-model="editUser.name_changed">
-              </div>
-              <input v-model="editUser.name" type="text" class="input input-bordered" required :disabled="!editUser.name_changed"/>
+        <form @submit.prevent="submitForm">
+
+          <section class="form-control mb-4">
+            <label class="label">Name</label>
+            <div class="w-full flex flex-row-reverse items-center justify-between gap-2">
+              <label class="btn btn-square swap swap-rotate">
+                <input type="checkbox" name="change_name" v-model="editUser.name_changed">
+                <PencilLine class="swap-off" :size="32" :color="'gray'"/>
+                <X class="swap-on" :size="32" :color="'gray'"/>
+              </label>
+              <input v-model="editUser.name" type="text" class="input input-bordered w-full" required
+                     :disabled="!editUser.name_changed"/>
             </div>
-  
-            <div class="form-control mb-4">
-              <div class="flex items-center">
-                <label class="label">Edit Email:</label>
-                <input type="checkbox" class="checkbox" name="change_name" v-model="editUser.email_changed">
-              </div>
-              <input v-model="editUser.email" type="email" class="input input-bordered" required :disabled="!editUser.email_changed"/>
+          </section>
+
+          <section class="form-control mb-4">
+            <label class="label">Email</label>
+            <div class="w-full flex flex-row-reverse items-center justify-between gap-2">
+              <label class="btn btn-square swap swap-rotate">
+                <input type="checkbox" name="change_email" v-model="editUser.email_changed">
+                <PencilLine class="swap-off" :size="32" :color="'gray'"/>
+                <X class="swap-on" :size="32" :color="'gray'"/>
+              </label>
+              <input v-model="editUser.email" type="email" class="input input-bordered w-full" required
+                     :disabled="!editUser.email_changed"/>
             </div>
-            
-            <div class="flex items-center">
-              <label class="label">Edit Password (will result in logging out):</label>
-              <input type="checkbox" class="checkbox" name="change_name" v-model="editUser.password_changed">
+          </section>
+
+          <section class="form-control mb-4">
+            <label class="label">Password</label>
+            <!--Div not a button to avoid auto submit :)-->
+            <div class="w-full btn" @click="editUser.password_changed = !editUser.password_changed">
+              {{ editUser.password_changed ? 'Cancel' : 'Edit Password' }}
             </div>
+          </section>
+
+          <section v-if="editUser.password_changed">
 
             <div class="form-control mb-4">
               <label class="label">Old Password</label>
-              <div class="relative">
-                <input v-model="editUser.old_password" :type="showPassword ? 'text' : 'password'" class="input input-bordered" :disabled="!editUser.password_changed"/>
+              <div class="w-full flex flex-row-reverse items-center justify-between gap-2">
+                <label class="btn btn-square swap swap-rotate">
+                  <input type="checkbox" name="change_email" v-model="showOldPassword">
+                  <EyeOff class="swap-off" :size="32" :color="'gray'"/>
+                  <Eye class="swap-on" :size="32" :color="'gray'"/>
+                </label>
+                <input v-model="editUser.old_password" :type="showOldPassword ? 'text' : 'password'"
+                       class="input input-bordered w-full" :disabled="!editUser.password_changed"/>
               </div>
             </div>
-
             <div class="form-control mb-4">
               <label class="label">New Password</label>
-              <div class="relative">
-                <input name="pw" v-model="editUser.new_password" :type="showPassword ? 'text' : 'password'" class="input input-bordered" :disabled="!editUser.password_changed"/>
+              <div class="w-full flex flex-row-reverse items-center justify-between gap-2">
+                <label class="btn btn-square swap swap-rotate">
+                  <input type="checkbox" name="change_email" v-model="showNewPassword">
+                  <EyeOff class="swap-off" :size="32" :color="'gray'"/>
+                  <Eye class="swap-on" :size="32" :color="'gray'"/>
+                </label>
+                <input name="pw" v-model="editUser.new_password" :type="showNewPassword ? 'text' : 'password'"
+                       class="input input-bordered w-full" :disabled="!editUser.password_changed"/>
               </div>
             </div>
-
             <div class="form-control mb-4">
               <label class="label">Confirm New Password</label>
-              <div class="relative">
-                <input name="cpw" v-model="editUser.confirm_new_password" :type="showPassword ? 'text' : 'password'" class="input input-bordered" :disabled="!editUser.password_changed"/>
+              <div class="w-full flex flex-row-reverse items-center justify-between gap-2">
+                <label class="btn btn-square swap swap-rotate">
+                  <input type="checkbox" name="change_email" v-model="showConfirmNewPassword">
+                  <EyeOff class="swap-off" :size="32" :color="'gray'"/>
+                  <Eye class="swap-on" :size="32" :color="'gray'"/>
+                </label>
+                <input name="cpw" v-model="editUser.confirm_new_password"
+                       :type="showConfirmNewPassword ? 'text' : 'password'"
+                       class="input input-bordered w-full" :disabled="!editUser.password_changed"/>
               </div>
             </div>
+          </section>
 
-            <button type="button" class="btn btn-sm" @click="() => {showPassword = !showPassword}" :disabled="!editUser.password_changed">
-              {{ showPassword ? 'Hide Passwords' : 'Show Passwords' }}
-            </button>
-  
-            <div class="modal-action">
-              <button type="submit" class="btn btn-success">Save</button>
-              <button type="button" class="btn" @click="closeModal('edit')">Cancel</button>
-            </div>
-          </form>
+
+          <div class="modal-action">
+            <button type="submit" class="btn btn-success">Save</button>
+            <button type="button" class="btn" @click="closeModal('edit')">Cancel</button>
+          </div>
+        </form>
       </div>
     </div>
   </dialog>
@@ -204,8 +241,8 @@ export default defineComponent({
         <h3 class="text-lg font-semibold">Are you sure you wan to delete your account?</h3>
         <p class="py-4">This action is irreversible.</p>
         <div class="modal-action">
-            <button class="btn btn-error" @click="onDelete">Delete Account</button>
-            <button class="btn" @click="closeModal('delete')">Close</button>
+          <button class="btn btn-error" @click="onDelete">Delete Account</button>
+          <button class="btn" @click="closeModal('delete')">Close</button>
         </div>
       </div>
     </div>
@@ -219,7 +256,7 @@ export default defineComponent({
         <h3 class="text-lg font-semibold text-error">Error</h3>
         <p class="py-4 text-error">{{ errorText }}</p>
         <div class="modal-action">
-            <button class="btn" @click="closeModal('error')">Close</button>
+          <button class="btn" @click="closeModal('error')">Close</button>
         </div>
       </div>
     </div>
