@@ -99,11 +99,11 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="p-6 h-full flex flex-col items-center gap-16 overflow-y-auto">
+  <div class="px-6 h-full flex flex-col items-center gap-6 overflow-y-auto">
     <h1 class="text-3xl font-semibold">My Profile</h1>
     <div class="card bg-base-100 min-w-96 shadow-xl ">
       <div class="card-body flex flex-col items-center ">
-        <div class="rounded-full h-36 w-36 bg-red-400">
+        <div class="rounded-full h-32 w-32 bg-red-400">
           <div class="flex flex-row items-center justify-center h-full w-full">
             <span class="w-full text-center text-5xl font-semibold text-neutral-700">{{ userStore.getInitials }}</span>
           </div>
@@ -127,7 +127,7 @@ export default defineComponent({
         <div class="card-actions justify-end w-full pt-6">
           <button @click="openModal('edit')" class="btn w-full">Edit Profile</button>
         </div>
-        <div class="card-actions justify-end w-full pt-6">
+        <div class="card-actions justify-end w-full pt-2">
           <button @click="openModal('delete')" class="btn btn-error w-full">Delete Account</button>
         </div>
       </div>
