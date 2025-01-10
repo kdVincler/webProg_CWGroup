@@ -17,6 +17,7 @@ class HobbySerializer(serializers.ModelSerializer):
         return instance
     
 class UserSerializer(serializers.ModelSerializer):
+    """Serializer for the User model"""
     id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(max_length=255, required=False)
     email = serializers.EmailField(unique=True)
@@ -39,8 +40,20 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserHobbySerializer(serializers.ModelSerializer):
-    TODO
-    pass
+    """Serializer for the UserHobby model"""
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    hobby = serializers.PrimaryKeyRelatedField(queryset=Hobby.objects.all())
+
+    def create(self, validated_data):
+        """Create and return a new user-hobby relationship"""
+        return UserHobby.objects.create(**validated_data)
+    
+    def update(self, instance, validated_data):
+        """Update and return an existing user-hobby relationship"""
+        instance.user = validated_data.get('user', instance.user)
+        instance.hobby = validated_data.get('hobby', instance.hobby)
+        instance.save()
+        return instance
 
 class FriendSerializer(serializers.ModelSerializer):
     TODO
