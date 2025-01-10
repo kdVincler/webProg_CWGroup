@@ -1,6 +1,6 @@
 import {defineStore} from "pinia";
 import {checkAuthStatus} from "../api.ts";
-import {Hobby} from "../api.ts";
+import {Hobby} from "./hobbies.ts";
 
 export interface User {
     id: number;

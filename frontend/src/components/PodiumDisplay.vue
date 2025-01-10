@@ -2,7 +2,8 @@
 import {defineComponent} from 'vue';
 import {Trophy, CircleHelp} from 'lucide-vue-next';
 import {PropType} from 'vue';
-import {PaginatedUser, sendFriendRequest, rejectFriendRequestOrRemoveFriend} from "../api.ts";
+import {sendFriendRequest, rejectFriendRequestOrRemoveFriend} from "../api.ts";
+import {PaginatedUser} from '../store/page.ts';
 
 export default defineComponent({
   components: {Trophy, CircleHelp},

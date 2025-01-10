@@ -1,5 +1,22 @@
 import {defineStore} from "pinia";
-import {Page, PaginatedUser, getUsersPaginated} from "../api.ts";
+import {getUsersPaginated} from "../api.ts";
+import {Hobby} from "./hobbies.ts";
+
+export interface Page {
+    current_page: number,
+    total_pages: number,
+    total_users: number,
+    users: PaginatedUser[]
+}
+
+export interface PaginatedUser {
+    id: number,
+    name: string,
+    age: number,
+    hobbies: Hobby[],
+    similar_hobbies_count: number
+    similar_hobbies: Hobby[]
+}
 
 export const usePageStore = defineStore('page', {
     state: () => ({

@@ -1,5 +1,10 @@
 import {defineStore} from "pinia";
-import {fetchAllHobbies, Hobby} from "../api.ts";
+import {fetchAllHobbies} from "../api.ts";
+
+export interface Hobby {
+    id: number;
+    name: string;
+}
 
 export const useHobbiesStore = defineStore('hobbies', {
     state: () => ({

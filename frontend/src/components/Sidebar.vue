@@ -10,9 +10,9 @@ import {
   getFriends
 } from "../api";
 import {useUserStore} from "../store/user";
-import { useHobbiesStore } from '../store/hobbies';
+import {useHobbiesStore, Hobby} from '../store/hobbies';
 import {Trash, Check, X, Mail} from "lucide-vue-next";
-import {Hobby, getFriendRequests} from "../api";
+import {getFriendRequests} from "../api";
 
 export default defineComponent({
   components: {Trash, Check, X, Mail},

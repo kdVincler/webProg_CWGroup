@@ -1,27 +1,6 @@
 import {User, useUserStore} from "./store/user.ts";
-import { useHobbiesStore } from "./store/hobbies.ts";
-import { usePageStore } from "./store/page.ts";
-
-export interface Hobby {
-    id: number;
-    name: string;
-}
-
-export interface Page {
-    current_page: number,
-    total_pages: number,
-    total_users: number,
-    users: PaginatedUser[]
-}
-
-export interface PaginatedUser {
-    id: number,
-    name: string,
-    age: number,
-    hobbies: Hobby[],
-    similar_hobbies_count: number
-    similar_hobbies: Hobby[]
-}
+import { useHobbiesStore, Hobby } from "./store/hobbies.ts";
+import { usePageStore, Page } from "./store/page.ts";
 
 export interface EditUser {
     name_changed: boolean;

@@ -1,9 +1,10 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
 import {Trophy} from 'lucide-vue-next'
-import {PaginatedUser, sendFriendRequest, rejectFriendRequestOrRemoveFriend} from '../api'
+import {sendFriendRequest, rejectFriendRequestOrRemoveFriend} from '../api'
 import {PropType} from 'vue'
 import {getInitialBGColour} from '../utils'
+import {PaginatedUser} from '../store/page'
 
 export default defineComponent({
   components: {Trophy},

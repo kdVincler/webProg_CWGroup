@@ -2,8 +2,8 @@
 import {defineComponent, ref, onMounted} from "vue";
 import UserDisplay from "../components/UserDisplay.vue";
 import PodiumDisplay from "../components/PodiumDisplay.vue";
-import {getFriendRequests, getFriends, PaginatedUser} from "../api";
-import { usePageStore } from "../store/page";
+import {getFriendRequests, getFriends} from "../api";
+import {usePageStore, PaginatedUser} from "../store/page";
 
 export default defineComponent({
   components: {PodiumDisplay, UserDisplay},
