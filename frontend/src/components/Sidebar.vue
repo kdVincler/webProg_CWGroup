@@ -10,6 +10,7 @@ import {
   getFriends
 } from "../api";
 import {useUserStore} from "../store/user";
+import { useHobbiesStore } from '../store/hobbies';
 import {Trash, Check, X, Mail} from "lucide-vue-next";
 import {Hobby, getFriendRequests} from "../api";
 
@@ -18,6 +19,7 @@ export default defineComponent({
   name: "Sidebar",
   setup() {
     const userStore = useUserStore();
+    const hobbiesStore = useHobbiesStore();
     const friendRequests = ref([]);
     const friends = ref([]);
     onMounted(async () => {
@@ -27,7 +29,7 @@ export default defineComponent({
       const f = await getFriends();
       friends.value = f.friends;
     });
-    return {userStore, friendRequests, friends};
+    return {userStore, hobbiesStore, friendRequests, friends};
   },
   data() {
     return {
@@ -37,8 +39,10 @@ export default defineComponent({
     };
   },
   async mounted() {
-    const {hobbies} = await this.fetchAllHobbies();
-    this.hobbies = hobbies;
+    if (this.hobbiesStore.getAllHobbies == null) {
+      await this.hobbiesStore.populate()
+    }
+    this.hobbies = this.hobbiesStore.getAllHobbies || [];
   },
   methods: {
     logout,

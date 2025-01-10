@@ -141,6 +141,8 @@ const addUserHobby = async (name: String): Promise<void> => {
         throw new Error('Failed to add hobby');
     }
     useUserStore().fetchAuthStatus();
+    useHobbiesStore().populate(); // needs to update the list in the store so sidebar updates
+    // needs to update pagination 
 }
 
 const deleteUserHobby = async (id: Number): Promise<void> => {
@@ -158,6 +160,7 @@ const deleteUserHobby = async (id: Number): Promise<void> => {
         throw new Error('Failed to delete hobby');
     }
     useUserStore().fetchAuthStatus();
+    // needs to update pagination 
 }
 
 export async function fetchAllHobbies(): Promise<{ hobbies: Hobby[] }> {
