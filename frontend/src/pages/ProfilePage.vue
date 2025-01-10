@@ -3,6 +3,7 @@ import {defineComponent, ref} from "vue";
 import {useUserStore} from "../store/user";
 import {Mail, Calendar, PencilLine, X, Eye, EyeOff} from "lucide-vue-next";
 import {EditUser, updateUser, deleteUser} from "../api";
+import {getInitialBGColour} from "../utils.ts";
 
 export default defineComponent({
   components: {Mail, Calendar, PencilLine, X, Eye, EyeOff},
@@ -41,6 +42,7 @@ export default defineComponent({
   methods: {
     updateUser,
     deleteUser,
+    getInitialBGColour,
     openModal(modal: String) {
       (document.getElementById(`${modal}_profile_modal`) as HTMLDialogElement).showModal();
     },
@@ -107,7 +109,7 @@ export default defineComponent({
     <h1 class="text-3xl font-semibold">My Profile</h1>
     <div class="card bg-base-100 min-w-96 shadow-xl ">
       <div class="card-body flex flex-col items-center ">
-        <div class="rounded-full h-32 w-32 bg-red-400">
+        <div :class="['w-32', 'h-32', 'rounded-full', getInitialBGColour(userStore?.getInitials || '')]">
           <div class="flex flex-row items-center justify-center h-full w-full">
             <span class="w-full text-center text-5xl font-semibold text-neutral-700">{{ userStore.getInitials }}</span>
           </div>
