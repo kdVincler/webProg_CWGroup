@@ -2,8 +2,8 @@
 import {defineComponent, ref, onMounted} from "vue";
 import UserDisplay from "../components/UserDisplay.vue";
 import PodiumDisplay from "../components/PodiumDisplay.vue";
-import {getFriendRequests, getFriends} from "../api";
 import {usePageStore, PaginatedUser} from "../store/page";
+import {Friend, useUserStore} from "../store/user";
 
 export default defineComponent({
   components: {PodiumDisplay, UserDisplay},
@@ -12,22 +12,17 @@ export default defineComponent({
     const loading = ref(true);
     const page = ref(1);
 
-    const outgoingRequests = ref([]);
-    const friends = ref([]);
-
     const pageStore = usePageStore();
+    const userStore = useUserStore();
 
     onMounted(async () => {
       try {
         if (pageStore.getPage === undefined) {
           await pageStore.paginate(page.value)
         }
-
-        const fr = await getFriendRequests();
-        outgoingRequests.value = fr.outgoing_requests;
-
-        const f = await getFriends();
-        friends.value = f.friends;
+        if (userStore.getOutgoingFriendRequests === undefined || userStore.getUserFriends === undefined) {
+          await userStore.updateFriendRequests()
+        }
       } catch (error) {
         console.error("Error loading users:", error);
       } finally {
@@ -38,9 +33,8 @@ export default defineComponent({
     return {
       loading,
       page,
-      outgoingRequests,
-      friends,
-      pageStore
+      pageStore,
+      userStore
     };
   },
   methods: {
@@ -62,6 +56,12 @@ export default defineComponent({
     },
     pages(): number {
       return this.pageStore.getTotalPages || 1
+    },
+    outgoingRequests(): Friend[] | [] {
+      return this.userStore.getOutgoingFriendRequests || []
+    },
+    friends(): Friend[] | [] {
+      return this.userStore.getUserFriends || []
     }
   }
 });

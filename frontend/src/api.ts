@@ -1,4 +1,4 @@
-import {User, useUserStore} from "./store/user.ts";
+import {Friend, FriendRequests, User, useUserStore} from "./store/user.ts";
 import { useHobbiesStore, Hobby } from "./store/hobbies.ts";
 import { usePageStore, Page } from "./store/page.ts";
 
@@ -201,7 +201,7 @@ export async function sendFriendRequest(id: number): Promise<void> {
     useUserStore().updateFriendRequests();
 }
 
-export async function getFriends(): Promise<void> {
+export async function getFriends(): Promise<{friends: Friend[]}> {
     const response = await fetch(`http://localhost:8000/friends/`, {
         method: 'GET',
         credentials: 'include',
@@ -216,7 +216,7 @@ export async function getFriends(): Promise<void> {
     return data;
 }
 
-export async function getFriendRequests() {
+export async function getFriendRequests(): Promise<FriendRequests> {
     const response = await fetch('http://localhost:8000/friend-requests/', {
         method: 'GET',
         credentials: 'include'

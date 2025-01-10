@@ -1,5 +1,5 @@
 <script lang="ts">
-import {defineComponent, onMounted, ref} from 'vue'
+import {defineComponent, onMounted} from 'vue'
 import {
   logout,
   addUserHobby,
@@ -7,12 +7,10 @@ import {
   fetchAllHobbies,
   acceptFriendRequest,
   rejectFriendRequestOrRemoveFriend,
-  getFriends
 } from "../api";
-import {useUserStore} from "../store/user";
+import {Friend, useUserStore} from "../store/user";
 import {useHobbiesStore, Hobby} from '../store/hobbies';
 import {Trash, Check, X, Mail} from "lucide-vue-next";
-import {getFriendRequests} from "../api";
 
 export default defineComponent({
   components: {Trash, Check, X, Mail},
@@ -20,16 +18,21 @@ export default defineComponent({
   setup() {
     const userStore = useUserStore();
     const hobbiesStore = useHobbiesStore();
-    const friendRequests = ref([]);
-    const friends = ref([]);
-    onMounted(async () => {
-      const fr = await getFriendRequests();
-      friendRequests.value = fr.incoming_requests;
 
-      const f = await getFriends();
-      friends.value = f.friends;
+    onMounted(async () => {
+      if (userStore.getIncomingFriendRequests === undefined || userStore.getUserFriends === undefined) {
+        await userStore.updateFriendRequests()
+      }
     });
-    return {userStore, hobbiesStore, friendRequests, friends};
+    return {userStore, hobbiesStore};
+  },
+  computed: {
+    friendRequests(): Friend[] | [] {
+      return this.userStore.getIncomingFriendRequests || []
+    },
+    friends(): Friend[] | [] {
+      return this.userStore.getUserFriends || []
+    }
   },
   data() {
     return {
@@ -60,12 +63,12 @@ export default defineComponent({
     },
     acceptRequest(id: number) {
       acceptFriendRequest(id)
-      this.friends.push({id, name: this.friendRequests.filter(r => r.user1.id === id)[0].user1.name});
-      this.friendRequests = this.friendRequests.filter(r => r.user1.id !== id);
+      // this.friends.push({id, name: this.friendRequests.filter(r => r.user1.id === id)[0].user1.name});
+      // this.friendRequests = this.friendRequests.filter(r => r.user1.id !== id);
     },
     rejectRequest(id: number) {
       rejectFriendRequestOrRemoveFriend(id)
-      this.friendRequests = this.friendRequests.filter(r => r.user1.id !== id);
+      // this.friendRequests = this.friendRequests.filter(r => r.user1.id !== id);
     }
   }
 })
