@@ -38,28 +38,20 @@ export default defineComponent({
     updateUser,
     deleteUser,
     openModal(modal: String) {
-      if (modal == "edit") {
-        (document.getElementById('edit_profile_modal') as HTMLDialogElement).showModal();
-      } else if (modal == "delete") {
-        (document.getElementById('delete_profile_modal') as HTMLDialogElement).showModal();
-      } else if (modal == "error") {
-        (document.getElementById('error_profile_modal') as HTMLDialogElement).showModal();
-      }
+      (document.getElementById(`${modal}_profile_modal`) as HTMLDialogElement).showModal();
     },
     closeModal(modal: String) {
-      if (modal == "edit") {
-        (document.getElementById('edit_profile_modal') as HTMLDialogElement).close();
-      } else if (modal == "delete") {
-        (document.getElementById('delete_profile_modal') as HTMLDialogElement).close();
-      } else if (modal == "error") {
-        this.errorText = "";
-        (document.getElementById('error_profile_modal') as HTMLDialogElement).close();
-      }
+      (document.getElementById(`${modal}_profile_modal`) as HTMLDialogElement).close();
     },
     async submitForm() {
-      if (this.editUser.password_changed && (this.editUser.new_password == this.editUser.old_password)) {
+      if (this.editUser.password_changed && (this.editUser.old_password == "" || this.editUser.new_password == "" || this.editUser.confirm_new_password == "")) {
+        // user submits without filling in one or more of the password fields after selecting the option tho change them
+        this.errorText = "Please fill in the Old Password, New Password and Confirm New Password fields to edit your password"
+        this.openModal("error")
+        return
+      } else if (this.editUser.password_changed && (this.editUser.new_password == this.editUser.old_password)) {
         // old password and new password match
-        this.errorText = "New Passwords Can't Be Old Password"
+        this.errorText = "New Password Can't Be Old Password"
         this.openModal("error")
         return
       } else if (this.editUser.password_changed && (this.editUser.new_password !== this.editUser.confirm_new_password)) {
@@ -67,16 +59,15 @@ export default defineComponent({
         this.errorText = "New Password And Confirm New Password Don't Match"
         this.openModal("error")
         return
-      } else {
-        if (this.editUser.name_changed || this.editUser.email_changed || this.editUser.password_changed) {
-          try {
-            await updateUser(this.editUser)
-            this.editUser = this.resetEditUser()
-          } catch (error: any) {
-            this.errorText = error
-            this.openModal("error")
-            return
-          }
+      } else if (this.editUser.name_changed || this.editUser.email_changed || this.editUser.password_changed) {
+        // user submits the form indicating change with password fields validated or not changed
+        try {
+          await updateUser(this.editUser)
+          this.editUser = this.resetEditUser()
+        } catch (error: any) {
+          this.errorText = error
+          this.openModal("error")
+          return
         }
         this.closeModal("edit")
       }
