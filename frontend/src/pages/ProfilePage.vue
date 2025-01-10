@@ -48,6 +48,8 @@ export default defineComponent({
     },
     closeModal(modal: String) {
       (document.getElementById(`${modal}_profile_modal`) as HTMLDialogElement).close();
+      if (modal == "edit") { this.editUser = this.resetEditUser()}
+      if (modal == "error") {this.errorText = ""}
     },
     async submitForm() {
       if (this.editUser.password_changed && (this.editUser.old_password == "" || this.editUser.new_password == "" || this.editUser.confirm_new_password == "")) {
@@ -98,6 +100,23 @@ export default defineComponent({
         old_password: "",
         new_password: "",
         confirm_new_password: ""
+      }
+    },
+    discardChanges() {
+      // if the edit checkbox isn't checked, revert to default values (= discard changes made if there were any)
+      if (!this.editUser.name_changed) {
+        this.editUser.name = this.userStore.getName || ""
+      }
+      if (!this.editUser.email_changed) {
+        this.editUser.email = this.userStore.getEmail || ""
+      }
+      if (!this.editUser.password_changed) {
+        this.editUser.old_password = ""
+        this.editUser.new_password = ""
+        this.editUser.confirm_new_password = ""
+        this.showOldPassword = false
+        this.showNewPassword = false
+        this.showConfirmNewPassword = false
       }
     }
   }
@@ -154,7 +173,7 @@ export default defineComponent({
             <label class="label">Name</label>
             <div class="w-full flex flex-row-reverse items-center justify-between gap-2">
               <label class="btn btn-square swap swap-rotate">
-                <input type="checkbox" name="change_name" v-model="editUser.name_changed">
+                <input type="checkbox" name="change_name" v-model="editUser.name_changed" @click="discardChanges">
                 <PencilLine class="swap-off" :size="32" :color="'gray'"/>
                 <X class="swap-on" :size="32" :color="'gray'"/>
               </label>
@@ -167,7 +186,7 @@ export default defineComponent({
             <label class="label">Email</label>
             <div class="w-full flex flex-row-reverse items-center justify-between gap-2">
               <label class="btn btn-square swap swap-rotate">
-                <input type="checkbox" name="change_email" v-model="editUser.email_changed">
+                <input type="checkbox" name="change_email" v-model="editUser.email_changed"  @click="discardChanges">
                 <PencilLine class="swap-off" :size="32" :color="'gray'"/>
                 <X class="swap-on" :size="32" :color="'gray'"/>
               </label>
@@ -179,7 +198,7 @@ export default defineComponent({
           <section class="form-control mb-4">
             <label class="label">Password</label>
             <!--Div not a button to avoid auto submit :)-->
-            <div class="w-full btn" @click="editUser.password_changed = !editUser.password_changed">
+            <div class="w-full btn" @click="() => {editUser.password_changed = !editUser.password_changed; discardChanges()}" >
               {{ editUser.password_changed ? 'Cancel' : 'Edit Password' }}
             </div>
           </section>
