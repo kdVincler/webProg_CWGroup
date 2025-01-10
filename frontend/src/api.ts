@@ -184,9 +184,10 @@ export async function acceptFriendRequest(id: number): Promise<void> {
     if (!response.ok) {
         throw new Error('Failed to accept friend request');
     }
+    useUserStore().updateFriendRequests();
 }
 
-export async function rejectFriendRequest(id: number): Promise<void> {
+export async function rejectFriendRequestOrRemoveFriend(id: number): Promise<void> {
     const response = await fetch(`http://localhost:8000/reject-friend-request/${id}/`, {
         method: 'DELETE',
         credentials: 'include',
@@ -198,6 +199,22 @@ export async function rejectFriendRequest(id: number): Promise<void> {
     if (!response.ok) {
         throw new Error('Failed to reject friend request');
     }
+    useUserStore().updateFriendRequests();
+}
+
+export async function sendFriendRequest(id: number): Promise<void> {
+    const response = await fetch(`http://localhost:8000/send-friend-request/${id}/`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken() || '',
+        }
+    });
+    if (!response.ok) {
+        throw new Error('Failed to send friend request');
+    }
+    useUserStore().updateFriendRequests();
 }
 
 export async function getFriends(): Promise<void> {
@@ -212,7 +229,6 @@ export async function getFriends(): Promise<void> {
         throw new Error('Failed to get friends');
     }
     const data = await response.json();
-    console.log(data);
     return data;
 }
 

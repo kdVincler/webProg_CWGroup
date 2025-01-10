@@ -6,7 +6,7 @@ import {
   deleteUserHobby,
   fetchAllHobbies,
   acceptFriendRequest,
-  rejectFriendRequest,
+  rejectFriendRequestOrRemoveFriend,
   getFriends
 } from "../api";
 import {useUserStore} from "../store/user";
@@ -60,7 +60,7 @@ export default defineComponent({
       this.friendRequests = this.friendRequests.filter(r => r.user1.id !== id);
     },
     rejectRequest(id: number) {
-      rejectFriendRequest(id)
+      rejectFriendRequestOrRemoveFriend(id)
       this.friendRequests = this.friendRequests.filter(r => r.user1.id !== id);
     }
   }
