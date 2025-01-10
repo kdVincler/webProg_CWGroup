@@ -8,18 +8,17 @@ export const useHobbiesStore = defineStore('hobbies', {
      actions: {
         async populate() {
             try {
-                console.log('hobbies populated')
                 const ret = await fetchAllHobbies()
                 this.hobbies = ret.hobbies || null
             } catch (error: any) {
-                console.log(error)
+                console.log('Failed to fetch hobby list. Error:', error)
                 this.hobbies = null
             }
         }
      },
     getters: {
-        getAllHobbies(): Hobby[] | null {
-            return this.hobbies;
+        getAllHobbies(): Hobby[] | undefined {
+            return this.hobbies || undefined;
         },
     },
 });

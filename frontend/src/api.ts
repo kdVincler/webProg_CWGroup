@@ -1,4 +1,6 @@
 import {User, useUserStore} from "./store/user.ts";
+import { useHobbiesStore } from "./store/hobbies.ts";
+import { usePageStore } from "./store/page.ts";
 
 export interface Hobby {
     id: number;
@@ -142,7 +144,7 @@ const addUserHobby = async (name: String): Promise<void> => {
     }
     useUserStore().fetchAuthStatus();
     useHobbiesStore().populate(); // needs to update the list in the store so sidebar updates
-    // needs to update pagination 
+    usePageStore().paginate(1); // needs to update the page from the start, as the new hobby list could mess with the order
 }
 
 const deleteUserHobby = async (id: Number): Promise<void> => {
@@ -160,7 +162,7 @@ const deleteUserHobby = async (id: Number): Promise<void> => {
         throw new Error('Failed to delete hobby');
     }
     useUserStore().fetchAuthStatus();
-    // needs to update pagination 
+    usePageStore().paginate(1); // needs to update the page from the start, as the new hobby list could mess with the order
 }
 
 export async function fetchAllHobbies(): Promise<{ hobbies: Hobby[] }> {

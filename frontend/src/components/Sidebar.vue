@@ -39,7 +39,7 @@ export default defineComponent({
     };
   },
   async mounted() {
-    if (this.hobbiesStore.getAllHobbies == null) {
+    if (this.hobbiesStore.getAllHobbies == undefined) {
       await this.hobbiesStore.populate()
     }
     this.hobbies = this.hobbiesStore.getAllHobbies || [];

@@ -2,25 +2,26 @@
 import {defineComponent, ref, onMounted} from "vue";
 import UserDisplay from "../components/UserDisplay.vue";
 import PodiumDisplay from "../components/PodiumDisplay.vue";
-import {getFriendRequests, getFriends, getUsersPaginated} from "../api";
+import {getFriendRequests, getFriends, PaginatedUser} from "../api";
+import { usePageStore } from "../store/page";
 
 export default defineComponent({
   components: {PodiumDisplay, UserDisplay},
   name: "MainPage",
   setup() {
-    const similar_users = ref<any[]>([]);
     const loading = ref(true);
     const page = ref(1);
-    const pages = ref(0);
 
     const outgoingRequests = ref([]);
     const friends = ref([]);
 
+    const pageStore = usePageStore();
+
     onMounted(async () => {
       try {
-        const paginatedData = await getUsersPaginated(page.value);
-        similar_users.value = paginatedData?.page?.users || [];
-        pages.value = paginatedData?.page?.total_pages || 1;
+        if (pageStore.getPage === undefined) {
+          await pageStore.paginate(page.value)
+        }
 
         const fr = await getFriendRequests();
         outgoingRequests.value = fr.outgoing_requests;
@@ -35,12 +36,11 @@ export default defineComponent({
     });
 
     return {
-      similar_users,
       loading,
       page,
-      pages,
       outgoingRequests,
-      friends
+      friends,
+      pageStore
     };
   },
   methods: {
@@ -48,14 +48,20 @@ export default defineComponent({
       this.page = page;
       this.loading = true;
       try {
-        const paginatedData = await getUsersPaginated(this.page);
-        this.similar_users = paginatedData?.page?.users || [];
-        this.pages = paginatedData?.page?.total_pages || 1;
+        await this.pageStore.paginate(this.page)
       } catch (error) {
         console.error("Error loading users:", error);
       } finally {
         this.loading = false; // Data loading is complete
       }
+    }
+  },
+  computed: {
+    similar_users(): PaginatedUser[] | [] {
+      return this.pageStore.getUsers || []
+    },
+    pages(): number {
+      return this.pageStore.getTotalPages || 1
     }
   }
 });
