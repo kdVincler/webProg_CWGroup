@@ -37,7 +37,7 @@ export default defineComponent({
             :data-tip="
               third_user.similar_hobbies_count === 0 
               ? `You don't share any hobbies` 
-              : `You share the following hobby/hobbies: ${third_user.similar_hobbies.map(hobby => hobby.name).join(', ')}`"
+              : `You share the following hobbies: ${third_user.similar_hobbies.map(hobby => hobby.name).join(', ')}`"
         >
           <h3 class="cursor-pointer text-sm text-neutral-400 font-semibold text-center w-full flex flex-row items-center justify-center gap-1">
             {{third_user.similar_hobbies_count}} Similar
@@ -59,7 +59,7 @@ export default defineComponent({
             :data-tip="
               first_user.similar_hobbies_count === 0 
               ? `You don't share any hobbies` 
-              : `You share the following hobby/hobbies: ${first_user.similar_hobbies.map(hobby => hobby.name).join(', ')}`"
+              : `You share the following hobbies: ${first_user.similar_hobbies.map(hobby => hobby.name).join(', ')}`"
         >
           <h3 class="cursor-pointer text-sm text-neutral-400 font-semibold text-center w-full flex flex-row items-center justify-center gap-1">
             {{first_user.similar_hobbies_count}} Similar
@@ -81,7 +81,7 @@ export default defineComponent({
             :data-tip="
               second_user.similar_hobbies_count === 0 
               ? `You don't share any hobbies` 
-              : `You share the following hobby/hobbies: ${second_user.similar_hobbies.map(hobby => hobby.name).join(', ')}`"
+              : `You share the following hobbies: ${second_user.similar_hobbies.map(hobby => hobby.name).join(', ')}`"
         >
           <h3 class="cursor-pointer text-sm text-neutral-400 font-semibold text-center w-full flex flex-row items-center justify-center gap-1">
             {{second_user.similar_hobbies_count}} Similar

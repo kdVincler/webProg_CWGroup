@@ -21,6 +21,17 @@ export interface PaginatedUser {
     similar_hobbies: Hobby[]
 }
 
+export interface EditUser {
+    name_changed: boolean;
+    name: string;
+    email_changed: boolean;
+    email: string;
+    password_changed: boolean;
+    old_password: string;
+    new_password: string;
+    confirm_new_password: string;
+}
+
 function getCSRFToken(): string | null {
     const csrfCookie = document.cookie
         .split('; ')
@@ -71,14 +82,47 @@ const logout = async (): Promise<void> => {
     }
 }
 
-const updateUser = async (id: number, user: User) => {
-    // Needs URL Gabi
-    console.log(id, user);
+const updateUser = async (edited_user: EditUser) => {
+    const response = await fetch('http://localhost:8000/user/',
+        {
+            method: 'PUT',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken() || '',
+            },
+            body: JSON.stringify({
+                name_changed: edited_user.name_changed,
+                name: edited_user.name,
+                email_changed: edited_user.email_changed,
+                email: edited_user.email,
+                password_changed: edited_user.password_changed,
+                old_password: edited_user.old_password,
+                new_password: edited_user.new_password,
+            })
+        }
+    );
+    if (!response.ok) {
+        throw new Error(`Failed to edit profile. Reason: ${response.status} - ${response.statusText}`);
+    }
+    await useUserStore().fetchAuthStatus();
 }
 
-const deleteUser = async (id: number) => {
-    // Needs URL Gabi
-    console.log(id);
+const deleteUser = async () => {
+    const response = await fetch('http://localhost:8000/user/',
+        {
+            method: 'DELETE',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken() || '',
+            },
+        }
+    );
+    if (!response.ok) {
+        throw new Error(`Failed to delete account. Reason: ${response.status} - ${response.statusText}`);
+    }
+    await useUserStore().fetchAuthStatus();
 }
 
 const addUserHobby = async (name: String): Promise<void> => {

@@ -19,35 +19,53 @@ def main_spa(request: HttpRequest) -> HttpResponse:
 # USER MODEL VIEWS
 
 
-# def user_api(request: HttpRequest, user_id: int) -> HttpResponse: # TODO: Link up with frontend
-#     """API endpoint for updating or deleting a single user"""
-#     if request.method == 'PUT':
-#         # updating a user
-#         return update_user(request, user_id)
-#     if request.method == 'DELETE':
-#         return delete_user(request, user_id)
+def user_api(request: HttpRequest) -> HttpResponse:
+    """API endpoint for updating or deleting a single user"""
+    if request.method == 'PUT':
+        # updating the logged in user's details (name, email, password)
+        return update_user(request)
+    if request.method == 'DELETE':
+        # deleting the logged in user
+        return delete_user(request)
+    else:
+        return JsonResponse({'error': "Incorrect method"}, status=501)
 
 
-# def update_user(request: HttpRequest, user_id: int) -> HttpResponse: # TODO: Link up with frontend
-#     """Update a user's details in the database"""
-#     user = User.objects.get(id=user_id)
-#     try:
-#         data = json.loads(request.body)
-#         user.name = data.get('name', user.name)
-#         user.email = data.get('email', user.email)
-#         user.date_of_birth = data.get('date_of_birth', user.date_of_birth)
-#         user.password = data.get('password', user.password)
-#         user.save()
-#         return JsonResponse(user.as_dict())
-#     except Exception as e:
-#         return JsonResponse({'error': str(e)}, status=400)
+def update_user(request: HttpRequest) -> HttpResponse:
+    """Update the logged in user's details in the database"""
+    if request.user.is_authenticated:
+        try:
+            user = User.objects.get(id=request.user.id)
+            data = json.loads(request.body)
+            if (data['name_changed']):
+                user.name = data['name']
+            if (data['email_changed']):
+                user.email = data['email']
+                user.username = data['email']
+            if (data['password_changed']):
+                if (user.check_password(data['old_password'])):
+                    user.set_password(data['new_password'])
+                else:
+                    return JsonResponse({'error': 'Old password incorrect'}, status=400)
+            user.save()
+            # TODO: if we don't want to log out the user after a password change, reauthenticate user https://stackoverflow.com/questions/30821795/django-user-logged-out-after-password-change
+            return JsonResponse({'message': 'User details updated successfully!'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+    else:
+        return JsonResponse({'error': "User not logged in"}, status=401)
+    
 
 
-# def delete_user(request: HttpRequest, user_id: int) -> HttpResponse: # TODO: Link up with frontend
-#     """Delete a user from the database"""
-#     user = User.objects.get(id=user_id)
-#     user.delete()
-#     return JsonResponse({'message': 'User deleted successfully!'})
+def delete_user(request: HttpRequest) -> HttpResponse:
+    """Log out and delete the logged in user from the database"""
+    if request.user.is_authenticated:
+        user = User.objects.get(id=request.user.id)
+        logout(request)
+        user.delete()
+        return JsonResponse({'message': 'User deleted successfully!'})
+    else:
+        return JsonResponse({'error': "User not logged in"}, status=401)
 
 
 @ensure_csrf_cookie
