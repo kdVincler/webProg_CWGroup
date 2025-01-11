@@ -45,3 +45,4 @@ class MySeleniumTests(LiveServerTestCase):
         password_input = self.selenium.find_element(By.NAME, "pw")
         password_input.send_keys("secret")
         self.selenium.find_element(By.ID, 'login').click()
+
