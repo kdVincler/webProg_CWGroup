@@ -21,16 +21,29 @@ export interface PaginatedUser {
 export const usePageStore = defineStore('page', {
     state: () => ({
         page: null as Page | null,
+        filter: undefined as { low: number, high: number } | undefined,
+        filterEnabled: false
     }),
      actions: {
-        async paginate(page_number: number, age_range?: { low: number, high: number }) {
+        async paginate(page_number: number) {
             try {
-                const ret = await getUsersPaginated(page_number, age_range)
+                
+                const ret = this.filterEnabled ? await getUsersPaginated(page_number, this.filter) : await getUsersPaginated(page_number)
                 this.page = ret.page
             } catch (error: any) {
                 console.log('Failed to paginate. Error:', error)
                 this.page = null
             }
+        },
+        async setFilter(filter: { low: number, high: number }) {
+            this.filter = filter
+            this.filterEnabled = true
+            this.paginate(1)
+        },
+        async clearFilter() {
+            this.filter = undefined
+            this.filterEnabled = false
+            this.paginate(1)
         }
      },
     getters: {
@@ -48,6 +61,12 @@ export const usePageStore = defineStore('page', {
         },
         getUsers(): PaginatedUser[] | undefined {
             return this.page?.users
+        },
+        getFilter(): { low: number, high: number } | undefined {
+            return this.filter
+        },
+        isFilterEnabled(): boolean {
+            return this.filterEnabled
         }
     },
 });
