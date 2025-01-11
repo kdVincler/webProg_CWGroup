@@ -42,6 +42,8 @@ def update_user(request: HttpRequest) -> HttpResponse:
             if (data['email_changed']):
                 user.email = data['email']
                 user.username = data['email']
+            if (data['dob_changed']):
+                user.date_of_birth = D.datetime.strptime(data['dob'], '%Y-%m-%d') 
             if (data['password_changed']):
                 if (user.check_password(data['old_password'])):
                     user.set_password(data['new_password'])

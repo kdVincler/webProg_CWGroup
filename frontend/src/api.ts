@@ -7,6 +7,8 @@ export interface EditUser {
     name: string;
     email_changed: boolean;
     email: string;
+    dob_changed: boolean;
+    dob: string;
     password_changed: boolean;
     old_password: string;
     new_password: string;
@@ -77,6 +79,8 @@ const updateUser = async (edited_user: EditUser) => {
                 name: edited_user.name,
                 email_changed: edited_user.email_changed,
                 email: edited_user.email,
+                dob_changed: edited_user.dob_changed,
+                dob: edited_user.dob,
                 password_changed: edited_user.password_changed,
                 old_password: edited_user.old_password,
                 new_password: edited_user.new_password,

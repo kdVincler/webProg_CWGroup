@@ -17,6 +17,8 @@ export default defineComponent({
         name: userStore.getName || "",
         email_changed: false,
         email: userStore.getEmail || "",
+        dob_changed: false,
+        dob: userStore.getDoB || "",
         password_changed: false,
         old_password: "",
         new_password: "",
@@ -71,7 +73,7 @@ export default defineComponent({
         this.errorText = "New Password And Confirm New Password Don't Match"
         this.openModal("error")
         return
-      } else if (this.editUser.name_changed || this.editUser.email_changed || this.editUser.password_changed) {
+      } else if (this.editUser.name_changed || this.editUser.email_changed || this.editUser.dob_changed || this.editUser.password_changed) {
         // user submits the form indicating change with password fields validated or not changed
         try {
           await updateUser(this.editUser)
@@ -100,6 +102,8 @@ export default defineComponent({
         name: this.userStore.getName || "",
         email_changed: false,
         email: this.userStore.getEmail || "",
+        dob_changed: false,
+        dob: this.userStore.getDoB || "",
         password_changed: false,
         old_password: "",
         new_password: "",
@@ -113,6 +117,9 @@ export default defineComponent({
       }
       if (!this.editUser.email_changed) {
         this.editUser.email = this.userStore.getEmail || ""
+      }
+      if (!this.editUser.dob_changed) {
+        this.editUser.dob = this.userStore.getDoB || ""
       }
       if (!this.editUser.password_changed) {
         this.editUser.old_password = ""
@@ -200,6 +207,19 @@ export default defineComponent({
               </label>
               <input v-model="editUser.email" type="email" class="input input-bordered w-full" name="email" required
                      :disabled="!editUser.email_changed"/>
+            </div>
+          </section>
+
+          <section class="form-control mb-4">
+            <label class="label">Date of birth</label>
+            <div class="w-full flex flex-row-reverse items-center justify-between gap-2">
+              <label class="btn btn-square swap swap-rotate" id="change_dob">
+                <input type="checkbox" name="change_dob" v-model="editUser.dob_changed" @click="discardChanges">
+                <PencilLine class="swap-off" :size="32" :color="'gray'"/>
+                <X class="swap-on" :size="32" :color="'gray'"/>
+              </label>
+              <input v-model="editUser.dob" :type="editUser.dob_changed ? 'date' : 'text'" class="input input-bordered w-full" name="dob" required
+                     :disabled="!editUser.dob_changed"/>
             </div>
           </section>
 
