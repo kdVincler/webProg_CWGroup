@@ -9,7 +9,7 @@ from api.models import User
 
 # Create your tests here.
 class EndToEndTests(LiveServerTestCase):
-    url = "http://localhost:5173/"
+    url = "http://localhost:5173"
 
     @classmethod
     def setUpClass(cls):
@@ -36,6 +36,14 @@ class EndToEndTests(LiveServerTestCase):
         confirm_password_input.send_keys(password)
         self.selenium.find_element(By.ID, 'register').click()
 
+    def _login(self, email="user@email.com", password="secret"):
+        self.selenium.get(f"{self.live_server_url}/login/")
+        username_input = self.selenium.find_element(By.NAME, "email")
+        username_input.send_keys(email)
+        password_input = self.selenium.find_element(By.NAME, "pw")
+        password_input.send_keys(password)
+        self.selenium.find_element(By.ID, 'login').click()
+
 
     def test_register(self):
         self._register()
@@ -44,15 +52,34 @@ class EndToEndTests(LiveServerTestCase):
 
     def test_login(self):
         self._register()
-        self.selenium.get(f"{self.live_server_url}/login/")
-        username_input = self.selenium.find_element(By.NAME, "email")
-        username_input.send_keys("user@email.com")
-        password_input = self.selenium.find_element(By.NAME, "pw")
-        password_input.send_keys("secret")
-        self.selenium.find_element(By.ID, 'login').click()
+        self._login()
 
         if not User.objects.filter(email="user@email.com").exists():
             self.fail("User not created")
         if self.selenium.current_url == f"{self.live_server_url}/login/" or self.selenium.current_url == f"{self.live_server_url}/register/":
             self.fail("Not redirected to home page")
+
+    def test_edit_profile(self):
+        self._register()
+        self._login()
+        self.selenium.get(f"{self.url}/profile")
+        self.selenium.find_element(By.ID, 'edit').click()
+
+        # Edit name
+        self.selenium.find_element(By.ID, 'change_name').click()
+        name_input = self.selenium.find_element(By.NAME, "name")
+        name_input.clear()
+        name_input.send_keys("new_user")
+
+        # Edit email
+        self.selenium.find_element(By.ID, 'change_email').click()
+        email_input = self.selenium.find_element(By.NAME, "email")
+        email_input.clear()
+        email_input.send_keys("newemail@email.com")
+
+        # Save
+        self.selenium.find_element(By.ID, 'save').click()
+
+        if not User.objects.filter(email="newemail@email.com").exists():
+            self.fail("User not updated")
 

@@ -48,8 +48,12 @@ export default defineComponent({
     },
     closeModal(modal: String) {
       (document.getElementById(`${modal}_profile_modal`) as HTMLDialogElement).close();
-      if (modal == "edit") { this.editUser = this.resetEditUser()}
-      if (modal == "error") {this.errorText = ""}
+      if (modal == "edit") {
+        this.editUser = this.resetEditUser()
+      }
+      if (modal == "error") {
+        this.errorText = ""
+      }
     },
     async submitForm() {
       if (this.editUser.password_changed && (this.editUser.old_password == "" || this.editUser.new_password == "" || this.editUser.confirm_new_password == "")) {
@@ -134,14 +138,18 @@ export default defineComponent({
           </div>
         </div>
 
-        <div class="divider font-semibold text-neutral-400">{{ userStore.getName }}</div>
+        <div class="divider font-semibold text-neutral-400" id="display_name">{{ userStore.getName }}</div>
         <h2 class="text-md font-semibold text-neutral-400 self-start flex flex-row gap-2">
           <Mail/>
+          <span id="display_email">
           {{ userStore.getEmail }}
+            </span>
         </h2>
         <h2 class="text-md font-semibold text-neutral-400 self-start flex flex-row gap-2">
           <Calendar/>
+          <span id="display_dob">
           {{ userStore.getDoB }}
+          </span>
         </h2>
 
         <div class="divider font-semibold text-neutral-400">Hobbies</div>
@@ -152,7 +160,7 @@ export default defineComponent({
         </ul>
 
         <div class="card-actions justify-end w-full pt-6">
-          <button @click="openModal('edit')" class="btn w-full">Edit Profile</button>
+          <button @click="openModal('edit')" class="btn w-full" id="edit">Edit Profile</button>
         </div>
         <div class="card-actions justify-end w-full pt-2">
           <button @click="openModal('delete')" class="btn btn-error w-full">Delete Account</button>
@@ -172,12 +180,12 @@ export default defineComponent({
           <section class="form-control mb-4">
             <label class="label">Name</label>
             <div class="w-full flex flex-row-reverse items-center justify-between gap-2">
-              <label class="btn btn-square swap swap-rotate">
+              <label class="btn btn-square swap swap-rotate" id="change_name">
                 <input type="checkbox" name="change_name" v-model="editUser.name_changed" @click="discardChanges">
                 <PencilLine class="swap-off" :size="32" :color="'gray'"/>
                 <X class="swap-on" :size="32" :color="'gray'"/>
               </label>
-              <input v-model="editUser.name" type="text" class="input input-bordered w-full" required
+              <input v-model="editUser.name" type="text" class="input input-bordered w-full" name="name" required
                      :disabled="!editUser.name_changed"/>
             </div>
           </section>
@@ -185,12 +193,12 @@ export default defineComponent({
           <section class="form-control mb-4">
             <label class="label">Email</label>
             <div class="w-full flex flex-row-reverse items-center justify-between gap-2">
-              <label class="btn btn-square swap swap-rotate">
-                <input type="checkbox" name="change_email" v-model="editUser.email_changed"  @click="discardChanges">
+              <label class="btn btn-square swap swap-rotate" id="change_email">
+                <input type="checkbox" name="change_email" v-model="editUser.email_changed" @click="discardChanges">
                 <PencilLine class="swap-off" :size="32" :color="'gray'"/>
                 <X class="swap-on" :size="32" :color="'gray'"/>
               </label>
-              <input v-model="editUser.email" type="email" class="input input-bordered w-full" required
+              <input v-model="editUser.email" type="email" class="input input-bordered w-full" name="email" required
                      :disabled="!editUser.email_changed"/>
             </div>
           </section>
@@ -198,7 +206,8 @@ export default defineComponent({
           <section class="form-control mb-4">
             <label class="label">Password</label>
             <!--Div not a button to avoid auto submit :)-->
-            <div class="w-full btn" @click="() => {editUser.password_changed = !editUser.password_changed; discardChanges()}" >
+            <div class="w-full btn"
+                 @click="() => {editUser.password_changed = !editUser.password_changed; discardChanges()}">
               {{ editUser.password_changed ? 'Cancel' : 'Edit Password' }}
             </div>
           </section>
@@ -246,7 +255,7 @@ export default defineComponent({
 
 
           <div class="modal-action">
-            <button type="submit" class="btn btn-success">Save</button>
+            <button type="submit" class="btn btn-success" id="save">Save</button>
             <button type="button" class="btn" @click="closeModal('edit')">Cancel</button>
           </div>
         </form>
