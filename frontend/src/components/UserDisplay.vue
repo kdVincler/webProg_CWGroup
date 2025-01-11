@@ -1,9 +1,11 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
 import {Trophy} from 'lucide-vue-next'
-import {PaginatedUser, sendFriendRequest, rejectFriendRequestOrRemoveFriend} from '../api'
+import {sendFriendRequest, rejectFriendRequestOrRemoveFriend} from '../api'
 import {PropType} from 'vue'
 import {getInitialBGColour} from '../utils'
+import {PaginatedUser} from '../store/page'
+import { useUserStore } from '../store/user'
 
 export default defineComponent({
   components: {Trophy},
@@ -33,14 +35,18 @@ export default defineComponent({
     }
   },
   methods: {
-    addFriend() {
+    async addFriend() {
       this.isRequestedData = true
       sendFriendRequest(this.user.id)
+      await useUserStore().updateFriendRequests()
+
     },
-    removeFriend() {
+    async removeFriend() {
       this.isFriendData = false
       this.isRequestedData = false
       rejectFriendRequestOrRemoveFriend(this.user.id)
+      await useUserStore().updateFriendRequests()
+
     },
     getInitialBGColour
   }
