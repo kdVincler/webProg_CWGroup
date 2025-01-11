@@ -26,7 +26,7 @@ export default defineComponent({
       } catch (error) {
         console.error("Error loading users:", error);
       } finally {
-        loading.value = false; // Data loading is complete
+        loading.value = false;
       }
     });
 
@@ -46,7 +46,7 @@ export default defineComponent({
       } catch (error) {
         console.error("Error loading users:", error);
       } finally {
-        this.loading = false; // Data loading is complete
+        this.loading = false;
       }
     }
   },
