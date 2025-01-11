@@ -7,7 +7,6 @@ from api.models import User
 
 # Create your tests here.
 class MySeleniumTests(LiveServerTestCase):
-
     url = "http://localhost:5173/"
 
     @classmethod
