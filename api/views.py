@@ -131,8 +131,8 @@ def register(request: HttpRequest) -> HttpResponse:
 def check_auth_status(request: HttpRequest) -> HttpResponse:
     """API endpoint that returns if there is a user logged in or not, and if there is returns the user info aswell"""
     if request.user.is_authenticated:
-        # TODO: replace with a serializer
-        return JsonResponse({'authenticated': True, 'user': request.user.as_dict()})
+        serializer = UserSerializer(request.user)
+        return JsonResponse({'authenticated': True, 'user': serializer.data})
     return JsonResponse({'authenticated': False})
 
 
