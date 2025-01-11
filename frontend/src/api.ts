@@ -1,31 +1,14 @@
-import {User, useUserStore} from "./store/user.ts";
-
-export interface Hobby {
-    id: number;
-    name: string;
-}
-
-export interface Page {
-    current_page: number,
-    total_pages: number,
-    total_users: number,
-    users: PaginatedUser[]
-}
-
-export interface PaginatedUser {
-    id: number,
-    name: string,
-    age: number,
-    hobbies: Hobby[],
-    similar_hobbies_count: number
-    similar_hobbies: Hobby[]
-}
+import {Friend, FriendRequests, User, useUserStore} from "./store/user.ts";
+import { useHobbiesStore, Hobby } from "./store/hobbies.ts";
+import { usePageStore, Page } from "./store/page.ts";
 
 export interface EditUser {
     name_changed: boolean;
     name: string;
     email_changed: boolean;
     email: string;
+    dob_changed: boolean;
+    dob: string;
     password_changed: boolean;
     old_password: string;
     new_password: string;
@@ -96,6 +79,8 @@ const updateUser = async (edited_user: EditUser) => {
                 name: edited_user.name,
                 email_changed: edited_user.email_changed,
                 email: edited_user.email,
+                dob_changed: edited_user.dob_changed,
+                dob: edited_user.dob,
                 password_changed: edited_user.password_changed,
                 old_password: edited_user.old_password,
                 new_password: edited_user.new_password,
@@ -141,6 +126,8 @@ const addUserHobby = async (name: String): Promise<void> => {
         throw new Error('Failed to add hobby');
     }
     useUserStore().fetchAuthStatus();
+    useHobbiesStore().populate(); // needs to update the list in the store so sidebar updates
+    usePageStore().paginate(1); // needs to update the page from the start, as the new hobby list could mess with the order
 }
 
 const deleteUserHobby = async (id: Number): Promise<void> => {
@@ -158,6 +145,7 @@ const deleteUserHobby = async (id: Number): Promise<void> => {
         throw new Error('Failed to delete hobby');
     }
     useUserStore().fetchAuthStatus();
+    usePageStore().paginate(1); // needs to update the page from the start, as the new hobby list could mess with the order
 }
 
 export async function fetchAllHobbies(): Promise<{ hobbies: Hobby[] }> {
@@ -217,7 +205,7 @@ export async function sendFriendRequest(id: number): Promise<void> {
     useUserStore().updateFriendRequests();
 }
 
-export async function getFriends(): Promise<void> {
+export async function getFriends(): Promise<{friends: Friend[]}> {
     const response = await fetch(`http://localhost:8000/friends/`, {
         method: 'GET',
         credentials: 'include',
@@ -232,7 +220,7 @@ export async function getFriends(): Promise<void> {
     return data;
 }
 
-export async function getFriendRequests() {
+export async function getFriendRequests(): Promise<FriendRequests> {
     const response = await fetch('http://localhost:8000/friend-requests/', {
         method: 'GET',
         credentials: 'include'

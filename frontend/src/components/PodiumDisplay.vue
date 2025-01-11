@@ -2,7 +2,9 @@
 import {defineComponent} from 'vue';
 import {Trophy, CircleHelp} from 'lucide-vue-next';
 import {PropType} from 'vue';
-import {PaginatedUser, sendFriendRequest, rejectFriendRequestOrRemoveFriend} from "../api.ts";
+import {sendFriendRequest, rejectFriendRequestOrRemoveFriend} from "../api.ts";
+import {PaginatedUser} from '../store/page.ts';
+import { useUserStore } from '../store/user.ts';
 
 export default defineComponent({
   components: {Trophy, CircleHelp},
@@ -28,14 +30,16 @@ export default defineComponent({
     };
   },
   methods: {
-    addFriend(index: number) {
+    async addFriend(index: number) {
       this.isRequestedData[index] = true;
       sendFriendRequest(this.users[index].id)
+      await useUserStore().updateFriendRequests()
     },
-    removeFriend(index: number) {
+    async removeFriend(index: number) {
       this.isFriendData[index] = false;
       this.isRequestedData[index] = false;
       rejectFriendRequestOrRemoveFriend(this.users[index].id)
+      await useUserStore().updateFriendRequests()
     },
   },
 });
@@ -46,7 +50,7 @@ export default defineComponent({
   <div class="w-full flex flex-row justify-center items-end my-10">
 
     <div class="shadow-lg p-6 h-[50vh] w-[14vw] bg-base-100 mx-1 flex flex-col items-center justify-between">
-      <div>
+      <div class="flex flex-col items-center">
         <div class="rounded-full h-36 w-36 bg-orange-500 flex items-center justify-center">
           <Trophy :size="64"/>
         </div>
@@ -79,7 +83,7 @@ export default defineComponent({
 
     <!-- First Place -->
     <div class="shadow-lg p-6 h-[70vh] w-[14vw] bg-base-100 mx-1 flex flex-col items-center justify-between">
-      <div>
+      <div class="flex flex-col items-center">
         <div class="rounded-full h-36 w-36 bg-yellow-400 flex items-center justify-center">
           <Trophy :size="64"/>
         </div>
@@ -111,7 +115,7 @@ export default defineComponent({
 
     <!-- Second Place -->
     <div class="shadow-lg p-6 h-[60vh] w-[14vw] bg-base-100 mx-1 flex flex-col items-center justify-between">
-      <div>
+      <div class="flex flex-col items-center">
         <div class="rounded-full h-36 w-36 bg-gray-300 flex items-center justify-center">
           <Trophy :size="64"/>
         </div>

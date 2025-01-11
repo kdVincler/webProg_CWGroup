@@ -45,6 +45,8 @@ def update_user(request: HttpRequest) -> HttpResponse:
             if (data['email_changed']):
                 user.email = data['email']
                 user.username = data['email']
+            if (data['dob_changed']):
+                user.date_of_birth = D.datetime.strptime(data['dob'], '%Y-%m-%d') 
             if (data['password_changed']):
                 if (user.check_password(data['old_password'])):
                     user.set_password(data['new_password'])
@@ -184,6 +186,7 @@ def paginate_users(request: HttpRequest, page_number: int) -> HttpResponse:
 
 
 def calculate_age_helper(user: User) -> int:
+    """Returns the current age of the user passed to it as a number"""
     if not user.date_of_birth:
         return 0
     today = D.datetime.today()
@@ -194,6 +197,7 @@ def calculate_age_helper(user: User) -> int:
 
 
 def get_similar_hobbies_helper(request: HttpRequest, user: User) -> List[Dict[str, Optional[int | str]]]:
+    """Returns the list of hobbies that the logged in user and the user passed to the function have in common"""
     result = list()
     for hobby in user.hobbies.all():
         if hobby in request.user.hobbies.all():

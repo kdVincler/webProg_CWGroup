@@ -1,6 +1,6 @@
 import {defineStore} from "pinia";
-import {checkAuthStatus} from "../api.ts";
-import {Hobby} from "../api.ts";
+import {checkAuthStatus, getFriendRequests, getFriends} from "../api.ts";
+import {Hobby} from "./hobbies.ts";
 
 export interface User {
     id: number;
@@ -10,10 +10,31 @@ export interface User {
     hobbies: Hobby[];
 }
 
+export interface Friend {
+    user1: {
+        id: number;
+        username: string;
+        name: string
+    };
+    user2: {
+        id: number;
+        username: string;
+        name: string
+    };
+    accepted: boolean
+}
+
+export interface FriendRequests {
+    incoming_requests: Friend[];
+    outgoing_requests: Friend[];
+}
+
 export const useUserStore = defineStore('user', {
     state: () => ({
         authenticated: false,
         user: null as User | null,
+        friends: null as Friend[] | null,
+        friend_requests: null as FriendRequests | null
     }),
      actions: {
          async fetchAuthStatus() {
@@ -30,6 +51,24 @@ export const useUserStore = defineStore('user', {
                  this.user = null;
              }
          },
+         async updateFriendRequests() {
+            // get user's friends requests
+            try {
+                const ret = await getFriendRequests();
+                this.friend_requests = ret || null
+            } catch (error) {
+                console.error('Failed to fetch friend requests. Error: ', error);
+                this.friend_requests = null
+            }
+            // get user's friends
+            try {
+                const ret = await getFriends();
+                this.friends = ret.friends || null
+            } catch (error) {
+                console.error('Failed to fetch friends. Error: ', error);
+                this.friends = null
+            }
+         }
      },
     getters: {
         isLoggedIn(): boolean {
@@ -49,6 +88,15 @@ export const useUserStore = defineStore('user', {
         },
         getHobbies(): Hobby[] | undefined {
             return this.user?.hobbies;
+        },
+        getUserFriends(): Friend[] | undefined {
+            return this.friends || undefined
+        },
+        getOutgoingFriendRequests(): Friend[] | undefined {
+            return this.friend_requests?.outgoing_requests
+        },
+        getIncomingFriendRequests(): Friend[] | undefined {
+            return this.friend_requests?.incoming_requests
         }
     },
 });
