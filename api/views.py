@@ -8,6 +8,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth import authenticate, login, logout
 
+from rest_framework.parsers import JSONParser
+from api.serializers import HobbySerializer, UserSerializer, UserHobbySerializer, FriendSerializer
 from . import models
 from .models import User, Hobby, UserHobby, Friend
 
