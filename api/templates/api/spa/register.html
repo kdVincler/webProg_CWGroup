@@ -24,7 +24,7 @@
             >
                 {% csrf_token %}
                 <label class="divider text-gray-500"> Register </label>
-                <p class="text-lg font-bold text-red-500">{{ error }}</p>
+                <p class="text-lg font-bold text-red-500" id="error">{{ error }}</p>
                 <label for="name" class="text-sm text-gray-500 w-full text-left">Full Name</label>
 
                 <div class="input input-bordered flex items-center gap-2 w-full">
