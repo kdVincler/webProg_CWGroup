@@ -159,6 +159,8 @@ def paginate_users(request: HttpRequest, page_number: int) -> HttpResponse:
                 filtered_users.append(user)
             paginator = Paginator(filtered_users, 10)
             page = paginator.get_page(page_number)
+            user_hobbies = request.user.hobbies.all()
+            user_hobbies_serializer = HobbySerializer(user_hobbies, many=True)
             return JsonResponse({'page': {
                 'current_page': page.number,
                 'total_pages': paginator.num_pages,
@@ -168,7 +170,7 @@ def paginate_users(request: HttpRequest, page_number: int) -> HttpResponse:
                         'id': user.id,
                         'name': user.name,
                         'age': calculate_age_helper(user),
-                        'hobbies': [hobby.as_dict() for hobby in user.hobbies.all()],
+                        'hobbies': user_hobbies_serializer.data,
                         'similar_hobbies_count': user.similar_hobbies_count,
                         'similar_hobbies': get_similar_hobbies_helper(request, user)
                     } for user in page
