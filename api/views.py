@@ -8,6 +8,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth import authenticate, login, logout
 
+from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 from api.serializers import HobbySerializer, UserSerializer, UserHobbySerializer, FriendSerializer
 from . import models
@@ -38,7 +39,7 @@ def update_user(request: HttpRequest) -> HttpResponse:
     if request.user.is_authenticated:
         try:
             user = User.objects.get(id=request.user.id)
-            data = json.loads(request.body)
+            data = JSONParser().parse(request)
             if (data['name_changed']):
                 user.name = data['name']
             if (data['email_changed']):
@@ -206,7 +207,8 @@ def hobby_list_view(request: HttpRequest) -> HttpResponse:
     if request.method == 'GET':
         # getting all hobbies
         hobbies = Hobby.objects.all().values('id', 'name')  # Fetching all hobbies
-        return JsonResponse({'hobbies': list(hobbies)})
+        serializer = HobbySerializer(hobbies, many=True)
+        return Response({'hobbies': serializer.data})
     else:
         return JsonResponse({'error': "Incorrect method"}, status=405)
 
@@ -219,20 +221,22 @@ def user_hobby(request: HttpRequest) -> HttpResponse:
     if request.method == 'POST':
         try:
             if request.user.is_authenticated:  # Ensure the user is authenticated
-                data = json.loads(request.body)
-                # Get the Hobby instance (ignoring the boolean flag)
-                hob, _ = Hobby.objects.get_or_create(name=data['name'])
+                data = JSONParser().parse(request)
+                serializer = HobbySerializer(data=data)
+                if serializer.is_valid():
+                    # Get the Hobby instance (ignoring the boolean flag)
+                    hob, _ = Hobby.objects.get_or_create(name=data['name'])
 
-                # If the user-hobby relationship already exists, return an error
-                if UserHobby.objects.filter(user=request.user, hobby=hob).exists():
-                    print("User-hobby relationship already exists")
-                    return JsonResponse({'error': 'User-hobby relationship already exists'}, status=400)
+                    # If the user-hobby relationship already exists, return an error
+                    if UserHobby.objects.filter(user=request.user, hobby=hob).exists():
+                        print("User-hobby relationship already exists")
+                        return JsonResponse({'error': 'User-hobby relationship already exists'}, status=400)
 
-                UserHobby.objects.create(
-                    user=request.user,
-                    hobby=hob
-                )
-                return JsonResponse({'message': "Hobby added successfully"}, status=201)
+                    UserHobby.objects.create(
+                        user=request.user,
+                        hobby=hob
+                    )
+                    return JsonResponse({'message': "Hobby added successfully"}, status=201)
             else:
                 return JsonResponse({'error': "User not logged in"}, status=401)
         except Exception as e:
@@ -302,7 +306,8 @@ def get_friends(request):
             r.append(friend.user2)
         else:
             r.append(friend.user1)
-    return JsonResponse({"friends": [friend.as_dict() for friend in r]})
+    user_serializer = UserSerializer(r, many=True)
+    return JsonResponse({"friends": user_serializer.data})
 
 def send_request(request, user_id):
     """Send a friend request to another user."""
@@ -319,8 +324,12 @@ def send_request(request, user_id):
                 friend_request.save()
                 return JsonResponse({'message': 'Friend request accepted'}, status=200)
             # Create the friend request
-            Friend.objects.create(user1=request.user, user2=friend)
-            return JsonResponse({'message': 'Friend request sent successfully'}, status=201)
+            data = {'user1': request.user.id, 'user2': user_id, "accepted": False}
+            serializer = FriendSerializer(data=data)
+            if serializer.is_valid():
+                serializer.save()
+                return JsonResponse({'message': 'Friend request sent'}, status=201)
+            return JsonResponse({'error': 'Invalid data'}, status=400)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
     else:
