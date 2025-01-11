@@ -195,7 +195,8 @@ def get_similar_hobbies_helper(request: HttpRequest, user: User) -> List[Dict[st
     result = list()
     for hobby in user.hobbies.all():
         if hobby in request.user.hobbies.all():
-            result.append(hobby.as_dict())
+            serializer = HobbySerializer(hobby)
+            result.append(serializer.data)
     return result
 
 
