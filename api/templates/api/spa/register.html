@@ -24,7 +24,7 @@
             >
                 {% csrf_token %}
                 <label class="divider text-gray-500"> Register </label>
-                <p class="text-lg font-bold text-red-500">{{ error }}</p>
+                <p class="text-lg font-bold text-red-500" id="error">{{ error }}</p>
                 <label for="name" class="text-sm text-gray-500 w-full text-left">Full Name</label>
 
                 <div class="input input-bordered flex items-center gap-2 w-full">
@@ -56,7 +56,7 @@
                             name="email"
                     />
                 </div>
-                <label for="pw" class="text-sm text-gray-500 w-full text-left">Date of Birth</label>
+                <label for="dob" class="text-sm text-gray-500 w-full text-left">Date of Birth</label>
                 <div class="input input-bordered flex items-center gap-2 w-full">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -101,7 +101,7 @@
                 <a href="http://localhost:8000/login/" class="btn-link text-xs mb-4">
                     Already have an account? Login</a
                 >
-                <button type="submit" class="btn w-full mt-2">Register</button>
+                <button type="submit" class="btn w-full mt-2" id="register">Register</button>
             </form>
         </div>
     </div>
