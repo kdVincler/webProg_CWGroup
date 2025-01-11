@@ -63,12 +63,9 @@ export default defineComponent({
     },
     acceptRequest(id: number) {
       acceptFriendRequest(id)
-      // this.friends.push({id, name: this.friendRequests.filter(r => r.user1.id === id)[0].user1.name});
-      // this.friendRequests = this.friendRequests.filter(r => r.user1.id !== id);
     },
     rejectRequest(id: number) {
       rejectFriendRequestOrRemoveFriend(id)
-      // this.friendRequests = this.friendRequests.filter(r => r.user1.id !== id);
     }
   }
 })
