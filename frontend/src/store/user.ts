@@ -1,5 +1,5 @@
 import {defineStore} from "pinia";
-import {checkAuthStatus, getFriendRequests, getFriends} from "../api.ts";
+import {checkAuthStatus, getFriendRequests, getFriends, url} from "../api.ts";
 import {Hobby} from "./hobbies.ts";
 
 export interface User {
@@ -42,7 +42,7 @@ export const useUserStore = defineStore('user', {
              try {
                  const {authenticated, user} = await checkAuthStatus();
                  if (!authenticated) {
-                        window.location.href = 'http://localhost:8000/login';
+                        window.location.href = `${url}/login`;
                  }
                  this.authenticated = authenticated || false;
                  this.user = user || null;

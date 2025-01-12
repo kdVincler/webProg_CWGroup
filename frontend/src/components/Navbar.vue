@@ -2,11 +2,12 @@
 import { defineComponent, ref } from "vue";
 import { useUserStore } from "../store/user";
 import { usePageStore } from "../store/page.ts";
-import { logout } from "../api";
+import {logout, url} from "../api";
 import { SlidersHorizontal } from "lucide-vue-next";
 import { getInitialBGColour } from "../utils.ts";
 
 export default defineComponent({
+  methods: {url},
   components: { SlidersHorizontal },
   name: "Navbar",
   setup() {
@@ -101,7 +102,7 @@ export default defineComponent({
           </li>
           <li>
             <!--TODO: Delete this-->
-            <a href="http://127.0.0.1:8000/admin/" target="_blank">Admin Site</a>
+            <a :href="`${url}/admin/`" target="_blank">Admin Site</a>
           </li>
           <li>
             <a @click="logout">Log out</a>
