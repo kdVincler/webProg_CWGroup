@@ -12,7 +12,7 @@ export default defineComponent({
 <template>
   <main class="flex flex-row h-screen w-screen">
     <Sidebar/>
-    <div class="flex-1 h-full flex flex-col bg-base-200">
+    <div class="flex-1 h-full w-full flex flex-col bg-base-200">
       <Navbar/>
       <RouterView/>
     </div>

@@ -72,7 +72,7 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="h-screen bg-slate-600 w-1/5 px-6 py-2 text-base-200 flex flex-col items-start">
+  <div class="h-screen bg-slate-600 w-1/5 px-6 py-2 text-base-200 hidden md:flex flex-col items-start">
     <RouterLink to="/" class="btn btn-ghost text-xl italic">Hobby 24</RouterLink>
 
     <div class="collapse collapse-arrow bg-slate-600 my-2">
