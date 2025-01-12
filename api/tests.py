@@ -3,6 +3,7 @@ import time
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import LiveServerTestCase
+from django.utils.functional import classproperty
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.webdriver import WebDriver
@@ -13,7 +14,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Create your tests here.
-class EndToEndTests(StaticLiveServerTestCase):
+class EndToEndTests(LiveServerTestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -71,9 +72,17 @@ class EndToEndTests(StaticLiveServerTestCase):
         self._register()
         self._login()
 
-        time.sleep(1)
+        time.sleep(10)
 
-        self.selenium.get(f"{self.live_server_url}/profile/")
+        # Go to profile
+        dropdown = self.selenium.find_element(By.ID, 'dropdown')
+        dropdown.click()
+        profile = self.selenium.find_element(By.ID, 'profile')
+        # click href child element under profile
+        profile.find_element(By.XPATH, ".//a").click()
+
+        time.sleep(12)
+
         self.selenium.find_element(By.ID, 'edit').click()
 
         # Edit name

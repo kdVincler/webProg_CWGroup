@@ -4,6 +4,7 @@ import {usePageStore, Page} from "./store/page.ts";
 
 export const url = import.meta.env.VITE_SERVER_URL;
 
+
 export interface EditUser {
     name_changed: boolean;
     name: string;
