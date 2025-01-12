@@ -23,9 +23,6 @@ class EndToEndTests(LiveServerTestCase):
         cls.selenium = WebDriver()
         cls.selenium.implicitly_wait(10)
 
-        os.environ['VITE_SERVER_URL'] = cls.live_server_url
-        os.environ['APP_URL'] = cls.live_server_url
-
     @classmethod
     def tearDownClass(cls):
         cls.selenium.quit()
@@ -35,6 +32,16 @@ class EndToEndTests(LiveServerTestCase):
         WebDriverWait(self.selenium, timeout).until(
             EC.presence_of_element_located((By.TAG_NAME, "body"))
         )
+
+    def _create_10_users(self):
+        for i in range(10):
+            User.objects.create_user(
+                name=f"user{i}",
+                username=f"user{i}",
+                email=f"user{i}@email.com",
+                date_of_birth=f"20{"0" if i < 10 else ""}{str(i)}-01-01",
+                password="secret"
+            )
 
     def _register(self, name="user", email="user@email.com", dob="01-01-2002", password="secret"):
         self.selenium.get(f"{self.live_server_url}/register/")
@@ -129,7 +136,7 @@ class EndToEndTests(LiveServerTestCase):
 
         self.selenium.find_element(By.ID, 'save').click()
         self.wait_for_body(10)
-        time.sleep(1)
+        time.sleep(2)
 
         self._login(email="newemail@email.com", password="new_secret")
         self.wait_for_body(10)
@@ -141,4 +148,19 @@ class EndToEndTests(LiveServerTestCase):
             "Not redirected to home page. Password not updated"
         )
 
+    def test_add_friend(self):
+        self._create_10_users()
+        time.sleep(2)
+        self._register()
+        self.wait_for_body(10)
+        time.sleep(1)
+        self._login()
+        self.wait_for_body(10)
+
+        self.selenium.get(f"{self.live_server_url}/")
+        self.wait_for_body()
+
+        self.selenium.find_element(By.ID, "add_user0").click()
+        self.wait_for_body()
+        time.sleep(12)
 

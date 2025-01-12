@@ -6,7 +6,11 @@ import {logout, url} from "../api";
 import { SlidersHorizontal } from "lucide-vue-next";
 import { getInitialBGColour } from "../utils.ts";
 export default defineComponent({
-  methods: {url},
+  data() {
+    return {
+      url: url,
+    };
+  },
   components: { SlidersHorizontal },
   name: "Navbar",
   setup() {

@@ -2,9 +2,11 @@ import {FriendRequests, User, useUserStore} from "./store/user.ts";
 import {useHobbiesStore, Hobby} from "./store/hobbies.ts";
 import {usePageStore, Page} from "./store/page.ts";
 
-export let url = import.meta.env.VITE_SERVER_URL;
-// delete this if working on CORS
-url = "";
+export let url = "";
+if (import.meta.env.VITE_DEV_MODE === "true") {
+    url = "http://localhost:8000";
+}
+
 
 export interface EditUser {
     name_changed: boolean;

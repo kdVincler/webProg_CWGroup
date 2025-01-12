@@ -31,32 +31,32 @@ SECRET_KEY = os.getenv(
     'django-insecure-8^fq+a!kh-4pm8#y(urc^&zum$01nvb69$s=vnif(#gn6o7)_!'
 )
 
-SERVER_URL = os.getenv('VITE_SERVER_URL', 'http://127.0.0.1:8000')
-APP_URL = os.getenv('APP_URL', 'http://127.0.0.1:8000')
-
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 ALLOWED_HOSTS = ['*']
-
 AUTH_USER_MODEL = "api.User"
 
 # Application definition
 #allowing all origins for development
 
-CORS_ALLOWED_ORIGINS = [
-    SERVER_URL,
-    APP_URL,
-]
+# TODO: delete this
+CORS_ALLOW_ALL_ORIGINS = True
+
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:5173",
+#     "http://127.0.0.1:5173",
+#     "http://localhost:8000",
+#     "http://127.0.0.1:8000",
+# ]
 
 CORS_ALLOW_CREDENTIALS = True
 SESSION_COOKIE_SAMESITE = None
 SESSION_COOKIE_HTTPONLY = False
 
 CSRF_TRUSTED_ORIGINS = [
-    SERVER_URL,
-    APP_URL,
+    "http://localhost:5173",
+    "http://localhost:8000",
 ]
 
 INSTALLED_APPS = [
