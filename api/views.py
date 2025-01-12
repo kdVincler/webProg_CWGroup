@@ -329,12 +329,8 @@ def send_request(request, user_id):
                 friend_request.save()
                 return JsonResponse({'message': 'Friend request accepted'}, status=200)
             # Create the friend request
-            data = {'user1': request.user.id, 'user2': user_id, "accepted": False}
-            serializer = FriendSerializer(data=data)
-            if serializer.is_valid():
-                serializer.save()
-                return JsonResponse({'message': 'Friend request sent'}, status=201)
-            return JsonResponse({'error': 'Invalid data'}, status=400)
+            Friend.objects.create(user1=request.user, user2=friend)
+            return JsonResponse({'message': 'Friend request sent'}, status=201)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
     else:
