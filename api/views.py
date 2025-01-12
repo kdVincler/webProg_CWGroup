@@ -279,12 +279,17 @@ def accept_request(request, user_id):
 
 def reject_request_or_remove_friend(request, user_id):
     """Decline a friend request (delete the pending relationship)."""
+
     # Get the friend request to decline
-    friend_request = get_object_or_404(Friend, user1=user_id, user2=request.user)
+    friend = Friend.objects.filter(user1=user_id, user2=request.user, accepted=False)
+    if not friend.exists():
+        # If no friend request exists, check if the user is a friend
+        friend = Friend.objects.filter(Q(user1=user_id, user2=request.user, accepted=True) | Q(user1=request.user, user2=user_id, accepted=True))
+        if not friend.exists():
+            return JsonResponse({'error': 'Friend request not found'}, status=404)
 
     # Delete the friend request (pending relationship)
-    friend_request.delete()
-
+    friend.delete()
     return JsonResponse({"message": "Friend request declined"})
 
 
