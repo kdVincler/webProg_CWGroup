@@ -47,7 +47,7 @@ export default defineComponent({
           Filters
           <SlidersHorizontal :size="20" />
         </div>
-        <div tabindex="0" class="w-[32rem] dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow">
+        <div tabindex="0" class="w-[96vw] md:w-[32rem] dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow">
           <div class="flex flex-row items-center justify-between w-full p-4">
             <label class="label cursor-pointer flex flex-row items-center gap-2">
               <input
