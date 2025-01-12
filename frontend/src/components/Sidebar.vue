@@ -8,7 +8,7 @@ import {
   acceptFriendRequest,
   rejectFriendRequestOrRemoveFriend,
 } from "../api";
-import {Friend, useUserStore} from "../store/user";
+import {Friend, User, useUserStore} from "../store/user";
 import {useHobbiesStore, Hobby} from '../store/hobbies';
 import {Trash, Check, X, Mail} from "lucide-vue-next";
 
@@ -30,8 +30,9 @@ export default defineComponent({
     friendRequests(): Friend[] | [] {
       return this.userStore.getIncomingFriendRequests || []
     },
-    friends(): Friend[] | [] {
+    friends(): User[] | [] {
       return this.userStore.getUserFriends || []
+
     }
   },
   data() {
@@ -55,7 +56,9 @@ export default defineComponent({
     showModal() {
       this.selectedHobby = null;
       this.typedHobby = "";
-      document.getElementById('add_hobby')?.showModal();
+
+      const dialog = document.getElementById('add_hobby') as HTMLDialogElement;
+      dialog?.showModal();
     },
     closeModal() {
       this.selectedHobby = null;
@@ -133,7 +136,7 @@ export default defineComponent({
       <div class="collapse-content">
         <ul class="flex flex-col gap-1 mb-4">
           <a :href="'mailto:' + friend.email" v-for="friend in friends" :key="friend.id"
-                  class="capitalize text-md font-medium btn bg-slate-700 border-0 hover:bg-slate-500 text-white justify-between">
+             class="capitalize text-md font-medium btn bg-slate-700 border-0 hover:bg-slate-500 text-white justify-between">
             {{ friend.name }}
             <Mail :size="16"/>
           </a>

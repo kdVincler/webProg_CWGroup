@@ -1,5 +1,5 @@
 import {defineStore} from "pinia";
-import {checkAuthStatus, getFriendRequests, getFriends} from "../api.ts";
+import {checkAuthStatus, getFriendRequests, getFriends, url} from "../api.ts";
 import {Hobby} from "./hobbies.ts";
 
 export interface User {
@@ -11,6 +11,7 @@ export interface User {
 }
 
 export interface Friend {
+    id: number;
     user1: {
         id: number;
         username: string;
@@ -33,7 +34,7 @@ export const useUserStore = defineStore('user', {
     state: () => ({
         authenticated: false,
         user: null as User | null,
-        friends: null as Friend[] | null,
+        friends: null as User[] | null,
         friend_requests: null as FriendRequests | null
     }),
      actions: {
@@ -41,7 +42,7 @@ export const useUserStore = defineStore('user', {
              try {
                  const {authenticated, user} = await checkAuthStatus();
                  if (!authenticated) {
-                        window.location.href = 'http://localhost:8000/login';
+                        window.location.href = `${url}/login`;
                  }
                  this.authenticated = authenticated || false;
                  this.user = user || null;
@@ -89,7 +90,7 @@ export const useUserStore = defineStore('user', {
         getHobbies(): Hobby[] | undefined {
             return this.user?.hobbies;
         },
-        getUserFriends(): Friend[] | undefined {
+        getUserFriends(): User[] | undefined {
             return this.friends || undefined
         },
         getOutgoingFriendRequests(): Friend[] | undefined {

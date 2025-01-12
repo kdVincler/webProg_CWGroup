@@ -1,5 +1,8 @@
 import datetime as D
 import json
+import os
+
+import dotenv
 from django.db.models import Count, Q
 from django.core.paginator import Paginator
 from typing import Dict, Optional, List
@@ -81,7 +84,11 @@ def log_in_view(request: HttpRequest) -> HttpResponse:
             user = authenticate(request, username=request.POST['email'], password=request.POST['pw'])
             if user:
                 login(request, user=user)
-                return redirect("http://localhost:5173/")
+                dotenv.load_dotenv()
+                if os.getenv('VITE_DEV_MODE') == "true":
+                    return redirect('http://localhost:5173/')
+                else:
+                    return redirect('/')
             else:
                 # username or password is incorrect (authenticate failed, user is None)
                 return render(request, 'api/spa/login.html', {"error": "Incorrect username or password"})
@@ -118,7 +125,7 @@ def register(request: HttpRequest) -> HttpResponse:
             )
             new_user.set_password(request.POST['pw'])
             new_user.save()
-            return redirect("http://localhost:8000/login/")
+            return redirect("/login/")
         except Exception as e:
             return render(request, 'api/spa/register.html', {"error": str(e)})
     if request.method == 'GET':

@@ -58,7 +58,7 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="w-full flex flex-row items-center justify-between my-4 bg-base-100 card shadow-lg p-6">
+  <div class="w-full flex flex-row items-center justify-between my-4 bg-base-100 card shadow-lg p-6" :id="`user_display_${position}`">
     <div class="flex-row items-center justify-start flex w-full h-full gap-6">
       <div
           :class="['w-16 h-16 rounded-full', getInitialBGColour(user.name.split(' ').map((n) => n[0]).join('') || '')]">
