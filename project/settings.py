@@ -39,20 +39,16 @@ AUTH_USER_MODEL = "api.User"
 #allowing all origins for development
 
 
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:5173",
-#     "http://127.0.0.1:5173",
-#     "http://localhost:8000",
-#     "http://127.0.0.1:8000",
-# ]
+CORS_ALLOWED_ORIGINS = [
+    "https://group24-web-apps-ec221017.apps.a.comp-teach.qmul.ac.uk"
+]
 
 CORS_ALLOW_CREDENTIALS = True
 SESSION_COOKIE_SAMESITE = None
 SESSION_COOKIE_HTTPONLY = False
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173",
-    "http://localhost:8000",
+    "https://group24-web-apps-ec221017.apps.a.comp-teach.qmul.ac.uk"
 ]
 
 INSTALLED_APPS = [
