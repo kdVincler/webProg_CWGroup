@@ -230,7 +230,13 @@ def user_hobby(request: HttpRequest) -> HttpResponse:
                 serializer = HobbySerializer(data=data)
                 if serializer.is_valid():
                     # Get the Hobby instance (ignoring the boolean flag)
-                    hob, _ = Hobby.objects.get_or_create(name=data['name'])
+                    name = data['name']
+                    formatted_name = name.title()
+                    
+                    # case-sensitive query
+                    hob = Hobby.objects.filter(name__iexact=name).first()
+                    if not hob:
+                        hob = Hobby.objects.create(name=formatted_name)
 
                     # If the user-hobby relationship already exists, return an error
                     if UserHobby.objects.filter(user=request.user, hobby=hob).exists():
