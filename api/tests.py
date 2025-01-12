@@ -1,4 +1,6 @@
 import os
+import time
+
 from django.test import LiveServerTestCase
 from selenium.webdriver.common.by import By
 
@@ -12,6 +14,7 @@ from api.models import User
 from dotenv import load_dotenv
 
 load_dotenv()
+
 
 class EndToEndTests(LiveServerTestCase):
     @classmethod
@@ -33,7 +36,7 @@ class EndToEndTests(LiveServerTestCase):
             EC.presence_of_element_located((By.TAG_NAME, "body"))
         )
 
-    def _register(self, name="user", email="user@email.com", dob="2002-01-01", password="secret"):
+    def _register(self, name="user", email="user@email.com", dob="01-01-2002", password="secret"):
         self.selenium.get(f"{self.live_server_url}/register/")
         self.wait_for_body()
 
@@ -84,9 +87,9 @@ class EndToEndTests(LiveServerTestCase):
             EC.element_to_be_clickable((By.ID, 'profile'))
         )
         profile_link.find_element(By.XPATH, ".//a").click()
+        self.selenium.find_element(By.ID, 'edit').click()
 
         # Edit profile details
-        self.selenium.find_element(By.ID, 'edit').click()
         self.selenium.find_element(By.ID, 'change_name').click()
         name_input = self.selenium.find_element(By.NAME, "name")
         name_input.clear()
@@ -97,6 +100,45 @@ class EndToEndTests(LiveServerTestCase):
         email_input.clear()
         email_input.send_keys("newemail@email.com")
 
+        self.selenium.find_element(By.ID, 'change_dob').click()
+        dob_input = self.selenium.find_element(By.NAME, "dob")
+        dob_input.clear()
+        dob_input.send_keys("02-02-2000")
+
         # Save changes
         self.selenium.find_element(By.ID, 'save').click()
-        self.assertTrue(User.objects.filter(email="newemail@email.com").exists(), "User not updated")
+        time.sleep(1)
+
+        self.assertTrue(
+            User.objects.filter(email="newemail@email.com").exists(),
+            "User details not updated"
+        )
+
+        self.selenium.find_element(By.ID, 'edit').click()
+        self.selenium.find_element(By.ID, 'edit_password').click()
+
+        # Change password
+        old_pw = self.selenium.find_element(By.NAME, "old_pw")
+        old_pw.send_keys("secret")
+
+        new_pw = self.selenium.find_element(By.NAME, "pw")
+        new_pw.send_keys("new_secret")
+
+        confirm_pw = self.selenium.find_element(By.ID, "change_confirm_new_password")
+        confirm_pw.send_keys("new_secret")
+
+        self.selenium.find_element(By.ID, 'save').click()
+        self.wait_for_body(10)
+        time.sleep(1)
+
+        self._login(email="newemail@email.com", password="new_secret")
+        self.wait_for_body(10)
+        time.sleep(1)
+
+        self.assertNotEqual(
+            self.selenium.current_url,
+            f"{self.live_server_url}/login/",
+            "Not redirected to home page. Password not updated"
+        )
+
+

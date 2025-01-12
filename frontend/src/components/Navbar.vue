@@ -5,7 +5,6 @@ import { usePageStore } from "../store/page.ts";
 import {logout, url} from "../api";
 import { SlidersHorizontal } from "lucide-vue-next";
 import { getInitialBGColour } from "../utils.ts";
-
 export default defineComponent({
   methods: {url},
   components: { SlidersHorizontal },
