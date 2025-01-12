@@ -141,4 +141,56 @@ class EndToEndTests(LiveServerTestCase):
             "Not redirected to home page. Password not updated"
         )
 
+    def test_filter_by_age(self):
+        self._register() # testing account
+        self._register("twentyfive", "twentyfive@email.com", "01-01-2000")
+        self._register("fifteen", "fifteen@email.com", "01-01-2010")
+        self._register("thirty", "thirty@email.com", "01-01-1995")
+        self._login()
+        self.wait_for_body()
 
+        # Check to see all 3 other users are displayed
+        self.assertTrue(
+            (
+                self.selenium.find_element(By.ID, 'podium_first').is_displayed()  and\
+                self.selenium.find_element(By.ID, 'podium_second').is_displayed() and\
+                self.selenium.find_element(By.ID, 'podium_third').is_displayed()
+            ),
+            "Not all users are displayed"
+        )
+
+        # Open filter dropdwon
+        self.selenium.find_element(By.ID, 'filter_button').click()
+
+        time.sleep(1)
+        
+        # Input filter details
+        self.selenium.find_element(By.ID, 'filter_checkbox').click()
+        time.sleep(1)
+        # from_input = self.selenium.find_element(By.NAME, "filter_from")
+        # from_input.clear()
+        # from_input.send_keys("20")
+        # time.sleep(1)
+        # to_input = self.selenium.find_element(By.NAME, "filter_to")
+        # to_input.clear()
+        # to_input.send_keys('28')
+
+        time.sleep(1)
+
+        # Apply filter
+        self.selenium.find_element(By.ID, 'filter_apply').click()
+
+        time.sleep(1)
+        
+        # Check to see filters were applied proprerly
+        self.assertTrue(
+            (
+                self.selenium.find_element(By.ID, 'user_display_1').is_displayed() and not\
+                self.selenium.find_element(By.ID, 'user_display_2').is_displayed() and not\
+                self.selenium.find_element(By.ID, 'user_display_3').is_displayed() and not\
+                self.selenium.find_element(By.ID, 'podium_first').is_displayed()   and not\
+                self.selenium.find_element(By.ID, 'podium_second').is_displayed()  and not\
+                self.selenium.find_element(By.ID, 'podium_third').is_displayed()
+            ),
+            "Filters not applied, users that shouldn't be displayed are displayed."
+        )

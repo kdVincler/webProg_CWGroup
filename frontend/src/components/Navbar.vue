@@ -43,7 +43,7 @@ export default defineComponent({
   <div class="navbar">
     <div class="flex-1">
       <div class="dropdown">
-        <div v-if="$route.path === '/'" tabindex="0" role="button" class="btn btn-ghost text-lg gap-4">
+        <div v-if="$route.path === '/'" tabindex="0" role="button" class="btn btn-ghost text-lg gap-4" id="filter_button">
           Filters
           <SlidersHorizontal :size="20" />
         </div>
@@ -54,12 +54,14 @@ export default defineComponent({
                 type="checkbox"
                 class="checkbox"
                 v-model="filterEnabled"
+                id="filter_checkbox"
               />
               <span class="label-text">Filter by age?</span>
             </label>
             <div class="flex flex-row gap-4 items-center">
               From:
               <input
+                name="filter_from"
                 type="number"
                 placeholder="0"
                 class="input input-bordered w-full max-w-[4rem]"
@@ -68,6 +70,7 @@ export default defineComponent({
               />
               To:
               <input
+                name="filter_to"
                 type="number"
                 placeholder="100"
                 class="input input-bordered w-full max-w-[4rem]"
@@ -76,7 +79,7 @@ export default defineComponent({
               />
             </div>
           </div>
-          <button class="btn w-full mt-2" @click="applyFilter">Apply</button>
+          <button class="btn w-full mt-2" @click="applyFilter" id="filter_apply">Apply</button>
         </div>
       </div>
     </div>

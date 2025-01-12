@@ -61,7 +61,7 @@ export default defineComponent({
     <UserDisplay v-if="users.length > 2" :user="users[2]" :isFriend="isFriendData[2]"
                  :isRequested="isRequestedData[2]" :position="3"/>
   </div>
-  <div class="w-full  hidden lg:flex flex-row justify-center items-end my-10">
+  <div class="w-full  hidden lg:flex flex-row justify-center items-end my-10" id="podium_third">
     <div class="shadow-lg p-6 h-[50vh] w-[14vw] bg-base-100 mx-1 flex flex-col items-center justify-between">
       <div class="flex flex-col items-center">
         <div class="rounded-full lg:h-36 lg:w-36 w-20 h-20 bg-orange-500 flex items-center justify-center">
@@ -95,7 +95,7 @@ export default defineComponent({
 
 
     <!-- First Place -->
-    <div class="shadow-lg p-6 h-[70vh] w-[14vw] bg-base-100 mx-1 flex flex-col items-center justify-between">
+    <div class="shadow-lg p-6 h-[70vh] w-[14vw] bg-base-100 mx-1 flex flex-col items-center justify-between" id="podium_first">
       <div class="flex flex-col items-center">
         <div class="rounded-full lg:h-36 lg:w-36 w-20 h-20  bg-yellow-400 flex items-center justify-center">
           <Trophy :size="64"/>
@@ -127,7 +127,7 @@ export default defineComponent({
     </div>
 
     <!-- Second Place -->
-    <div class="shadow-lg p-6 h-[60vh] w-[14vw] bg-base-100 mx-1 flex flex-col items-center justify-between">
+    <div class="shadow-lg p-6 h-[60vh] w-[14vw] bg-base-100 mx-1 flex flex-col items-center justify-between" id="podium_second">
       <div class="flex flex-col items-center">
         <div class="rounded-full lg:h-36 lg:w-36 w-20 h-20  bg-gray-300 flex items-center justify-center">
           <Trophy :size="64"/>
