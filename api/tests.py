@@ -3,11 +3,14 @@ import time
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import LiveServerTestCase
-from dotenv import load_dotenv
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.webdriver import WebDriver
 
 from api.models import User
+
+from dotenv import load_dotenv
+load_dotenv()
 
 # Create your tests here.
 class EndToEndTests(StaticLiveServerTestCase):
@@ -17,6 +20,8 @@ class EndToEndTests(StaticLiveServerTestCase):
         super().setUpClass()
         cls.selenium = WebDriver()
         cls.selenium.implicitly_wait(10)
+        os.environ['VITE_SERVER_URL'] = cls.live_server_url
+        os.environ['APP_URL'] = cls.live_server_url
 
     @classmethod
     def tearDownClass(cls):
@@ -63,7 +68,8 @@ class EndToEndTests(StaticLiveServerTestCase):
     def test_edit_profile(self):
         self._register()
         self._login()
-        time.sleep(4)
+
+        time.sleep(20)
 
         self.selenium.get(f"{self.live_server_url}/profile")
         self.selenium.find_element(By.ID, 'edit').click()

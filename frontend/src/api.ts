@@ -2,7 +2,7 @@ import {FriendRequests, User, useUserStore} from "./store/user.ts";
 import {useHobbiesStore, Hobby} from "./store/hobbies.ts";
 import {usePageStore, Page} from "./store/page.ts";
 
-const url = import.meta.env.VITE_SERVER_URL;
+export const url = import.meta.env.VITE_SERVER_URL;
 
 export interface EditUser {
     name_changed: boolean;
