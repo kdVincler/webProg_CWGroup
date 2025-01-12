@@ -85,7 +85,10 @@ def log_in_view(request: HttpRequest) -> HttpResponse:
             if user:
                 login(request, user=user)
                 dotenv.load_dotenv()
-                return redirect(os.getenv('APP_URL'))
+                if os.getenv('VITE_DEV_MODE') == "true":
+                    return redirect('http://localhost:5173/')
+                else:
+                    return redirect('/')
             else:
                 # username or password is incorrect (authenticate failed, user is None)
                 return render(request, 'api/spa/login.html', {"error": "Incorrect username or password"})
@@ -122,7 +125,7 @@ def register(request: HttpRequest) -> HttpResponse:
             )
             new_user.set_password(request.POST['pw'])
             new_user.save()
-            return redirect(os.getenv('APP_URL') + "/login/")
+            return redirect("/login/")
         except Exception as e:
             return render(request, 'api/spa/register.html', {"error": str(e)})
     if request.method == 'GET':
