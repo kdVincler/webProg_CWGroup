@@ -1,14 +1,14 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
-import {Trophy} from 'lucide-vue-next'
+import {UserMinus, UserPlus, UserCheck} from 'lucide-vue-next'
 import {sendFriendRequest, rejectFriendRequestOrRemoveFriend} from '../api'
 import {PropType} from 'vue'
 import {getInitialBGColour} from '../utils'
 import {PaginatedUser} from '../store/page'
-import { useUserStore } from '../store/user'
+import {useUserStore} from '../store/user'
 
 export default defineComponent({
-  components: {Trophy},
+  components: {UserPlus, UserMinus, UserCheck},
   name: "UserDisplay",
   props: {
     user: {
@@ -74,14 +74,29 @@ export default defineComponent({
       </div>
     </div>
 
-    <button v-if="isRequestedData" class="btn justify-self-end btn-disabled min-w-32">
+    <button v-if="isRequestedData" class="btn justify-self-end btn-disabled sm:min-w-32 w-12">
+      <span class="sm:hidden block">
+        <UserCheck/>
+      </span>
+      <span class="sm:block hidden">
       Requested
+        </span>
     </button>
-    <button v-else-if="isFriendData" @click="removeFriend" class="btn justify-self-end min-w-32">
+    <button v-else-if="isFriendData" @click="removeFriend" class="btn justify-self-end sm:min-w-32 w-12">
+      <span class="sm:hidden block">
+        <UserMinus/>
+      </span>
+      <span class="sm:block hidden">
       Remove Friend
+        </span>
     </button>
-    <button v-else @click="addFriend" class="btn justify-self-end min-w-32">
+    <button v-else @click="addFriend" class="btn justify-self-end sm:min-w-32 w-12">
+      <span class="sm:hidden block">
+        <UserPlus/>
+      </span>
+      <span class="sm:block hidden">
       Add Friend
+        </span>
     </button>
   </div>
 
