@@ -3,7 +3,7 @@ import {defineComponent, ref, onMounted} from "vue";
 import UserDisplay from "../components/UserDisplay.vue";
 import PodiumDisplay from "../components/PodiumDisplay.vue";
 import {usePageStore, PaginatedUser} from "../store/page";
-import {Friend, useUserStore} from "../store/user";
+import {Friend, User, useUserStore} from "../store/user";
 
 export default defineComponent({
   components: {PodiumDisplay, UserDisplay},
@@ -60,7 +60,7 @@ export default defineComponent({
     outgoingRequests(): Friend[] | [] {
       return this.userStore.getOutgoingFriendRequests || []
     },
-    friends(): Friend[] | [] {
+    friends(): User[] | [] {
       return this.userStore.getUserFriends || []
     }
   }
