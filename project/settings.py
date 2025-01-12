@@ -32,16 +32,12 @@ SECRET_KEY = os.getenv(
 )
 
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = "api.User"
 
 # Application definition
 #allowing all origins for development
 
-# TODO: delete this
-CORS_ALLOW_ALL_ORIGINS = True
 
 # CORS_ALLOWED_ORIGINS = [
 #     "http://localhost:5173",
