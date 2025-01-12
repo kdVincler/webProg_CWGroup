@@ -95,7 +95,7 @@ export default defineComponent({
 
 
     <!-- First Place -->
-    <div class="shadow-lg p-6 h-[70vh] w-[14vw] bg-base-100 mx-1 flex flex-col items-center justify-between">
+    <div class="shadow-lg p-6 h-[70vh] w-[14vw] bg-base-100 mx-1 flex-col items-center justify-between">
       <div class="flex flex-col items-center">
         <div class="rounded-full lg:h-36 lg:w-36 w-20 h-20  bg-yellow-400 flex items-center justify-center">
           <Trophy :size="64"/>
