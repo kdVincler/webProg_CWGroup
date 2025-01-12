@@ -31,15 +31,20 @@ export default defineComponent({
   },
   methods: {
     async addFriend(index: number) {
-      this.isRequestedData[index] = true;
-      sendFriendRequest(this.users[index].id)
+      await sendFriendRequest(this.users[index].id)
       await useUserStore().updateFriendRequests()
+      this.isRequestedData[index] = useUserStore()?.getOutgoingFriendRequests?.some(entry => entry.user2.id === this.users[index].id) || false;
+      this.isFriendData[index] = useUserStore()?.getUserFriends?.some(entry => entry.id === this.users[index].id) || false;
+      console.log(useUserStore().getUserFriends)
+      if (this.isFriendData[index]) {
+        this.isRequestedData[index] = false;
+      }
     },
     async removeFriend(index: number) {
-      this.isFriendData[index] = false;
-      this.isRequestedData[index] = false;
-      rejectFriendRequestOrRemoveFriend(this.users[index].id)
+      await rejectFriendRequestOrRemoveFriend(this.users[index].id)
       await useUserStore().updateFriendRequests()
+      this.isRequestedData[index] = false;
+      this.isFriendData[index] = false;
     },
   },
 });

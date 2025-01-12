@@ -36,9 +36,13 @@ export default defineComponent({
   },
   methods: {
     async addFriend() {
-      this.isRequestedData = true
-      sendFriendRequest(this.user.id)
+      await sendFriendRequest(this.user.id)
       await useUserStore().updateFriendRequests()
+      this.isRequestedData = useUserStore()?.getOutgoingFriendRequests?.some(entry => entry.user2.id === this.user.id) || false
+      this.isFriendData = useUserStore()?.getUserFriends?.some(entry => entry.id === this.user.id) || false
+      if (this.isFriendData) {
+        this.isRequestedData = false
+      }
 
     },
     async removeFriend() {
