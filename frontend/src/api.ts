@@ -1,4 +1,4 @@
-import {Friend, FriendRequests, User, useUserStore} from "./store/user.ts";
+import { FriendRequests, User, useUserStore} from "./store/user.ts";
 import { useHobbiesStore, Hobby } from "./store/hobbies.ts";
 import { usePageStore, Page } from "./store/page.ts";
 
@@ -205,7 +205,7 @@ export async function sendFriendRequest(id: number): Promise<void> {
     useUserStore().updateFriendRequests();
 }
 
-export async function getFriends(): Promise<{friends: Friend[]}> {
+export async function getFriends(): Promise<{friends: User[]}> {
     const response = await fetch(`http://localhost:8000/friends/`, {
         method: 'GET',
         credentials: 'include',

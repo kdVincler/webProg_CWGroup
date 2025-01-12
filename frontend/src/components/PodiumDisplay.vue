@@ -4,7 +4,7 @@ import {Trophy, CircleHelp} from 'lucide-vue-next';
 import {PropType} from 'vue';
 import {sendFriendRequest, rejectFriendRequestOrRemoveFriend} from "../api.ts";
 import {PaginatedUser} from '../store/page.ts';
-import { useUserStore } from '../store/user.ts';
+import {useUserStore} from '../store/user.ts';
 
 export default defineComponent({
   components: {Trophy, CircleHelp},

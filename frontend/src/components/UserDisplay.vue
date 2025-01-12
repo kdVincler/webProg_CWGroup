@@ -5,7 +5,7 @@ import {sendFriendRequest, rejectFriendRequestOrRemoveFriend} from '../api'
 import {PropType} from 'vue'
 import {getInitialBGColour} from '../utils'
 import {PaginatedUser} from '../store/page'
-import { useUserStore } from '../store/user'
+import {useUserStore} from '../store/user'
 
 export default defineComponent({
   components: {Trophy},

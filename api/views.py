@@ -8,9 +8,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth import authenticate, login, logout
 
-from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
-from api.serializers import HobbySerializer, UserSerializer, UserHobbySerializer, FriendSerializer
+from api.serializers import HobbySerializer, UserSerializer, FriendSerializer
 from . import models
 from .models import User, Hobby, UserHobby, Friend
 
@@ -213,9 +212,8 @@ def hobby_list_view(request: HttpRequest) -> HttpResponse:
     """API endpoint for collection of hobbies"""
     if request.method == 'GET':
         # getting all hobbies
-        hobbies = Hobby.objects.all().values('id', 'name')  # Fetching all hobbies
-        serializer = HobbySerializer(hobbies, many=True)
-        return Response({'hobbies': serializer.data})
+        serializer = HobbySerializer(Hobby.objects.all(), many=True)
+        return JsonResponse({'hobbies': serializer.data})
     else:
         return JsonResponse({'error': "Incorrect method"}, status=405)
 
@@ -301,8 +299,8 @@ def get_requests(request):
     """Get all incoming friend requests for the logged-in user."""
     incoming_requests = Friend.objects.filter(user2=request.user, accepted=False)
     outgoing_requests = Friend.objects.filter(user1=request.user, accepted=False)
-    return JsonResponse({"incoming_requests": [request.as_dict() for request in incoming_requests],
-                         "outgoing_requests": [request.as_dict() for request in outgoing_requests]})
+    return JsonResponse({"incoming_requests": FriendSerializer(incoming_requests, many=True).data,
+                         "outgoing_requests": FriendSerializer(outgoing_requests, many=True).data})
 
 def get_friends(request):
     """Get all friends of the logged-in user."""
