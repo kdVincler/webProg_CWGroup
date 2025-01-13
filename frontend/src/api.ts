@@ -7,7 +7,6 @@ if (import.meta.env.VITE_DEV_MODE === "true") {
     url = "http://localhost:8000";
 }
 
-
 export interface EditUser {
     name_changed: boolean;
     name: string;

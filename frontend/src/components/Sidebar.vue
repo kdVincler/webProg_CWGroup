@@ -8,7 +8,7 @@ import {
   acceptFriendRequest,
   rejectFriendRequestOrRemoveFriend,
 } from "../api";
-import {Friend, User, useUserStore} from "../store/user";
+import {User, FriendRequestUser, useUserStore} from "../store/user";
 import {useHobbiesStore, Hobby} from '../store/hobbies';
 import {Trash, Check, X, Mail} from "lucide-vue-next";
 
@@ -27,7 +27,7 @@ export default defineComponent({
     return {userStore, hobbiesStore};
   },
   computed: {
-    friendRequests(): Friend[] | [] {
+    friendRequests(): FriendRequestUser[] | [] {
       return this.userStore.getIncomingFriendRequests || []
     },
     friends(): User[] | [] {
@@ -56,7 +56,6 @@ export default defineComponent({
     showModal() {
       this.selectedHobby = null;
       this.typedHobby = "";
-
       const dialog = document.getElementById('add_hobby') as HTMLDialogElement;
       dialog?.showModal();
     },

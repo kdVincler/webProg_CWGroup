@@ -11,6 +11,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth import authenticate, login, logout
 
+from rest_framework.parsers import JSONParser
+from api.serializers import HobbySerializer, UserSerializer, FriendSerializer
 from . import models
 from .models import User, Hobby, UserHobby, Friend
 
@@ -39,7 +41,7 @@ def update_user(request: HttpRequest) -> HttpResponse:
     if request.user.is_authenticated:
         try:
             user = User.objects.get(id=request.user.id)
-            data = json.loads(request.body)
+            data = JSONParser().parse(request)
             if (data['name_changed']):
                 user.name = data['name']
             if (data['email_changed']):
@@ -137,8 +139,8 @@ def register(request: HttpRequest) -> HttpResponse:
 def check_auth_status(request: HttpRequest) -> HttpResponse:
     """API endpoint that returns if there is a user logged in or not, and if there is returns the user info aswell"""
     if request.user.is_authenticated:
-        # TODO: replace with a serializer
-        return JsonResponse({'authenticated': True, 'user': request.user.as_dict()})
+        serializer = UserSerializer(request.user)
+        return JsonResponse({'authenticated': True, 'user': serializer.data})
     return JsonResponse({'authenticated': False})
 
 
@@ -165,6 +167,8 @@ def paginate_users(request: HttpRequest, page_number: int) -> HttpResponse:
                 filtered_users.append(user)
             paginator = Paginator(filtered_users, 10)
             page = paginator.get_page(page_number)
+            user_hobbies = request.user.hobbies.all()
+            user_hobbies_serializer = HobbySerializer(user_hobbies, many=True)
             return JsonResponse({'page': {
                 'current_page': page.number,
                 'total_pages': paginator.num_pages,
@@ -174,7 +178,7 @@ def paginate_users(request: HttpRequest, page_number: int) -> HttpResponse:
                         'id': user.id,
                         'name': user.name,
                         'age': calculate_age_helper(user),
-                        'hobbies': [hobby.as_dict() for hobby in user.hobbies.all()],
+                        'hobbies': user_hobbies_serializer.data,
                         'similar_hobbies_count': user.similar_hobbies_count,
                         'similar_hobbies': get_similar_hobbies_helper(request, user)
                     } for user in page
@@ -203,7 +207,8 @@ def get_similar_hobbies_helper(request: HttpRequest, user: User) -> List[Dict[st
     result = list()
     for hobby in user.hobbies.all():
         if hobby in request.user.hobbies.all():
-            result.append(hobby.as_dict())
+            serializer = HobbySerializer(hobby)
+            result.append(serializer.data)
     return result
 
 
@@ -214,8 +219,8 @@ def hobby_list_view(request: HttpRequest) -> HttpResponse:
     """API endpoint for collection of hobbies"""
     if request.method == 'GET':
         # getting all hobbies
-        hobbies = Hobby.objects.all().values('id', 'name')  # Fetching all hobbies
-        return JsonResponse({'hobbies': list(hobbies)})
+        serializer = HobbySerializer(Hobby.objects.all(), many=True)
+        return JsonResponse({'hobbies': serializer.data})
     else:
         return JsonResponse({'error': "Incorrect method"}, status=405)
 
@@ -228,20 +233,28 @@ def user_hobby(request: HttpRequest) -> HttpResponse:
     if request.method == 'POST':
         try:
             if request.user.is_authenticated:  # Ensure the user is authenticated
-                data = json.loads(request.body)
-                # Get the Hobby instance (ignoring the boolean flag)
-                hob, _ = Hobby.objects.get_or_create(name=data['name'])
+                data = JSONParser().parse(request)
+                serializer = HobbySerializer(data=data)
+                if serializer.is_valid():
+                    # Get the Hobby instance (ignoring the boolean flag)
+                    name = data['name']
+                    formatted_name = name.title()
+                    
+                    # case-sensitive query
+                    hob = Hobby.objects.filter(name__iexact=name).first()
+                    if not hob:
+                        hob = Hobby.objects.create(name=formatted_name)
 
-                # If the user-hobby relationship already exists, return an error
-                if UserHobby.objects.filter(user=request.user, hobby=hob).exists():
-                    print("User-hobby relationship already exists")
-                    return JsonResponse({'error': 'User-hobby relationship already exists'}, status=400)
+                    # If the user-hobby relationship already exists, return an error
+                    if UserHobby.objects.filter(user=request.user, hobby=hob).exists():
+                        print("User-hobby relationship already exists")
+                        return JsonResponse({'error': 'User-hobby relationship already exists'}, status=400)
 
-                UserHobby.objects.create(
-                    user=request.user,
-                    hobby=hob
-                )
-                return JsonResponse({'message': "Hobby added successfully"}, status=201)
+                    UserHobby.objects.create(
+                        user=request.user,
+                        hobby=hob
+                    )
+                    return JsonResponse({'message': "Hobby added successfully"}, status=201)
             else:
                 return JsonResponse({'error': "User not logged in"}, status=401)
         except Exception as e:
@@ -304,8 +317,8 @@ def get_requests(request):
     """Get all incoming friend requests for the logged-in user."""
     incoming_requests = Friend.objects.filter(user2=request.user, accepted=False)
     outgoing_requests = Friend.objects.filter(user1=request.user, accepted=False)
-    return JsonResponse({"incoming_requests": [request.as_dict() for request in incoming_requests],
-                         "outgoing_requests": [request.as_dict() for request in outgoing_requests]})
+    return JsonResponse({"incoming_requests": FriendSerializer(incoming_requests, many=True).data,
+                         "outgoing_requests": FriendSerializer(outgoing_requests, many=True).data})
 
 def get_friends(request):
     """Get all friends of the logged-in user."""
@@ -316,7 +329,8 @@ def get_friends(request):
             r.append(friend.user2)
         else:
             r.append(friend.user1)
-    return JsonResponse({"friends": [friend.as_dict() for friend in r]})
+    user_serializer = UserSerializer(r, many=True)
+    return JsonResponse({"friends": user_serializer.data})
 
 def send_request(request, user_id):
     """Send a friend request to another user."""
@@ -334,7 +348,7 @@ def send_request(request, user_id):
                 return JsonResponse({'message': 'Friend request accepted'}, status=200)
             # Create the friend request
             Friend.objects.create(user1=request.user, user2=friend)
-            return JsonResponse({'message': 'Friend request sent successfully'}, status=201)
+            return JsonResponse({'message': 'Friend request sent'}, status=201)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
     else:
