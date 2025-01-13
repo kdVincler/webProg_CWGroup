@@ -5,9 +5,10 @@ import {PropType} from 'vue';
 import {sendFriendRequest, rejectFriendRequestOrRemoveFriend} from "../api.ts";
 import {PaginatedUser} from '../store/page.ts';
 import {useUserStore} from '../store/user.ts';
+import UserDisplay from "./UserDisplay.vue";
 
 export default defineComponent({
-  components: {Trophy, CircleHelp},
+  components: {UserDisplay, Trophy, CircleHelp},
   name: "PodiumDisplay",
   props: {
     users: {
@@ -31,30 +32,42 @@ export default defineComponent({
   },
   methods: {
     async addFriend(index: number) {
-      this.isRequestedData[index] = true;
-      sendFriendRequest(this.users[index].id)
+      await sendFriendRequest(this.users[index].id)
       await useUserStore().updateFriendRequests()
+      this.isRequestedData[index] = useUserStore()?.getOutgoingFriendRequests?.some(entry => entry.user2.id === this.users[index].id) || false;
+      this.isFriendData[index] = useUserStore()?.getUserFriends?.some(entry => entry.id === this.users[index].id) || false;
+      console.log(useUserStore().getUserFriends)
+      if (this.isFriendData[index]) {
+        this.isRequestedData[index] = false;
+      }
     },
     async removeFriend(index: number) {
-      this.isFriendData[index] = false;
-      this.isRequestedData[index] = false;
-      rejectFriendRequestOrRemoveFriend(this.users[index].id)
+      await rejectFriendRequestOrRemoveFriend(this.users[index].id)
       await useUserStore().updateFriendRequests()
+      this.isRequestedData[index] = false;
+      this.isFriendData[index] = false;
     },
   },
 });
 </script>
 
 <template>
-  <h1 class="text-3xl font-semibold text-center">Top 3 Users Like You</h1>
-  <div class="w-full flex flex-row justify-center items-end my-10">
-
+  <h1 class="text-3xl font-semibold text-center hidden lg:block">Top 3 Users Like You</h1>
+  <div class="block lg:hidden">
+    <UserDisplay v-if="users.length > 0" :user="users[0]" :isFriend="isFriendData[0]"
+                 :isRequested="isRequestedData[0]" :position="1"/>
+    <UserDisplay v-if="users.length > 1" :user="users[1]" :isFriend="isFriendData[1]"
+                 :isRequested="isRequestedData[1]" :position="2"/>
+    <UserDisplay v-if="users.length > 2" :user="users[2]" :isFriend="isFriendData[2]"
+                 :isRequested="isRequestedData[2]" :position="3"/>
+  </div>
+  <div class="w-full  hidden lg:flex flex-row justify-center items-end my-10" id="podium_third">
     <div class="shadow-lg p-6 h-[50vh] w-[14vw] bg-base-100 mx-1 flex flex-col items-center justify-between">
       <div class="flex flex-col items-center">
-        <div class="rounded-full h-36 w-36 bg-orange-500 flex items-center justify-center">
+        <div class="rounded-full lg:h-36 lg:w-36 w-20 h-20 bg-orange-500 flex items-center justify-center">
           <Trophy :size="64"/>
         </div>
-        <h2 class="text-2xl font-semibold text-center mt-2">{{ users[2]?.name }}</h2>
+        <h2 class="lg:text-2xl font-semibold text-center mt-2">{{ users[2]?.name }}</h2>
         <div
             class="tooltip tooltip-bottom w-full"
             :data-tip="
@@ -62,7 +75,7 @@ export default defineComponent({
           ? `You don't share any hobbies`
           : `You share the following hobbies: ${users[2]?.similar_hobbies.map(hobby => hobby.name).join(', ')}`"
         >
-          <h3 class="mt-4 cursor-pointer text-sm text-neutral-400 font-semibold text-center w-full flex flex-row items-center justify-center gap-1">
+          <h3 class="mt-4 cursor-pointer lg:text-sm text-xs  text-neutral-400 font-semibold text-center w-full flex flex-row items-center justify-center gap-1">
             {{ users[2]?.similar_hobbies_count || 0 }} Similar Hobbies
             <CircleHelp :size="16"/>
           </h3>
@@ -82,12 +95,12 @@ export default defineComponent({
 
 
     <!-- First Place -->
-    <div class="shadow-lg p-6 h-[70vh] w-[14vw] bg-base-100 mx-1 flex flex-col items-center justify-between">
+    <div class="shadow-lg p-6 h-[70vh] w-[14vw] bg-base-100 mx-1 flex flex-col items-center justify-between" id="podium_first">
       <div class="flex flex-col items-center">
-        <div class="rounded-full h-36 w-36 bg-yellow-400 flex items-center justify-center">
+        <div class="rounded-full lg:h-36 lg:w-36 w-20 h-20  bg-yellow-400 flex items-center justify-center">
           <Trophy :size="64"/>
         </div>
-        <h2 class="text-2xl font-semibold text-center mt-2">{{ users[0]?.name }}</h2>
+        <h2 class="lg:text-2xl font-semibold text-center mt-2">{{ users[0]?.name }}</h2>
         <div
             class="tooltip tooltip-bottom w-full"
             :data-tip="
@@ -95,7 +108,7 @@ export default defineComponent({
           ? `You don't share any hobbies`
           : `You share the following hobbies: ${users[0]?.similar_hobbies.map(hobby => hobby.name).join(', ')}`"
         >
-          <h3 class="mt-4 cursor-pointer text-sm text-neutral-400 font-semibold text-center w-full flex flex-row items-center justify-center gap-1">
+          <h3 class="mt-4 cursor-pointer lg:text-sm text-xs text-neutral-400 font-semibold text-center w-full flex flex-row items-center justify-center gap-1">
             {{ users[0]?.similar_hobbies_count || 0 }} Similar Hobbies
             <CircleHelp :size="16"/>
           </h3>
@@ -114,12 +127,12 @@ export default defineComponent({
     </div>
 
     <!-- Second Place -->
-    <div class="shadow-lg p-6 h-[60vh] w-[14vw] bg-base-100 mx-1 flex flex-col items-center justify-between">
+    <div class="shadow-lg p-6 h-[60vh] w-[14vw] bg-base-100 mx-1 flex flex-col items-center justify-between" id="podium_second">
       <div class="flex flex-col items-center">
-        <div class="rounded-full h-36 w-36 bg-gray-300 flex items-center justify-center">
+        <div class="rounded-full lg:h-36 lg:w-36 w-20 h-20  bg-gray-300 flex items-center justify-center">
           <Trophy :size="64"/>
         </div>
-        <h2 class="text-2xl font-semibold text-center mt-2">{{ users[1]?.name }}</h2>
+        <h2 class="lg:text-2xl font-semibold text-center mt-2">{{ users[1]?.name }}</h2>
         <div
             class="tooltip tooltip-bottom w-full"
             :data-tip="
@@ -127,7 +140,7 @@ export default defineComponent({
           ? `You don't share any hobbies`
           : `You share the following hobbies: ${users[1]?.similar_hobbies.map(hobby => hobby.name).join(', ')}`"
         >
-          <h3 class="mt-4 cursor-pointer text-sm text-neutral-400 font-semibold text-center w-full flex flex-row items-center justify-center gap-1">
+          <h3 class="mt-4 cursor-pointer lg:text-sm text-xs  text-neutral-400 font-semibold text-center w-full flex flex-row items-center justify-center gap-1">
             {{ users[1]?.similar_hobbies_count || 0 }} Similar Hobbies
             <CircleHelp :size="16"/>
           </h3>

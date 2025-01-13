@@ -32,6 +32,7 @@ export default defineComponent({
     },
     friends(): User[] | [] {
       return this.userStore.getUserFriends || []
+
     }
   },
   data() {
@@ -55,7 +56,8 @@ export default defineComponent({
     showModal() {
       this.selectedHobby = null;
       this.typedHobby = "";
-      (document.getElementById('add_hobby') as HTMLDialogElement).showModal();
+      const dialog = document.getElementById('add_hobby') as HTMLDialogElement;
+      dialog?.showModal();
     },
     closeModal() {
       this.selectedHobby = null;
@@ -72,7 +74,7 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="h-screen bg-slate-600 w-1/5 px-6 py-2 text-base-200 flex flex-col items-start">
+  <div class="h-screen bg-slate-600 w-1/5 px-6 py-2 text-base-200 hidden md:flex flex-col items-start">
     <RouterLink to="/" class="btn btn-ghost text-xl italic">Hobby 24</RouterLink>
 
     <div class="collapse collapse-arrow bg-slate-600 my-2">
@@ -133,7 +135,7 @@ export default defineComponent({
       <div class="collapse-content">
         <ul class="flex flex-col gap-1 mb-4">
           <a :href="'mailto:' + friend.email" v-for="friend in friends" :key="friend.id"
-                  class="capitalize text-md font-medium btn bg-slate-700 border-0 hover:bg-slate-500 text-white justify-between">
+             class="capitalize text-md font-medium btn bg-slate-700 border-0 hover:bg-slate-500 text-white justify-between">
             {{ friend.name }}
             <Mail :size="16"/>
           </a>

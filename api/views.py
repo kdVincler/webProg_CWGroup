@@ -1,5 +1,8 @@
 import datetime as D
 import json
+import os
+
+import dotenv
 from django.db.models import Count, Q
 from django.core.paginator import Paginator
 from typing import Dict, Optional, List
@@ -83,7 +86,11 @@ def log_in_view(request: HttpRequest) -> HttpResponse:
             user = authenticate(request, username=request.POST['email'], password=request.POST['pw'])
             if user:
                 login(request, user=user)
-                return redirect("http://localhost:5173/")
+                dotenv.load_dotenv()
+                if os.getenv('VITE_DEV_MODE') == "true":
+                    return redirect('http://localhost:5173/')
+                else:
+                    return redirect('/')
             else:
                 # username or password is incorrect (authenticate failed, user is None)
                 return render(request, 'api/spa/login.html', {"error": "Incorrect username or password"})
@@ -120,7 +127,7 @@ def register(request: HttpRequest) -> HttpResponse:
             )
             new_user.set_password(request.POST['pw'])
             new_user.save()
-            return redirect("http://localhost:8000/login/")
+            return redirect("/login/")
         except Exception as e:
             return render(request, 'api/spa/register.html', {"error": str(e)})
     if request.method == 'GET':
@@ -292,12 +299,17 @@ def accept_request(request, user_id):
 
 def reject_request_or_remove_friend(request, user_id):
     """Decline a friend request (delete the pending relationship)."""
+
     # Get the friend request to decline
-    friend_request = get_object_or_404(Friend, user1=user_id, user2=request.user)
+    friend = Friend.objects.filter(user1=user_id, user2=request.user, accepted=False)
+    if not friend.exists():
+        # If no friend request exists, check if the user is a friend
+        friend = Friend.objects.filter(Q(user1=user_id, user2=request.user, accepted=True) | Q(user1=request.user, user2=user_id, accepted=True))
+        if not friend.exists():
+            return JsonResponse({'error': 'Friend request not found'}, status=404)
 
     # Delete the friend request (pending relationship)
-    friend_request.delete()
-
+    friend.delete()
     return JsonResponse({"message": "Friend request declined"})
 
 

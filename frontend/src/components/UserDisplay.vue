@@ -1,6 +1,6 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
-import {Trophy} from 'lucide-vue-next'
+import {UserMinus, UserPlus, UserCheck} from 'lucide-vue-next'
 import {sendFriendRequest, rejectFriendRequestOrRemoveFriend} from '../api'
 import {PropType} from 'vue'
 import {getInitialBGColour} from '../utils'
@@ -8,7 +8,7 @@ import {PaginatedUser} from '../store/page'
 import {useUserStore} from '../store/user'
 
 export default defineComponent({
-  components: {Trophy},
+  components: {UserPlus, UserMinus, UserCheck},
   name: "UserDisplay",
   props: {
     user: {
@@ -36,9 +36,13 @@ export default defineComponent({
   },
   methods: {
     async addFriend() {
-      this.isRequestedData = true
-      sendFriendRequest(this.user.id)
+      await sendFriendRequest(this.user.id)
       await useUserStore().updateFriendRequests()
+      this.isRequestedData = useUserStore()?.getOutgoingFriendRequests?.some(entry => entry.user2.id === this.user.id) || false
+      this.isFriendData = useUserStore()?.getUserFriends?.some(entry => entry.id === this.user.id) || false
+      if (this.isFriendData) {
+        this.isRequestedData = false
+      }
 
     },
     async removeFriend() {
@@ -54,7 +58,7 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="w-full flex flex-row items-center justify-between my-4 bg-base-100 card shadow-lg p-6">
+  <div class="w-full flex flex-row items-center justify-between my-4 bg-base-100 card shadow-lg p-6" :id="`user_display_${position}`">
     <div class="flex-row items-center justify-start flex w-full h-full gap-6">
       <div
           :class="['w-16 h-16 rounded-full', getInitialBGColour(user.name.split(' ').map((n) => n[0]).join('') || '')]">
@@ -70,14 +74,29 @@ export default defineComponent({
       </div>
     </div>
 
-    <button v-if="isRequestedData" class="btn justify-self-end btn-disabled min-w-32">
+    <button v-if="isRequestedData" class="btn justify-self-end btn-disabled sm:min-w-32 w-12">
+      <span class="sm:hidden block">
+        <UserCheck/>
+      </span>
+      <span class="sm:block hidden">
       Requested
+        </span>
     </button>
-    <button v-else-if="isFriendData" @click="removeFriend" class="btn justify-self-end min-w-32">
+    <button v-else-if="isFriendData" @click="removeFriend" class="btn justify-self-end sm:min-w-32 w-12">
+      <span class="sm:hidden block">
+        <UserMinus/>
+      </span>
+      <span class="sm:block hidden">
       Remove Friend
+        </span>
     </button>
-    <button v-else @click="addFriend" class="btn justify-self-end min-w-32">
+    <button v-else @click="addFriend" class="btn justify-self-end sm:min-w-32 w-12">
+      <span class="sm:hidden block">
+        <UserPlus/>
+      </span>
+      <span class="sm:block hidden">
       Add Friend
+        </span>
     </button>
   </div>
 

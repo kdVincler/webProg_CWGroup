@@ -226,7 +226,7 @@ export default defineComponent({
           <section class="form-control mb-4">
             <label class="label">Password</label>
             <!--Div not a button to avoid auto submit :)-->
-            <div class="w-full btn"
+            <div class="w-full btn" id="edit_password"
                  @click="() => {editUser.password_changed = !editUser.password_changed; discardChanges()}">
               {{ editUser.password_changed ? 'Cancel' : 'Edit Password' }}
             </div>
@@ -238,11 +238,11 @@ export default defineComponent({
               <label class="label">Old Password</label>
               <div class="w-full flex flex-row-reverse items-center justify-between gap-2">
                 <label class="btn btn-square swap swap-rotate">
-                  <input type="checkbox" name="change_email" v-model="showOldPassword">
+                  <input type="checkbox" name="change_old_pw" v-model="showOldPassword">
                   <EyeOff class="swap-off" :size="32" :color="'gray'"/>
                   <Eye class="swap-on" :size="32" :color="'gray'"/>
                 </label>
-                <input v-model="editUser.old_password" :type="showOldPassword ? 'text' : 'password'"
+                <input id="change_old_pw" name="old_pw" v-model="editUser.old_password" :type="showOldPassword ? 'text' : 'password'"
                        class="input input-bordered w-full" :disabled="!editUser.password_changed"/>
               </div>
             </div>
@@ -250,11 +250,11 @@ export default defineComponent({
               <label class="label">New Password</label>
               <div class="w-full flex flex-row-reverse items-center justify-between gap-2">
                 <label class="btn btn-square swap swap-rotate">
-                  <input type="checkbox" name="change_email" v-model="showNewPassword">
+                  <input type="checkbox" name="change_new_pw" v-model="showNewPassword">
                   <EyeOff class="swap-off" :size="32" :color="'gray'"/>
                   <Eye class="swap-on" :size="32" :color="'gray'"/>
                 </label>
-                <input name="pw" v-model="editUser.new_password" :type="showNewPassword ? 'text' : 'password'"
+                <input id="change_old_pw" name="pw" v-model="editUser.new_password" :type="showNewPassword ? 'text' : 'password'"
                        class="input input-bordered w-full" :disabled="!editUser.password_changed"/>
               </div>
             </div>
@@ -262,11 +262,11 @@ export default defineComponent({
               <label class="label">Confirm New Password</label>
               <div class="w-full flex flex-row-reverse items-center justify-between gap-2">
                 <label class="btn btn-square swap swap-rotate">
-                  <input type="checkbox" name="change_email" v-model="showConfirmNewPassword">
+                  <input type="checkbox" name="cpw" v-model="showConfirmNewPassword">
                   <EyeOff class="swap-off" :size="32" :color="'gray'"/>
                   <Eye class="swap-on" :size="32" :color="'gray'"/>
                 </label>
-                <input name="cpw" v-model="editUser.confirm_new_password"
+                <input id="change_confirm_new_password" name="cpw" v-model="editUser.confirm_new_password"
                        :type="showConfirmNewPassword ? 'text' : 'password'"
                        class="input input-bordered w-full" :disabled="!editUser.password_changed"/>
               </div>
