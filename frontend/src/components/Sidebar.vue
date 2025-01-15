@@ -159,7 +159,7 @@ export default defineComponent({
                 <Check :size="16" color="white"/>
               </button>
               <button @click="rejectRequest(request.user1.id)"
-                      class="btn bg-slate-500 hover:bg-slate-400 border-0 h-8 min-h-0 aspect-square p-0">
+                      class="btn bg-slate-500 hover:bg-slate-400 border-0 h-8 min-h-0 aspect-square p-0 ">
                 <X :size="16" color="white"/>
               </button>
             </div>
@@ -169,7 +169,7 @@ export default defineComponent({
       </div>
     </div>
 
-    <button @click="logout" class="btn w-full mt-auto mb-4 bg-slate-500 border-0 text-white hover:bg-slate-400">Logout
+    <button id="sidebar-logout" @click="logout" class="btn w-full mt-auto mb-4 bg-slate-500 border-0 text-white hover:bg-slate-400">Logout
     </button>
   </div>
 </template>
