@@ -82,13 +82,13 @@ export default defineComponent({
         </div>
         <div class="divider"></div>
       </div>
-      <button v-if="isRequestedData[2]" class="btn justify-self-end btn-disabled w-full">
+      <button v-if="isRequestedData[2]" class="btn justify-self-end btn-disabled w-full" :id="'button'+3">
         Requested
       </button>
-      <button v-else-if="isFriendData[2]" @click="removeFriend(2)" class="btn justify-self-end w-full">
+      <button v-else-if="isFriendData[2]" @click="removeFriend(2)" class="btn justify-self-end w-full" :id="'button'+3">
         Remove Friend
       </button>
-      <button v-else @click="addFriend(2)" class="btn justify-self-end w-full">
+      <button v-else @click="addFriend(2)" class="btn justify-self-end w-full" :id="'button'+3">
         Add Friend
       </button>
     </div>
@@ -115,13 +115,13 @@ export default defineComponent({
         </div>
         <div class="divider"></div>
       </div>
-      <button v-if="isRequestedData[0]" class="btn justify-self-end btn-disabled w-full">
+      <button v-if="isRequestedData[0]" class="btn justify-self-end btn-disabled w-full" :id="'button'+1">
         Requested
       </button>
-      <button v-else-if="isFriendData[0]" @click="removeFriend(0)" class="btn justify-self-end w-full">
+      <button v-else-if="isFriendData[0]" @click="removeFriend(0)" class="btn justify-self-end w-full" :id="'button'+1">
         Remove Friend
       </button>
-      <button v-else @click="addFriend(0)" class="btn justify-self-end w-full">
+      <button v-else @click="addFriend(0)" class="btn justify-self-end w-full" :id="'button'+1">
         Add Friend
       </button>
     </div>
@@ -147,13 +147,13 @@ export default defineComponent({
         </div>
         <div class="divider"></div>
       </div>
-      <button v-if="isRequestedData[1]" class="btn justify-self-end btn-disabled w-full">
+      <button v-if="isRequestedData[1]" class="btn justify-self-end btn-disabled w-full" :id="'button'+2">
         Requested
       </button>
-      <button v-else-if="isFriendData[1]" @click="removeFriend(1)" class="btn justify-self-end w-full">
+      <button v-else-if="isFriendData[1]" @click="removeFriend(1)" class="btn justify-self-end w-full" :id="'button'+2">
         Remove Friend
       </button>
-      <button v-else @click="addFriend(1)" class="btn justify-self-end w-full">
+      <button v-else @click="addFriend(1)" class="btn justify-self-end w-full" :id="'button'+2">
         Add Friend
       </button>
     </div>

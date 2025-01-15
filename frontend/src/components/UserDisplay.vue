@@ -74,7 +74,7 @@ export default defineComponent({
       </div>
     </div>
 
-    <button v-if="isRequestedData" class="btn justify-self-end btn-disabled sm:min-w-32 w-12">
+    <button v-if="isRequestedData" class="btn justify-self-end btn-disabled sm:min-w-32 w-12" :id="'button'+position">
       <span class="sm:hidden block">
         <UserCheck/>
       </span>
@@ -82,7 +82,7 @@ export default defineComponent({
       Requested
         </span>
     </button>
-    <button v-else-if="isFriendData" @click="removeFriend" class="btn justify-self-end sm:min-w-32 w-12">
+    <button v-else-if="isFriendData" @click="removeFriend" class="btn justify-self-end sm:min-w-32 w-12" :id="'button'+position">
       <span class="sm:hidden block">
         <UserMinus/>
       </span>
@@ -90,7 +90,7 @@ export default defineComponent({
       Remove Friend
         </span>
     </button>
-    <button v-else @click="addFriend" class="btn justify-self-end sm:min-w-32 w-12">
+    <button v-else @click="addFriend" class="btn justify-self-end sm:min-w-32 w-12" :id="'button'+position">
       <span class="sm:hidden block">
         <UserPlus/>
       </span>
