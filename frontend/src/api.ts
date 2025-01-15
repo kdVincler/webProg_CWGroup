@@ -30,9 +30,7 @@ function getCSRFToken(): string | null {
 const getUsersPaginated = async (
     page_number: number,
     age_range?: { low: number; high: number }
-): Promise<{
-    page: Page;
-}> => {
+): Promise<{page: Page} | Error> => {
     let response;
     if (!age_range) {
         response = await fetch(`${url}/users/page/${page_number}/`, {
@@ -72,7 +70,7 @@ const logout = async (): Promise<void> => {
     }
 };
 
-const updateUser = async (edited_user: EditUser) => {
+const updateUser = async (edited_user: EditUser): Promise<void | Error> => {
     const response = await fetch(`${url}/user/`, {
         method: "PUT",
         credentials: "include",
@@ -100,7 +98,7 @@ const updateUser = async (edited_user: EditUser) => {
     await useUserStore().fetchAuthStatus();
 };
 
-const deleteUser = async () => {
+const deleteUser = async (): Promise<void | Error> => {
     const response = await fetch(`${url}/user/`, {
         method: "DELETE",
         credentials: "include",
@@ -117,7 +115,7 @@ const deleteUser = async () => {
     await useUserStore().fetchAuthStatus();
 };
 
-const addUserHobby = async (name: String): Promise<void> => {
+const addUserHobby = async (name: String): Promise<void | Error> => {
     const response = await fetch(`${url}/user-hobby/`, {
         method: "POST",
         credentials: "include",
@@ -135,7 +133,7 @@ const addUserHobby = async (name: String): Promise<void> => {
     usePageStore().paginate(1); // needs to update the page from the start, as the new hobby list could mess with the order
 };
 
-const deleteUserHobby = async (id: Number): Promise<void> => {
+const deleteUserHobby = async (id: Number): Promise<void | Error> => {
     const response = await fetch(`${url}/user-hobby/${id}/`, {
         method: "DELETE",
         credentials: "include",
@@ -151,7 +149,7 @@ const deleteUserHobby = async (id: Number): Promise<void> => {
     usePageStore().paginate(1); // needs to update the page from the start, as the new hobby list could mess with the order
 };
 
-export async function fetchAllHobbies(): Promise<{ hobbies: Hobby[] }> {
+export async function fetchAllHobbies(): Promise<{ hobbies: Hobby[] } | Error> {
     const response = await fetch(`${url}/hobby/`, {
         method: "GET",
         credentials: "include",
@@ -163,7 +161,7 @@ export async function fetchAllHobbies(): Promise<{ hobbies: Hobby[] }> {
     return data;
 }
 
-export async function acceptFriendRequest(id: number): Promise<void> {
+export async function acceptFriendRequest(id: number): Promise<void | Error> {
     const response = await fetch(
         `${url}/accept-friend-request/${id}/`,
         {
@@ -183,7 +181,7 @@ export async function acceptFriendRequest(id: number): Promise<void> {
 
 export async function rejectFriendRequestOrRemoveFriend(
     id: number
-): Promise<void> {
+): Promise<void | Error> {
     const response = await fetch(
         `${url}/reject-friend-request/${id}/`,
         {
@@ -201,7 +199,7 @@ export async function rejectFriendRequestOrRemoveFriend(
     useUserStore().updateFriendRequests();
 }
 
-export async function sendFriendRequest(id: number): Promise<void> {
+export async function sendFriendRequest(id: number): Promise<void | Error> {
     const response = await fetch(
         `${url}/send-friend-request/${id}/`,
         {
@@ -219,7 +217,7 @@ export async function sendFriendRequest(id: number): Promise<void> {
     useUserStore().updateFriendRequests();
 }
 
-export async function getFriends(): Promise<{ friends: User[] }> {
+export async function getFriends(): Promise<{ friends: User[] } | Error> {
     const response = await fetch(`${url}/friends/`, {
         method: "GET",
         credentials: "include",
@@ -234,7 +232,7 @@ export async function getFriends(): Promise<{ friends: User[] }> {
     return data;
 }
 
-export async function getFriendRequests(): Promise<FriendRequests> {
+export async function getFriendRequests(): Promise<FriendRequests | Error> {
     const response = await fetch(`${url}/friend-requests/`, {
         method: "GET",
         credentials: "include",
@@ -249,7 +247,7 @@ export async function getFriendRequests(): Promise<FriendRequests> {
 export async function checkAuthStatus(): Promise<{
     authenticated: boolean;
     user: User;
-}> {
+} | Error> {
     const response = await fetch(`${url}/auth-status`, {
         credentials: "include",
     });
