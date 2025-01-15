@@ -146,7 +146,7 @@ class EndToEndTests(LiveServerTestCase):
             "Not redirected to home page. Password not updated"
         )
 
-    def test_add_friend(self):
+    def _send_friend_request(self):
         self.wait_for_body()
         self._register()
         self._register("user2", "user2@email.com")
@@ -156,10 +156,20 @@ class EndToEndTests(LiveServerTestCase):
         self.wait_for_body()
         self.selenium.find_element(By.ID, 'sidebar-logout').click()
         self.wait_for_body()
+        time.sleep(1)
+
+    def test_send_friend_request(self):
+        self._send_friend_request()
+
         # Check friend request exists
         self.assertTrue(Friend.objects.filter(user1=User.objects.get(email="user@email.com"),
                                               user2=User.objects.get(email="user2@email.com")).exists(),
                         "Friend request not sent")
+
+    def test_accept_friend_request(self):
+        self._send_friend_request()
+
+        time.sleep(1)
         self.wait_for_body()
         self._login(email="user2@email.com")
         self.wait_for_body()
@@ -220,17 +230,15 @@ class EndToEndTests(LiveServerTestCase):
                 self.selenium.implicitly_wait(10)
                 return False
 
-
         # Check to see filters were applied proprerly
         self.assertTrue(
             (
-                is_element_displayed('user_display_1') and
-                is_element_displayed('user_display_2') and
-                not is_element_displayed('user_display_3') and
-                not is_element_displayed('podium_first') and
-                not is_element_displayed('podium_second') and
-                not is_element_displayed('podium_third')
+                    is_element_displayed('user_display_1') and
+                    is_element_displayed('user_display_2') and
+                    not is_element_displayed('user_display_3') and
+                    not is_element_displayed('podium_first') and
+                    not is_element_displayed('podium_second') and
+                    not is_element_displayed('podium_third')
             ),
             "Filters not applied, users that shouldn't be displayed are displayed."
         )
-
