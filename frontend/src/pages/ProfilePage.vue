@@ -1,19 +1,22 @@
 <script lang="ts">
 import {defineComponent, ref, onMounted} from "vue";
-import {useUserStore} from "../store/user";
-import {Mail, Calendar, PencilLine, X, Eye, EyeOff, Trash} from "lucide-vue-next";
-import {EditUser, updateUser, deleteUser, addUserHobby, deleteUserHobby} from "../api";
+import {FriendRequestUser, User, useUserStore} from "../store/user";
+import {Mail, Calendar, PencilLine, X, Eye, EyeOff, Trash, Check} from "lucide-vue-next";
+import {EditUser, updateUser, deleteUser, addUserHobby, deleteUserHobby, acceptFriendRequest, rejectFriendRequestOrRemoveFriend} from "../api";
 import {getInitialBGColour} from "../utils.ts";
 import {Hobby, useHobbiesStore} from "../store/hobbies.ts";
 
 export default defineComponent({
-  components: {Mail, Calendar, PencilLine, X, Eye, EyeOff, Trash},
+  components: {Mail, Calendar, PencilLine, X, Eye, EyeOff, Trash, Check},
   name: "ProfilePage",
   setup() {
     const userStore = useUserStore();
     const hobbiesStore = useHobbiesStore();
 
     onMounted(async () => {
+      if (userStore.getIncomingFriendRequests === undefined || userStore.getUserFriends === undefined) {
+        await userStore.updateFriendRequests()
+      }
       if (hobbiesStore.getAllHobbies == undefined) {
         await hobbiesStore.populate()
       }
@@ -53,6 +56,8 @@ export default defineComponent({
   methods: {
     addUserHobby,
     deleteUserHobby,
+    acceptFriendRequest,
+    rejectFriendRequestOrRemoveFriend,
     updateUser,
     deleteUser,
     getInitialBGColour,
@@ -151,6 +156,13 @@ export default defineComponent({
     }
   },
   computed: {
+    friendRequests(): FriendRequestUser[] | [] {
+      return this.userStore.getIncomingFriendRequests || []
+    },
+    friends(): User[] | [] {
+      return this.userStore.getUserFriends || []
+
+    },
     hobbies(): Hobby[] | [] {
       return this.hobbiesStore.getAllHobbies || []
     }
@@ -195,7 +207,7 @@ export default defineComponent({
                 id="profile_add_hobby_modal">Add Hobby
         </button>
         <ul class="flex flex-col w-full gap-2">
-          <div v-if="userStore.getHobbies?.length === 0 " class="text-center font-semibold text-neutral-400">No hobbies to display. <br> Why not add some?</div>
+          <div v-if="userStore.getHobbies?.length === 0 " class="text-center font-semibold text-neutral-400">No hobbies to display. <br> <i>Why not add some?</i> </div>
           <button v-else @click="deleteUserHobby(hobby.id)" v-for="hobby in userStore.getHobbies" :key="hobby.id"
                   class="w-full capitalize text-md font-semibold btn bg-slate-700 border-0 hover:bg-slate-500 text-white justify-between"
                   :id="`profile_displayed_hobby_${hobby.id}`">
@@ -203,6 +215,43 @@ export default defineComponent({
             <Trash :size="16"/>
           </button>
         </ul>
+        
+        <!--
+          Only displayed on mobile
+          so that mobile users can
+          accept/reject friend requests
+          and see their friends list
+        -->
+        <div class="hidden max-md:flex flex-col w-full gap-2">
+          <div class="divider font-semibold text-neutral-400">Friend Requests ({{ friendRequests.length }})</div>
+          <ul class="flex flex-col gap-1 mb-4">
+            <div v-if="friendRequests.length === 0 " class="text-center font-semibold text-neutral-400">No new friend requests. <br> <i>It's just a matter of time though!</i> </div>
+            <div v-else v-for="request in friendRequests" :key="request.user1.id"
+                class="capitalize text-md font-medium  bg-slate-700 rounded-lg flex flex-row p-2 px-4 text-white justify-between items-center">
+              {{ request.user1.name }}
+              <div class="flex flex-row-reverse items-center gap-1">
+                <button @click="acceptFriendRequest(request.user1.id)"
+                        class="btn bg-slate-500 hover:bg-slate-400 border-0 h-8 min-h-0 aspect-square p-0">
+                  <Check :size="16" color="white"/>
+                </button>
+                <button @click="rejectFriendRequestOrRemoveFriend(request.user1.id)"
+                        class="btn bg-slate-500 hover:bg-slate-400 border-0 h-8 min-h-0 aspect-square p-0">
+                  <X :size="16" color="white"/>
+                </button>
+              </div>
+            </div>
+          </ul>
+
+          <div class="divider font-semibold text-neutral-400">Friends ({{ friends.length }})</div>
+          <div v-if="friends.length === 0 " class="text-center font-semibold text-neutral-400">No friends to display. <br> <i>Perfect time to make some!</i> </div>
+          <ul v-else class="flex flex-col gap-1 mb-4">
+            <a :href="'mailto:' + friend.email" v-for="friend in friends" :key="friend.id"
+              class="capitalize text-md font-medium btn bg-slate-700 border-0 hover:bg-slate-500 text-white justify-between">
+              {{ friend.name }}
+              <Mail :size="16"/>
+            </a>
+          </ul>
+        </div>
 
         <div class="divider font-semibold text-neutral-400">Settings</div>
         <div class="card-actions justify-end w-full pt-2">
