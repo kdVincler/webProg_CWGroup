@@ -1,6 +1,6 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
-import {UserMinus, UserPlus, UserCheck} from 'lucide-vue-next'
+import {UserMinus, UserPlus, UserCheck, CircleHelp} from 'lucide-vue-next'
 import {sendFriendRequest, rejectFriendRequestOrRemoveFriend} from '../api'
 import {PropType} from 'vue'
 import {getInitialBGColour} from '../utils'
@@ -8,7 +8,7 @@ import {PaginatedUser} from '../store/page'
 import {useUserStore} from '../store/user'
 
 export default defineComponent({
-  components: {UserPlus, UserMinus, UserCheck},
+  components: {UserPlus, UserMinus, UserCheck, CircleHelp},
   name: "UserDisplay",
   props: {
     user: {
@@ -28,29 +28,14 @@ export default defineComponent({
       default: false
     }
   },
-  data() {
-    return {
-      isFriendData: this.isFriend,
-      isRequestedData: this.isRequested
-    }
-  },
   methods: {
     async addFriend() {
       await sendFriendRequest(this.user.id)
       await useUserStore().updateFriendRequests()
-      this.isRequestedData = useUserStore()?.getOutgoingFriendRequests?.some(entry => entry.user2.id === this.user.id) || false
-      this.isFriendData = useUserStore()?.getUserFriends?.some(entry => entry.id === this.user.id) || false
-      if (this.isFriendData) {
-        this.isRequestedData = false
-      }
-
     },
     async removeFriend() {
-      this.isFriendData = false
-      this.isRequestedData = false
       rejectFriendRequestOrRemoveFriend(this.user.id)
       await useUserStore().updateFriendRequests()
-
     },
     getInitialBGColour
   }
@@ -68,13 +53,23 @@ export default defineComponent({
       </div>
       <div>
         <h2 class="text-lg font-semibold">{{ user.name }}</h2>
-        <h3 class="text-sm text-neutral-500 font-normal"><span class="font-bold">{{ user.similar_hobbies_count }}</span>
-          Similar
-          Hobbies</h3>
+        <div
+            class="tooltip tooltip-bottom"
+            :data-tip="
+            user.similar_hobbies_count === 0
+            ? `You don't share any hobbies`
+            : `You share the following hobbies: ${user.similar_hobbies.map(hobby => hobby.name).join(', ')}`"
+        >
+          <h3 class="text-sm text-neutral-500 font-normal flex flex-row items-center justify-center gap-1"><span class="font-bold">{{ user.similar_hobbies_count }}</span>
+            Similar
+            Hobbies
+            <CircleHelp :size="16"/>
+          </h3>
+        </div>
       </div>
     </div>
 
-    <button v-if="isRequestedData" class="btn justify-self-end btn-disabled sm:min-w-32 w-12" :id="'button'+position">
+    <button v-if="isRequested" class="btn justify-self-end btn-disabled sm:min-w-32 w-12">
       <span class="sm:hidden block">
         <UserCheck/>
       </span>
@@ -82,7 +77,7 @@ export default defineComponent({
       Requested
         </span>
     </button>
-    <button v-else-if="isFriendData" @click="removeFriend" class="btn justify-self-end sm:min-w-32 w-12" :id="'button'+position">
+    <button v-else-if="isFriend" @click="removeFriend" class="btn justify-self-end sm:min-w-32 w-12">
       <span class="sm:hidden block">
         <UserMinus/>
       </span>

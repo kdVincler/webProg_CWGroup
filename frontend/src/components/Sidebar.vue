@@ -23,6 +23,9 @@ export default defineComponent({
       if (userStore.getIncomingFriendRequests === undefined || userStore.getUserFriends === undefined) {
         await userStore.updateFriendRequests()
       }
+      if (hobbiesStore.getAllHobbies == undefined) {
+        await hobbiesStore.populate()
+      }
     });
     return {userStore, hobbiesStore};
   },
@@ -33,20 +36,16 @@ export default defineComponent({
     friends(): User[] | [] {
       return this.userStore.getUserFriends || []
 
+    },
+    hobbies(): Hobby[] | [] {
+      return this.hobbiesStore.getAllHobbies || []
     }
   },
   data() {
     return {
-      hobbies: [] as Hobby[],
       selectedHobby: null as number | null,
       typedHobby: "",
     };
-  },
-  async mounted() {
-    if (this.hobbiesStore.getAllHobbies == undefined) {
-      await this.hobbiesStore.populate()
-    }
-    this.hobbies = this.hobbiesStore.getAllHobbies || [];
   },
   methods: {
     logout,

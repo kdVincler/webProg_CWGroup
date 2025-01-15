@@ -24,28 +24,14 @@ export default defineComponent({
       default: [false, false, false],
     },
   },
-  data() {
-    return {
-      isFriendData: this.isFriend,
-      isRequestedData: this.isRequested,
-    };
-  },
   methods: {
     async addFriend(index: number) {
       await sendFriendRequest(this.users[index].id)
       await useUserStore().updateFriendRequests()
-      this.isRequestedData[index] = useUserStore()?.getOutgoingFriendRequests?.some(entry => entry.user2.id === this.users[index].id) || false;
-      this.isFriendData[index] = useUserStore()?.getUserFriends?.some(entry => entry.id === this.users[index].id) || false;
-      console.log(useUserStore().getUserFriends)
-      if (this.isFriendData[index]) {
-        this.isRequestedData[index] = false;
-      }
     },
     async removeFriend(index: number) {
       await rejectFriendRequestOrRemoveFriend(this.users[index].id)
       await useUserStore().updateFriendRequests()
-      this.isRequestedData[index] = false;
-      this.isFriendData[index] = false;
     },
   },
 });
@@ -54,12 +40,12 @@ export default defineComponent({
 <template>
   <h1 class="text-3xl font-semibold text-center hidden lg:block">Top 3 Users Like You</h1>
   <div class="block lg:hidden">
-    <UserDisplay v-if="users.length > 0" :user="users[0]" :isFriend="isFriendData[0]"
-                 :isRequested="isRequestedData[0]" :position="1"/>
-    <UserDisplay v-if="users.length > 1" :user="users[1]" :isFriend="isFriendData[1]"
-                 :isRequested="isRequestedData[1]" :position="2"/>
-    <UserDisplay v-if="users.length > 2" :user="users[2]" :isFriend="isFriendData[2]"
-                 :isRequested="isRequestedData[2]" :position="3"/>
+    <UserDisplay v-if="users.length > 0" :user="users[0]" :isFriend="isFriend[0]"
+                 :isRequested="isRequested[0]" :position="1"/>
+    <UserDisplay v-if="users.length > 1" :user="users[1]" :isFriend="isFriend[1]"
+                 :isRequested="isRequested[1]" :position="2"/>
+    <UserDisplay v-if="users.length > 2" :user="users[2]" :isFriend="isFriend[2]"
+                 :isRequested="isRequested[2]" :position="3"/>
   </div>
   <div class="w-full  hidden lg:flex flex-row justify-center items-end my-10" id="podium_third">
     <div class="shadow-lg p-6 h-[50vh] w-[14vw] bg-base-100 mx-1 flex flex-col items-center justify-between">
@@ -82,10 +68,10 @@ export default defineComponent({
         </div>
         <div class="divider"></div>
       </div>
-      <button v-if="isRequestedData[2]" class="btn justify-self-end btn-disabled w-full" :id="'button'+3">
+      <button v-if="isRequested[2]" class="btn justify-self-end btn-disabled w-full">
         Requested
       </button>
-      <button v-else-if="isFriendData[2]" @click="removeFriend(2)" class="btn justify-self-end w-full" :id="'button'+3">
+      <button v-else-if="isFriend[2]" @click="removeFriend(2)" class="btn justify-self-end w-full">
         Remove Friend
       </button>
       <button v-else @click="addFriend(2)" class="btn justify-self-end w-full" :id="'button'+3">
@@ -115,10 +101,10 @@ export default defineComponent({
         </div>
         <div class="divider"></div>
       </div>
-      <button v-if="isRequestedData[0]" class="btn justify-self-end btn-disabled w-full" :id="'button'+1">
+      <button v-if="isRequested[0]" class="btn justify-self-end btn-disabled w-full">
         Requested
       </button>
-      <button v-else-if="isFriendData[0]" @click="removeFriend(0)" class="btn justify-self-end w-full" :id="'button'+1">
+      <button v-else-if="isFriend[0]" @click="removeFriend(0)" class="btn justify-self-end w-full">
         Remove Friend
       </button>
       <button v-else @click="addFriend(0)" class="btn justify-self-end w-full" :id="'button'+1">
@@ -147,10 +133,10 @@ export default defineComponent({
         </div>
         <div class="divider"></div>
       </div>
-      <button v-if="isRequestedData[1]" class="btn justify-self-end btn-disabled w-full" :id="'button'+2">
+      <button v-if="isRequested[1]" class="btn justify-self-end btn-disabled w-full">
         Requested
       </button>
-      <button v-else-if="isFriendData[1]" @click="removeFriend(1)" class="btn justify-self-end w-full" :id="'button'+2">
+      <button v-else-if="isFriend[1]" @click="removeFriend(1)" class="btn justify-self-end w-full">
         Remove Friend
       </button>
       <button v-else @click="addFriend(1)" class="btn justify-self-end w-full" :id="'button'+2">
