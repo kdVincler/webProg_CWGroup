@@ -10,8 +10,7 @@ export interface User {
     hobbies: Hobby[];
 }
 
-export interface Friend {
-    id: number;
+export interface FriendRequestUser {
     user1: {
         id: number;
         username: string;
@@ -26,8 +25,8 @@ export interface Friend {
 }
 
 export interface FriendRequests {
-    incoming_requests: Friend[];
-    outgoing_requests: Friend[];
+    incoming_requests: FriendRequestUser[];
+    outgoing_requests: FriendRequestUser[];
 }
 
 export const useUserStore = defineStore('user', {
@@ -93,10 +92,10 @@ export const useUserStore = defineStore('user', {
         getUserFriends(): User[] | undefined {
             return this.friends || undefined
         },
-        getOutgoingFriendRequests(): Friend[] | undefined {
+        getOutgoingFriendRequests(): FriendRequestUser[] | undefined {
             return this.friend_requests?.outgoing_requests
         },
-        getIncomingFriendRequests(): Friend[] | undefined {
+        getIncomingFriendRequests(): FriendRequestUser[] | undefined {
             return this.friend_requests?.incoming_requests
         }
     },

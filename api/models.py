@@ -18,12 +18,6 @@ class Hobby(models.Model):
         """String representation of the hobby"""
         return self.name
     
-    def as_dict(self):
-        """JSON representation of the hobby"""
-        return {
-            "id": self.id,
-            "name": self.name,
-        }
      
 class User(AbstractUser):
     """User model"""
@@ -41,15 +35,6 @@ class User(AbstractUser):
         """String representation of the user"""
         return self.email
     
-    def as_dict(self):
-        """JSON representation of the user"""
-        return {
-            "id": self.id,
-            "name": self.name,
-            "email": self.email,
-            "date_of_birth": self.date_of_birth,
-            "hobbies": [hobby.as_dict() for hobby in self.hobbies.all()]
-        }
 
 class UserHobby(models.Model):
     """Model representing the relationship between a user and a hobby"""
@@ -60,12 +45,6 @@ class UserHobby(models.Model):
         """String representation of the user-hobby relationship"""
         return f"{self.user} - {self.hobby}"
     
-    def as_dict(self):
-        """JSON representation of the user-hobby relationship"""
-        return {
-            "user": self.user.as_dict(),
-            "hobby": self.hobby.as_dict(),
-        }
 
 class Friend(models.Model):
     """Model representing the relationship between two users"""
@@ -79,13 +58,6 @@ class Friend(models.Model):
         """String representation of the friend relationship"""
         return f"{self.user1} {'friends with' if self.accepted else 'requested'} {self.user2}"
 
-    def as_dict(self):
-        """JSON representation of the friend relationship"""
-        return {
-            "user1": {"id": self.user1.id, "username": self.user1.username, "name": self.user1.name},
-            "user2": {"id": self.user2.id, "username": self.user2.username, "name": self.user2.name},
-            "accepted": self.accepted,
-        }
 
     class Meta:
         unique_together = ('user1', 'user2')
