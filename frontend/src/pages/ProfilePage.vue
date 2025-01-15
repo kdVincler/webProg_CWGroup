@@ -1,15 +1,23 @@
 <script lang="ts">
-import {defineComponent, ref} from "vue";
+import {defineComponent, ref, onMounted} from "vue";
 import {useUserStore} from "../store/user";
-import {Mail, Calendar, PencilLine, X, Eye, EyeOff} from "lucide-vue-next";
-import {EditUser, updateUser, deleteUser} from "../api";
+import {Mail, Calendar, PencilLine, X, Eye, EyeOff, Trash} from "lucide-vue-next";
+import {EditUser, updateUser, deleteUser, addUserHobby, deleteUserHobby} from "../api";
 import {getInitialBGColour} from "../utils.ts";
+import {Hobby, useHobbiesStore} from "../store/hobbies.ts";
 
 export default defineComponent({
-  components: {Mail, Calendar, PencilLine, X, Eye, EyeOff},
+  components: {Mail, Calendar, PencilLine, X, Eye, EyeOff, Trash},
   name: "ProfilePage",
   setup() {
     const userStore = useUserStore();
+    const hobbiesStore = useHobbiesStore();
+
+    onMounted(async () => {
+      if (hobbiesStore.getAllHobbies == undefined) {
+        await hobbiesStore.populate()
+      }
+    });
 
     function createEditUser(): EditUser {
       return {
@@ -34,6 +42,7 @@ export default defineComponent({
 
     return {
       userStore,
+      hobbiesStore,
       editUser,
       showOldPassword,
       showNewPassword,
@@ -42,10 +51,16 @@ export default defineComponent({
     };
   },
   methods: {
+    addUserHobby,
+    deleteUserHobby,
     updateUser,
     deleteUser,
     getInitialBGColour,
     openModal(modal: String) {
+      if (modal == "add_hobby") {
+        this.selectedHobby = null;
+        this.typedHobby = "";
+      }
       (document.getElementById(`${modal}_profile_modal`) as HTMLDialogElement).showModal();
     },
     closeModal(modal: String) {
@@ -55,6 +70,10 @@ export default defineComponent({
       }
       if (modal == "error") {
         this.errorText = ""
+      }
+      if (modal == "add_hobby") {
+        this.selectedHobby = null;
+        this.typedHobby = "";
       }
     },
     async submitForm() {
@@ -130,6 +149,17 @@ export default defineComponent({
         this.showConfirmNewPassword = false
       }
     }
+  },
+  computed: {
+    hobbies(): Hobby[] | [] {
+      return this.hobbiesStore.getAllHobbies || []
+    }
+  },
+  data() {
+    return {
+      selectedHobby: null as number | null,
+      typedHobby: "",
+    };
   }
 })
 </script>
@@ -160,13 +190,22 @@ export default defineComponent({
         </h2>
 
         <div class="divider font-semibold text-neutral-400">Hobbies</div>
-        <ul class="flex flex-col w-full px-6 gap-2 list-disc">
-          <li class="text-md font-semibold text-neutral-400 self-start text-start"
-              v-for="hobby in userStore.getHobbies">{{ hobby.name }}
-          </li>
+        <button @click="openModal('add_hobby')"
+                class="btn w-full mb-1"
+                id="profile_add_hobby_modal">Add Hobby
+        </button>
+        <ul class="flex flex-col w-full gap-2">
+          <div v-if="userStore.getHobbies?.length === 0 " class="text-center font-semibold text-neutral-400">No hobbies to display. <br> Why not add some?</div>
+          <button v-else @click="deleteUserHobby(hobby.id)" v-for="hobby in userStore.getHobbies" :key="hobby.id"
+                  class="w-full capitalize text-md font-semibold btn bg-slate-700 border-0 hover:bg-slate-500 text-white justify-between"
+                  :id="`profile_displayed_hobby_${hobby.id}`">
+            {{ hobby.name }}
+            <Trash :size="16"/>
+          </button>
         </ul>
 
-        <div class="card-actions justify-end w-full pt-6">
+        <div class="divider font-semibold text-neutral-400">Settings</div>
+        <div class="card-actions justify-end w-full pt-2">
           <button @click="openModal('edit')" class="btn w-full" id="edit">Edit Profile</button>
         </div>
         <div class="card-actions justify-end w-full pt-2">
@@ -309,6 +348,41 @@ export default defineComponent({
           <button class="btn" @click="closeModal('error')">Close</button>
         </div>
       </div>
+    </div>
+  </dialog>
+
+  <!--  Add Hobby Modal  -->
+  <dialog id="add_hobby_profile_modal" class="modal text-neutral-700" @close="closeModal('add_hobby')">
+    <div class="modal-box min-w-[50vw]">
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+
+        <div class="flex w-full my-6">
+          <div class="card rounded-box flex-grow place-items-center min-h-20 w-1/2 gap-6 mx-10">
+            <h1>Select an Existing Hobby</h1>
+            <select class="select select-bordered w-full max-w-xs" v-model="selectedHobby" id="profile_hobby_selector">
+              <option selected disabled>Select a Hobby</option>
+              <option v-for="hobby in hobbies" :key="hobby.id" :value="hobby.id" :id="`profile_select_hobby_${hobby.id}`">{{ hobby.name }}</option>
+            </select>
+            <button :class="['btn w-full', !selectedHobby && 'btn-disabled']"
+                    @click="addUserHobby(hobbies.filter(h => h.id === selectedHobby)[0]?.name)"
+                    id="profile_select_hobby_submit">
+              Add Hobby
+            </button>
+          </div>
+
+          <div class="divider divider-horizontal">OR</div>
+
+          <div class="card rounded-box flex-grow place-items-center min-h-20 w-1/2 gap-6 mx-10">
+            <h1>Add a New Hobby</h1>
+            <input type="text" placeholder="Type here..." class="input input-bordered w-full max-w-xs"
+                    v-model="typedHobby" id="profile_type_hobby"/>
+            <button :class="['btn w-full', !typedHobby && 'btn-disabled']" @click="addUserHobby(typedHobby);" id="profile_type_hobby_submit">
+              Add Hobby
+            </button>
+          </div>
+        </div>
+      </form>
     </div>
   </dialog>
 </template>
