@@ -28,29 +28,14 @@ export default defineComponent({
       default: false
     }
   },
-  data() {
-    return {
-      isFriendData: this.isFriend,
-      isRequestedData: this.isRequested
-    }
-  },
   methods: {
     async addFriend() {
       await sendFriendRequest(this.user.id)
       await useUserStore().updateFriendRequests()
-      this.isRequestedData = useUserStore()?.getOutgoingFriendRequests?.some(entry => entry.user2.id === this.user.id) || false
-      this.isFriendData = useUserStore()?.getUserFriends?.some(entry => entry.id === this.user.id) || false
-      if (this.isFriendData) {
-        this.isRequestedData = false
-      }
-
     },
     async removeFriend() {
-      this.isFriendData = false
-      this.isRequestedData = false
       rejectFriendRequestOrRemoveFriend(this.user.id)
       await useUserStore().updateFriendRequests()
-
     },
     getInitialBGColour
   }
@@ -74,7 +59,7 @@ export default defineComponent({
       </div>
     </div>
 
-    <button v-if="isRequestedData" class="btn justify-self-end btn-disabled sm:min-w-32 w-12">
+    <button v-if="isRequested" class="btn justify-self-end btn-disabled sm:min-w-32 w-12">
       <span class="sm:hidden block">
         <UserCheck/>
       </span>
@@ -82,7 +67,7 @@ export default defineComponent({
       Requested
         </span>
     </button>
-    <button v-else-if="isFriendData" @click="removeFriend" class="btn justify-self-end sm:min-w-32 w-12">
+    <button v-else-if="isFriend" @click="removeFriend" class="btn justify-self-end sm:min-w-32 w-12">
       <span class="sm:hidden block">
         <UserMinus/>
       </span>
