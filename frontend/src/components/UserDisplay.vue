@@ -85,7 +85,7 @@ export default defineComponent({
       Remove Friend
         </span>
     </button>
-    <button v-else @click="addFriend" class="btn justify-self-end sm:min-w-32 w-12">
+    <button v-else @click="addFriend" class="btn justify-self-end sm:min-w-32 w-12" :id="'button'+position">
       <span class="sm:hidden block">
         <UserPlus/>
       </span>

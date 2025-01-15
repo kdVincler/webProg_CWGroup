@@ -74,7 +74,7 @@ export default defineComponent({
       <button v-else-if="isFriend[2]" @click="removeFriend(2)" class="btn justify-self-end w-full">
         Remove Friend
       </button>
-      <button v-else @click="addFriend(2)" class="btn justify-self-end w-full">
+      <button v-else @click="addFriend(2)" class="btn justify-self-end w-full" :id="'button'+3">
         Add Friend
       </button>
     </div>
@@ -107,7 +107,7 @@ export default defineComponent({
       <button v-else-if="isFriend[0]" @click="removeFriend(0)" class="btn justify-self-end w-full">
         Remove Friend
       </button>
-      <button v-else @click="addFriend(0)" class="btn justify-self-end w-full">
+      <button v-else @click="addFriend(0)" class="btn justify-self-end w-full" :id="'button'+1">
         Add Friend
       </button>
     </div>
@@ -139,7 +139,7 @@ export default defineComponent({
       <button v-else-if="isFriend[1]" @click="removeFriend(1)" class="btn justify-self-end w-full">
         Remove Friend
       </button>
-      <button v-else @click="addFriend(1)" class="btn justify-self-end w-full">
+      <button v-else @click="addFriend(1)" class="btn justify-self-end w-full" :id="'button'+2">
         Add Friend
       </button>
     </div>

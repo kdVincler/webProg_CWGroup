@@ -18,12 +18,12 @@ export default defineComponent({
     const pageStore = usePageStore();
 
     const filterEnabled = ref(pageStore.isFilterEnabled);
-    const filterLow = ref(pageStore.getFilter?.low || 0);
-    const filterHigh = ref(pageStore.getFilter?.high || 100);
+    const filterLow = ref(pageStore.getFilter?.low || null);
+    const filterHigh = ref(pageStore.getFilter?.high || null);
 
     const applyFilter = () => {
       if (filterEnabled.value) {
-        pageStore.setFilter({ low: filterLow.value, high: filterHigh.value });
+        pageStore.setFilter({ low: filterLow.value ?? 0, high: filterHigh.value ?? 0 });
       } else {
         pageStore.clearFilter();
       }
@@ -47,10 +47,10 @@ export default defineComponent({
   <div class="navbar">
     <div class="flex-1">
       <div class="dropdown">
-        <div v-if="$route.path === '/'" tabindex="0" role="button" class="btn btn-ghost text-lg gap-4" id="filter_button">
+        <button v-if="$route.path === '/'" tabindex="0" role="button" class="btn btn-ghost text-lg gap-4" id="filter_button">
           Filters
           <SlidersHorizontal :size="20" />
-        </div>
+        </button>
         <div tabindex="0" class="w-[96vw] md:w-[32rem] dropdown-content menu bg-base-100 rounded-box z-[1] p-2 shadow">
           <div class="flex flex-row items-center justify-between w-full p-4">
             <label class="label cursor-pointer flex flex-row items-center gap-2">
@@ -66,6 +66,7 @@ export default defineComponent({
               From:
               <input
                 name="filter_from"
+                id="filter_from"
                 type="number"
                 placeholder="0"
                 class="input input-bordered w-full max-w-[4rem]"
@@ -75,6 +76,7 @@ export default defineComponent({
               To:
               <input
                 name="filter_to"
+                id="filter_to"
                 type="number"
                 placeholder="100"
                 class="input input-bordered w-full max-w-[4rem]"
