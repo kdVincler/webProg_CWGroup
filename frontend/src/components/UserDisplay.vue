@@ -43,7 +43,7 @@ export default defineComponent({
 </script>
 
 <template>
-  <div class="w-full flex flex-row items-center justify-between my-4 bg-base-100 card shadow-lg p-6" :id="`user_display_${position}`">
+  <div class="w-full flex flex-row items-center justify-between my-4 bg-base-100 card shadow-lg p-6 text-black" :id="`user_display_${position}`">
     <div class="flex-row items-center justify-start flex w-full h-full gap-6">
       <div
           :class="['w-16 h-16 rounded-full', getInitialBGColour(user.name.split(' ').map((n) => n[0]).join('') || '')]">
@@ -52,7 +52,7 @@ export default defineComponent({
         </div>
       </div>
       <div>
-        <h2 class="text-lg font-semibold">{{ user.name }}</h2>
+        <h2 class="text-lg font-semibold text-base-content">{{ user.name }}</h2>
         <div
             class="tooltip tooltip-bottom"
             :data-tip="
@@ -60,7 +60,7 @@ export default defineComponent({
             ? `You don't share any hobbies`
             : `You share the following hobbies: ${user.similar_hobbies.map(hobby => hobby.name).join(', ')}`"
         >
-          <h3 class="text-sm text-neutral-500 font-normal flex flex-row items-center justify-center gap-1"><span class="font-bold">{{ user.similar_hobbies_count }}</span>
+          <h3 class="cursor-pointer text-sm text-neutral-500 font-normal flex flex-row items-center justify-center gap-1"><span class="font-bold">{{ user.similar_hobbies_count }}</span>
             Similar
             Hobbies
             <CircleHelp :size="16"/>

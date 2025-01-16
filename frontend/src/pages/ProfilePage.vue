@@ -209,7 +209,7 @@ export default defineComponent({
         <ul class="flex flex-col w-full gap-2">
           <div v-if="userStore.getHobbies?.length === 0 " class="text-center font-semibold text-neutral-400">No hobbies to display. <br> <i>Why not add some?</i> </div>
           <button v-else @click="deleteUserHobby(hobby.id)" v-for="hobby in userStore.getHobbies" :key="hobby.id"
-                  class="w-full capitalize text-md font-semibold btn bg-slate-700 border-0 hover:bg-slate-500 text-white justify-between"
+                  class="w-full capitalize text-md font-semibold btn  border-0 bg-base-300 hover:bg-base-200  justify-between"
                   :id="`profile_displayed_hobby_${hobby.id}`">
             {{ hobby.name }}
             <Trash :size="16"/>
@@ -227,16 +227,16 @@ export default defineComponent({
           <ul class="flex flex-col gap-1 mb-4">
             <div v-if="friendRequests.length === 0 " class="text-center font-semibold text-neutral-400">No new friend requests. <br> <i>It's just a matter of time though!</i> </div>
             <div v-else v-for="request in friendRequests" :key="request.user1.id"
-                class="capitalize text-md font-medium  bg-slate-700 rounded-lg flex flex-row p-2 px-4 text-white justify-between items-center">
+                class="capitalize text-md font-medium  bg-base-200 rounded-lg flex flex-row p-2 px-4 justify-between items-center">
               {{ request.user1.name }}
               <div class="flex flex-row-reverse items-center gap-1">
                 <button @click="acceptFriendRequest(request.user1.id)"
-                        class="btn bg-slate-500 hover:bg-slate-400 border-0 h-8 min-h-0 aspect-square p-0">
-                  <Check :size="16" color="white"/>
+                        class="btn bg-base-300 hover:bg-green-400 hover:text-neutral-800 border-0 h-8 min-h-0 aspect-square p-0 text-base-content">
+                  <Check :size="16"/>
                 </button>
                 <button @click="rejectFriendRequestOrRemoveFriend(request.user1.id)"
-                        class="btn bg-slate-500 hover:bg-slate-400 border-0 h-8 min-h-0 aspect-square p-0">
-                  <X :size="16" color="white"/>
+                        class="btn bg-base-300 hover:bg-red-400 hover:text-neutral-800 border-0 h-8 min-h-0 aspect-square p-0 text-base-content">
+                  <X :size="16"/>
                 </button>
               </div>
             </div>
@@ -246,7 +246,7 @@ export default defineComponent({
           <div v-if="friends.length === 0 " class="text-center font-semibold text-neutral-400">No friends to display. <br> <i>Perfect time to make some!</i> </div>
           <ul v-else class="flex flex-col gap-1 mb-4">
             <a :href="'mailto:' + friend.email" v-for="friend in friends" :key="friend.id"
-              class="capitalize text-md font-medium btn bg-slate-700 border-0 hover:bg-slate-500 text-white justify-between">
+              class="capitalize text-md font-medium btn border-0  bg-base-200 hover:bg-base-300   justify-between">
               {{ friend.name }}
               <Mail :size="16"/>
             </a>
@@ -401,7 +401,7 @@ export default defineComponent({
   </dialog>
 
   <!--  Add Hobby Modal  -->
-  <dialog id="add_hobby_profile_modal" class="modal text-neutral-700" @close="closeModal('add_hobby')">
+  <dialog id="add_hobby_profile_modal" class="modal text-neutral-700 text-base-content" @close="closeModal('add_hobby')">
     <div class="modal-box min-w-[50vw]">
       <form method="dialog">
         <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>

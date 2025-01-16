@@ -94,7 +94,7 @@ export default defineComponent({
         <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
           <div :class="['w-10', 'rounded-full', getInitialBGColour(userStore?.getInitials || '')]">
             <div class="flex flex-row items-center justify-center h-full w-full">
-              <span class="w-full text-center uppercase">{{ userStore.getInitials }}</span>
+              <span class="w-full text-center uppercase text-black">{{ userStore.getInitials }}</span>
             </div>
           </div>
         </div>
