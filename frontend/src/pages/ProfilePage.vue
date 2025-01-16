@@ -231,12 +231,12 @@ export default defineComponent({
               {{ request.user1.name }}
               <div class="flex flex-row-reverse items-center gap-1">
                 <button @click="acceptFriendRequest(request.user1.id)"
-                        class="btn bg-base-300 hover:bg-green-200 border-0 h-8 min-h-0 aspect-square p-0">
-                  <Check :size="16" color="black"/>
+                        class="btn bg-base-300 hover:bg-green-400 hover:text-neutral-800 border-0 h-8 min-h-0 aspect-square p-0 text-base-content">
+                  <Check :size="16"/>
                 </button>
                 <button @click="rejectFriendRequestOrRemoveFriend(request.user1.id)"
-                        class="btn bg-base-300 hover:bg-red-200 border-0 h-8 min-h-0 aspect-square p-0">
-                  <X :size="16" color="black"/>
+                        class="btn bg-base-300 hover:bg-red-400 hover:text-neutral-800 border-0 h-8 min-h-0 aspect-square p-0 text-base-content">
+                  <X :size="16"/>
                 </button>
               </div>
             </div>

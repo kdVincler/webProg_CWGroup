@@ -156,11 +156,11 @@ export default defineComponent({
             {{ request.user1.name }}
             <div class="flex flex-row-reverse items-center gap-1">
               <button @click="acceptRequest(request.user1.id)"
-                      class="btn bg-slate-500 hover:bg-slate-400 dark:bg-base-100 dark:hover:bg-slate-700 border-0 h-8 min-h-0 aspect-square p-0">
+                      class="btn bg-slate-500 hover:bg-green-400 dark:bg-base-100 dark:hover:bg-green-700 border-0 h-8 min-h-0 aspect-square p-0">
                 <Check :size="16" color="white"/>
               </button>
               <button @click="rejectRequest(request.user1.id)"
-                      class="btn bg-slate-500 dark:bg-base-100 dark:hover:bg-red-800 hover:bg-slate-400 border-0 h-8 min-h-0 aspect-square p-0 ">
+                      class="btn bg-slate-500 dark:bg-base-100 dark:hover:bg-red-800 hover:bg-red-400 border-0 h-8 min-h-0 aspect-square p-0 ">
                 <X :size="16" color="white"/>
               </button>
             </div>
