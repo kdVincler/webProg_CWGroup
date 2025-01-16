@@ -11,7 +11,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.webdriver import WebDriver
 
-from api.models import User, Friend
+from api.models import User, Friend, Hobby, UserHobby
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -92,6 +92,54 @@ class EndToEndTests(LiveServerTestCase):
             EC.element_to_be_clickable((By.ID, 'profile'))
         )
         profile_link.find_element(By.XPATH, ".//a").click()
+        
+        # Add Hobby - Typing
+        self.selenium.find_element(By.ID, 'profile_add_hobby_modal').click()
+        type_hobby = self.selenium.find_element(By.ID, 'profile_type_hobby')
+        type_hobby.clear()
+        type_hobby.send_keys("testing")
+        self.selenium.find_element(By.ID, 'profile_type_hobby_submit').click()
+        time.sleep(1)
+
+        self.assertTrue(
+            Hobby.objects.filter(name="testing".title()).exists() and
+            UserHobby.objects.filter(
+                user=User.objects.get(username="user@email.com"),
+                hobby=Hobby.objects.get(name="testing".title())
+            ).exists(),
+            "Hobby and UserHobby was not created."
+        )
+
+        # Delete Hobby
+        self.selenium.find_element(By.ID, 'profile_displayed_hobby_1').click()
+        time.sleep(1)
+
+        self.assertTrue(
+            Hobby.objects.filter(name="testing".title()).exists()  
+            and not UserHobby.objects.filter(
+                user=User.objects.get(username="user@email.com"),
+                hobby=Hobby.objects.get(name="testing".title())
+            ).exists(),
+            "UserHobby relationship was not deleted."
+        )
+
+        # Add Hobby - Selecting
+        self.selenium.find_element(By.ID, 'profile_add_hobby_modal').click()
+        self.selenium.find_element(By.ID, 'profile_hobby_selector').click()
+        self.selenium.find_element(By.ID, 'profile_select_hobby_1').click()
+        # TODO: might have to click on a typing id here to exit the selector
+        self.selenium.find_element(By.ID, 'profile_select_hobby_submit').click()
+        time.sleep(1)
+
+        self.assertTrue( 
+            UserHobby.objects.filter(
+                user=User.objects.get(username="user@email.com"),
+                hobby=Hobby.objects.get(name="testing".title())
+            ).exists(),
+            "UserHobby relationship was not created"
+        )
+        
+        # Open up edit profile modal
         self.selenium.find_element(By.ID, 'edit').click()
 
         # Edit profile details
@@ -146,6 +194,7 @@ class EndToEndTests(LiveServerTestCase):
             "Not redirected to home page. Password not updated"
         )
 
+
     def _send_friend_request(self):
         self.wait_for_body()
         self._register()
@@ -158,6 +207,7 @@ class EndToEndTests(LiveServerTestCase):
         self.wait_for_body()
         time.sleep(1)
 
+
     def test_send_friend_request(self):
         self._send_friend_request()
 
@@ -165,6 +215,7 @@ class EndToEndTests(LiveServerTestCase):
         self.assertTrue(Friend.objects.filter(user1=User.objects.get(email="user@email.com"),
                                               user2=User.objects.get(email="user2@email.com")).exists(),
                         "Friend request not sent")
+
 
     def test_accept_friend_request(self):
         self._send_friend_request()
@@ -183,6 +234,7 @@ class EndToEndTests(LiveServerTestCase):
                                               user2=User.objects.get(email="user2@email.com"),
                                               accepted=True).exists(),
                         "Friend request not accepted")
+
 
     def test_filter_by_age(self):
         self._register()
@@ -242,3 +294,4 @@ class EndToEndTests(LiveServerTestCase):
             ),
             "Filters not applied, users that shouldn't be displayed are displayed."
         )
+
