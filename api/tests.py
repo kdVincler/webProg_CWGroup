@@ -9,7 +9,7 @@ from selenium.webdriver.common.by import By
 # https://docs.djangoproject.com/en/5.1/topics/testing/tools/#liveservertestcase
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.webdriver import WebDriver
+from selenium.webdriver.firefox.webdriver import WebDriver
 
 from api.models import User, Friend, Hobby, UserHobby
 from dotenv import load_dotenv
@@ -37,7 +37,7 @@ class EndToEndTests(LiveServerTestCase):
             EC.presence_of_element_located((By.TAG_NAME, "body"))
         )
 
-    def _register(self, name="user", email="user@email.com", dob="01-01-2002", password="secret"):
+    def _register(self, name="user", email="user@email.com", dob="2002-01-01", password="secret"):
         self.selenium.get(f"{self.live_server_url}/register/")
         self.wait_for_body()
 
@@ -156,7 +156,7 @@ class EndToEndTests(LiveServerTestCase):
         self.selenium.find_element(By.ID, 'change_dob').click()
         dob_input = self.selenium.find_element(By.NAME, "dob")
         dob_input.clear()
-        dob_input.send_keys("02-02-2000")
+        dob_input.send_keys("2000-02-02")
 
         # Save changes
         self.selenium.find_element(By.ID, 'save').click()
@@ -238,9 +238,9 @@ class EndToEndTests(LiveServerTestCase):
 
     def test_filter_by_age(self):
         self._register()
-        self._register("twentyfive", "twentyfive@email.com", "01-01-2000")
-        self._register("fifteen", "fifteen@email.com", "01-01-2010")
-        self._register("thirty", "thirty@email.com", "01-01-1995")
+        self._register("twentyfive", "twentyfive@email.com", "2000-01-01")
+        self._register("fifteen", "fifteen@email.com", "2010-01-01")
+        self._register("thirty", "thirty@email.com", "1995-01-01")
         self.wait_for_body()
         self._login()
         self.wait_for_body()
@@ -260,11 +260,11 @@ class EndToEndTests(LiveServerTestCase):
         self.wait_for_body()
         self.selenium.find_element(By.ID, 'filter_checkbox').click()
         self.wait_for_body()
-        self.selenium.find_element(By.ID, 'filter_from').click()
+        # self.selenium.find_element(By.ID, 'filter_from').click()
         self.wait_for_body()
         self.selenium.find_element(By.ID, 'filter_from').send_keys("20")
 
-        self.selenium.find_element(By.ID, 'filter_to').click()
+        # self.selenium.find_element(By.ID, 'filter_to').click()
         self.wait_for_body()
         self.selenium.find_element(By.ID, 'filter_to').send_keys("30")
 
