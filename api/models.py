@@ -1,64 +1,68 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from datetime import date, datetime
+from typing import Optional
 
 
 # Create your models here.
 
 class PageView(models.Model):
-    count = models.IntegerField(default=0)
+    count: int = models.IntegerField(default=0)
 
-    def __str__(self):
+
+    def __str__(self) -> str:
         return f"Page view count: {self.count}"
+
 
 class Hobby(models.Model):
     """Hobby model"""
-    name = models.CharField(max_length=255)
+    name: str = models.CharField(max_length=255)
 
-    def __str__(self):
+
+    def __str__(self) -> str:
         """String representation of the hobby"""
         return self.name
     
      
 class User(AbstractUser):
     """User model"""
-    name = models.CharField(max_length=255, blank=True, null=True)
-    email = models.EmailField(unique=True)
-    date_of_birth = models.DateField(blank=True, null=True)
+    name: Optional[str] = models.CharField(max_length=255, blank=True, null=True)
+    email: str = models.EmailField(unique=True)
+    date_of_birth: Optional[date] = models.DateField(blank=True, null=True)
 
     # Many-to-Many relationship with Hobby
-    hobbies = models.ManyToManyField(Hobby, through='UserHobby')
+    hobbies: models.ManyToManyField = models.ManyToManyField(Hobby, through='UserHobby')
 
     # Many-to-Many relationship with User
-    friends = models.ManyToManyField('self', through='Friend', symmetrical=False)
+    friends: models.ManyToManyField = models.ManyToManyField('self', through='Friend', symmetrical=False)
 
-    def __str__(self):
+
+    def __str__(self) -> str:
         """String representation of the user"""
         return self.email
     
 
 class UserHobby(models.Model):
     """Model representing the relationship between a user and a hobby"""
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    hobby = models.ForeignKey(Hobby, on_delete=models.CASCADE)
+    user: models.ForeignKey = models.ForeignKey(User, on_delete=models.CASCADE)
+    hobby: models.ForeignKey = models.ForeignKey(Hobby, on_delete=models.CASCADE)
 
-    def __str__(self):
+
+    def __str__(self) -> str:
         """String representation of the user-hobby relationship"""
         return f"{self.user} - {self.hobby}"
     
 
 class Friend(models.Model):
     """Model representing the relationship between two users"""
-    user1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friendships_initiated')
-    user2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friendships_received')
-    accepted = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    user1: models.ForeignKey = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friendships_initiated')
+    user2: models.ForeignKey = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friendships_received')
+    accepted: bool = models.BooleanField(default=False)
+    created_at: datetime = models.DateTimeField(auto_now_add=True)
+    updated_at: datetime = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
+
+    def __str__(self) -> str:
         """String representation of the friend relationship"""
         return f"{self.user1} {'friends with' if self.accepted else 'requested'} {self.user2}"
-
-
-    class Meta:
-        unique_together = ('user1', 'user2')
 
