@@ -7,7 +7,6 @@ if (import.meta.env.VITE_DEV_MODE === "true") {
     url = "http://localhost:8000";
 }
 
-
 export interface EditUser {
     name_changed: boolean;
     name: string;
@@ -31,9 +30,7 @@ function getCSRFToken(): string | null {
 const getUsersPaginated = async (
     page_number: number,
     age_range?: { low: number; high: number }
-): Promise<{
-    page: Page;
-}> => {
+): Promise<{page: Page}> => {
     let response;
     if (!age_range) {
         response = await fetch(`${url}/users/page/${page_number}/`, {
@@ -73,7 +70,7 @@ const logout = async (): Promise<void> => {
     }
 };
 
-const updateUser = async (edited_user: EditUser) => {
+const updateUser = async (edited_user: EditUser): Promise<void> => {
     const response = await fetch(`${url}/user/`, {
         method: "PUT",
         credentials: "include",
@@ -101,7 +98,7 @@ const updateUser = async (edited_user: EditUser) => {
     await useUserStore().fetchAuthStatus();
 };
 
-const deleteUser = async () => {
+const deleteUser = async (): Promise<void> => {
     const response = await fetch(`${url}/user/`, {
         method: "DELETE",
         credentials: "include",
@@ -152,7 +149,7 @@ const deleteUserHobby = async (id: Number): Promise<void> => {
     usePageStore().paginate(1); // needs to update the page from the start, as the new hobby list could mess with the order
 };
 
-export async function fetchAllHobbies(): Promise<{ hobbies: Hobby[] }> {
+export async function fetchAllHobbies(): Promise<{ hobbies: Hobby[] | null }> {
     const response = await fetch(`${url}/hobby/`, {
         method: "GET",
         credentials: "include",

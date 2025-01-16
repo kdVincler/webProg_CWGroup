@@ -3,7 +3,7 @@ import {defineComponent, ref, onMounted} from "vue";
 import UserDisplay from "../components/UserDisplay.vue";
 import PodiumDisplay from "../components/PodiumDisplay.vue";
 import {usePageStore, PaginatedUser} from "../store/page";
-import {Friend, User, useUserStore} from "../store/user";
+import {User, FriendRequestUser, useUserStore} from "../store/user";
 
 export default defineComponent({
   components: {PodiumDisplay, UserDisplay},
@@ -57,11 +57,26 @@ export default defineComponent({
     pages(): number {
       return this.pageStore.getTotalPages || 1
     },
-    outgoingRequests(): Friend[] | [] {
+    outgoingRequests(): FriendRequestUser[] | [] {
       return this.userStore.getOutgoingFriendRequests || []
     },
     friends(): User[] | [] {
       return this.userStore.getUserFriends || []
+    },
+    isFriend(): (user: PaginatedUser) => boolean {
+      // computed property that returns a function with one positional argument, returning a boolean
+      // so return types are: computed property *returns* function, function(i) *returns* boolean
+      return (user: PaginatedUser): boolean => {
+        // friends.some(f => f.id === similar_users[index].id)
+        return this.friends.some(f => f.id === user.id)
+      }
+    },
+    isRequested(): (user: PaginatedUser) => boolean {
+      // same return type as isFriend property
+      return (user: PaginatedUser): boolean => {
+        // outgoingRequests.some(r => r.user2.id === similar_users[index].id)
+        return this.outgoingRequests.some(r => r.user2.id === user.id)
+      }
     }
   }
 });
@@ -70,10 +85,8 @@ export default defineComponent({
 <template>
   <div v-if="similar_users.length > 2 && page == 1" class="h-full overflow-y-auto px-6">
     <PodiumDisplay v-if="!loading" :users="[similar_users[0], similar_users[1], similar_users[2]]"
-                   :is-friend="[friends.some(f => f.id === similar_users[0].id),
-    friends.some(f => f.id === similar_users[1].id),friends.some(f => f.id === similar_users[2].id)]"
-                   :is-requested="[outgoingRequests.some(r => r.user2.id === similar_users[0].id),
-    outgoingRequests.some(r => r.user2.id === similar_users[1].id),outgoingRequests.some(r => r.user2.id === similar_users[2].id)]"
+                   :is-friend="[isFriend(similar_users[0]), isFriend(similar_users[1]), isFriend(similar_users[2])]"
+                   :is-requested="[isRequested(similar_users[0]), isRequested(similar_users[1]), isRequested(similar_users[2])]"
 
     />
     <div v-if="loading" class="text-center">Loading users...</div>
@@ -83,21 +96,22 @@ export default defineComponent({
           :key="index"
           :position="index + 4"
           :user="user"
-          :is-friend="friends.some(f => f.id === user.id)"
-          :is-requested="outgoingRequests.some(r => r.user2.id === user.id)"
+          :is-friend="isFriend(user)"
+          :is-requested="isRequested(user)"
       />
     </div>
   </div>
   <div v-else class="h-full overflow-y-auto px-6">
     <div v-if="loading" class="text-center">Loading users...</div>
+    <div v-else-if="!loading && similar_users.length === 0" class="text-center">No users to display.</div>
     <div v-else>
       <UserDisplay
           v-for="(user, index) in similar_users"
           :key="index"
           :position="index + 1 + ((page-1) * 10)"
           :user="user"
-          :is-friend="friends.some(f => f.id === user.id)"
-          :is-requested="outgoingRequests.some(r => r.user2.id === user.id)"
+          :is-friend="isFriend(user)"
+          :is-requested="isRequested(user)"
       />
     </div>
   </div>
