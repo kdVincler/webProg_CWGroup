@@ -108,10 +108,6 @@ export default defineComponent({
           <li id="profile">
             <RouterLink to="/profile">My Profile</RouterLink>
           </li>
-          <li>
-            <!--TODO: Delete this-->
-            <a :href="`${url}/admin/`" target="_blank">Admin Site</a>
-          </li>
           <li id="logout">
             <a @click="logout">Log out</a>
           </li>
