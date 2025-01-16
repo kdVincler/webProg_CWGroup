@@ -30,7 +30,7 @@ function getCSRFToken(): string | null {
 const getUsersPaginated = async (
     page_number: number,
     age_range?: { low: number; high: number }
-): Promise<{page: Page} | Error> => {
+): Promise<{page: Page}> => {
     let response;
     if (!age_range) {
         response = await fetch(`${url}/users/page/${page_number}/`, {
@@ -70,7 +70,7 @@ const logout = async (): Promise<void> => {
     }
 };
 
-const updateUser = async (edited_user: EditUser): Promise<void | Error> => {
+const updateUser = async (edited_user: EditUser): Promise<void> => {
     const response = await fetch(`${url}/user/`, {
         method: "PUT",
         credentials: "include",
@@ -98,7 +98,7 @@ const updateUser = async (edited_user: EditUser): Promise<void | Error> => {
     await useUserStore().fetchAuthStatus();
 };
 
-const deleteUser = async (): Promise<void | Error> => {
+const deleteUser = async (): Promise<void> => {
     const response = await fetch(`${url}/user/`, {
         method: "DELETE",
         credentials: "include",
@@ -115,7 +115,7 @@ const deleteUser = async (): Promise<void | Error> => {
     await useUserStore().fetchAuthStatus();
 };
 
-const addUserHobby = async (name: String): Promise<void | Error> => {
+const addUserHobby = async (name: String): Promise<void> => {
     const response = await fetch(`${url}/user-hobby/`, {
         method: "POST",
         credentials: "include",
@@ -133,7 +133,7 @@ const addUserHobby = async (name: String): Promise<void | Error> => {
     usePageStore().paginate(1); // needs to update the page from the start, as the new hobby list could mess with the order
 };
 
-const deleteUserHobby = async (id: Number): Promise<void | Error> => {
+const deleteUserHobby = async (id: Number): Promise<void> => {
     const response = await fetch(`${url}/user-hobby/${id}/`, {
         method: "DELETE",
         credentials: "include",
@@ -149,7 +149,7 @@ const deleteUserHobby = async (id: Number): Promise<void | Error> => {
     usePageStore().paginate(1); // needs to update the page from the start, as the new hobby list could mess with the order
 };
 
-export async function fetchAllHobbies(): Promise<{ hobbies: Hobby[] } | Error> {
+export async function fetchAllHobbies(): Promise<{ hobbies: Hobby[] | null }> {
     const response = await fetch(`${url}/hobby/`, {
         method: "GET",
         credentials: "include",
@@ -161,7 +161,7 @@ export async function fetchAllHobbies(): Promise<{ hobbies: Hobby[] } | Error> {
     return data;
 }
 
-export async function acceptFriendRequest(id: number): Promise<void | Error> {
+export async function acceptFriendRequest(id: number): Promise<void> {
     const response = await fetch(
         `${url}/accept-friend-request/${id}/`,
         {
@@ -181,7 +181,7 @@ export async function acceptFriendRequest(id: number): Promise<void | Error> {
 
 export async function rejectFriendRequestOrRemoveFriend(
     id: number
-): Promise<void | Error> {
+): Promise<void> {
     const response = await fetch(
         `${url}/reject-friend-request/${id}/`,
         {
@@ -199,7 +199,7 @@ export async function rejectFriendRequestOrRemoveFriend(
     useUserStore().updateFriendRequests();
 }
 
-export async function sendFriendRequest(id: number): Promise<void | Error> {
+export async function sendFriendRequest(id: number): Promise<void> {
     const response = await fetch(
         `${url}/send-friend-request/${id}/`,
         {
@@ -217,7 +217,7 @@ export async function sendFriendRequest(id: number): Promise<void | Error> {
     useUserStore().updateFriendRequests();
 }
 
-export async function getFriends(): Promise<{ friends: User[] } | Error> {
+export async function getFriends(): Promise<{ friends: User[] }> {
     const response = await fetch(`${url}/friends/`, {
         method: "GET",
         credentials: "include",
@@ -232,7 +232,7 @@ export async function getFriends(): Promise<{ friends: User[] } | Error> {
     return data;
 }
 
-export async function getFriendRequests(): Promise<FriendRequests | Error> {
+export async function getFriendRequests(): Promise<FriendRequests> {
     const response = await fetch(`${url}/friend-requests/`, {
         method: "GET",
         credentials: "include",
@@ -247,7 +247,7 @@ export async function getFriendRequests(): Promise<FriendRequests | Error> {
 export async function checkAuthStatus(): Promise<{
     authenticated: boolean;
     user: User;
-} | Error> {
+}> {
     const response = await fetch(`${url}/auth-status`, {
         credentials: "include",
     });
